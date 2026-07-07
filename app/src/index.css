@@ -1,0 +1,42 @@
+/* Base document styles. Design tokens live in ./design-system/tokens.css. */
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-family);
+  color: var(--color-neutral-text);
+}
+
+h3 {
+  font-size: var(--font-size-heading-3);
+}
+
+p {
+  margin: 0 0 var(--space-2);
+}
+
+a {
+  color: var(--color-primary);
+}
+
+.workspace-shell {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--space-5);
+  width: 100%;
+}
+
+/* Responsive floor: no capability should become inaccessible on a small viewport
+   (per sdd/frontend/01_architecture.md's Responsive Behavior). */
+@media (max-width: 640px) {
+  .landing__main,
+  .workspace-shell {
+    padding: var(--space-3);
+  }
+}

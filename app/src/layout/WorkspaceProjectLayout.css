@@ -1,0 +1,49 @@
+.workspace-project__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.workspace-project__eyebrow {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  color: var(--color-neutral-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.workspace-project__name {
+  margin: 0;
+  font-size: var(--font-size-heading-2);
+}
+
+.workspace-project__nav {
+  display: flex;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--color-neutral-border);
+  margin-bottom: var(--space-5);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.workspace-project__nav a {
+  color: var(--color-neutral-text-muted);
+  text-decoration: none;
+  font-size: var(--font-size-body);
+  white-space: nowrap;
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid transparent;
+}
+
+.workspace-project__nav a.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.workspace-project__content {
+  max-width: 720px;
+}

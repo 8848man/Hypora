@@ -1,0 +1,70 @@
+/* Design tokens — conceptual categories per sdd/design-system/01_design_system.md:
+   color roles, spacing scale, typography scale. Every component below references
+   these custom properties; none hardcode a raw value. */
+
+:root {
+  /* Color roles */
+  --color-primary: #3454d1;
+  --color-primary-contrast: #ffffff;
+  --color-neutral-bg: #ffffff;
+  --color-neutral-surface: #f4f5f7;
+  --color-neutral-border: #d9dce1;
+  --color-neutral-text: #1c1f26;
+  --color-neutral-text-muted: #5b6270;
+  --color-success: #1a7f4b;
+  --color-success-bg: #e7f6ee;
+  --color-warning: #a85d00;
+  --color-warning-bg: #fdf1e0;
+  --color-danger: #b3261e;
+  --color-danger-bg: #fbe9e8;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Typography scale */
+  --font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-caption: 0.8125rem;
+  --font-size-body: 1rem;
+  --font-size-heading-3: 1.25rem;
+  --font-size-heading-2: 1.75rem;
+  --font-size-heading-1: 2.5rem;
+
+  /* Layout */
+  --radius: 8px;
+  --max-content-width: 1080px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #7d95ff;
+    --color-primary-contrast: #0d1120;
+    --color-neutral-bg: #14161c;
+    --color-neutral-surface: #1d2029;
+    --color-neutral-border: #333846;
+    --color-neutral-text: #e7e9ee;
+    --color-neutral-text-muted: #a4abba;
+    --color-success: #4fd393;
+    --color-success-bg: #10281d;
+    --color-warning: #f2b25c;
+    --color-warning-bg: #2c210e;
+    --color-danger: #ff8a80;
+    --color-danger-bg: #2c1513;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background: var(--color-neutral-bg);
+  color: var(--color-neutral-text);
+}

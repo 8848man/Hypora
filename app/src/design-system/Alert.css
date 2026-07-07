@@ -1,0 +1,21 @@
+.ds-alert {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  font-size: var(--font-size-body);
+  margin-bottom: var(--space-4);
+}
+
+.ds-alert--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.ds-alert--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.ds-alert--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}

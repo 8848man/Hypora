@@ -1,0 +1,22 @@
+.ds-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-neutral-text-muted);
+  padding: var(--space-4);
+}
+
+.ds-loading__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-neutral-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: ds-spin 0.7s linear infinite;
+}
+
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
