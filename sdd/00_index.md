@@ -44,6 +44,18 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [workspace/features/04_validation_planning.md](./workspace/features/04_validation_planning.md) | Author and resolve testable Assumptions |
 | [workspace/features/05_project_summary.md](./workspace/features/05_project_summary.md) | Aggregate readiness; own the Validated → Build-Ready confirmation |
 
+## Frontend
+
+| Doc | Purpose |
+|---|---|
+| [frontend/01_architecture.md](./frontend/01_architecture.md) | React Router structure, Feature boundaries, component ownership tiers, state ownership, LocalStorage access-layer boundary, Workspace layout, responsive behavior, Landing/Workspace separation enforcement |
+
+## Design System
+
+| Doc | Purpose |
+|---|---|
+| [design-system/01_design_system.md](./design-system/01_design_system.md) | Shared design tokens (conceptual), component inventory, composition rules, coverage check against V1 UI needs |
+
 ## Infra
 
 | Doc | Purpose |
@@ -75,7 +87,7 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 | `release/` (outside `sdd/`) | Once something is actually deployed to real users |
 | `sdd/archive/` | Once a document is first superseded or relocated |
 
-**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance). None of these are listed above as pending anymore.
+**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract). None of these are listed above as pending anymore.
 
 ## Key Conventions
 
@@ -89,4 +101,6 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 - **Each Feature's Purpose, Responsibilities, User Stories, Acceptance Criteria, and cross-Feature boundaries:** canonically owned by its own document under [workspace/features/](./workspace/features/000_index.md); no other document (including `workspace/01_architecture.md`'s Feature Inventory) restates this detail — the inventory only categorizes, the Feature Specification defines.
 - **Deployment target and Application deployment inclusion:** canonically owned by [infra/01_deployment.md](./infra/01_deployment.md); [analysis/01_v1_release_specification.md](./analysis/01_v1_release_specification.md) summarizes it for release-boundary orientation but does not redefine it.
 - **Git branch/merge/versioning strategy:** canonically owned by [workflow/02_git_and_release_strategy.md](./workflow/02_git_and_release_strategy.md).
+- **Frontend codebase structure (routing, feature boundaries, component ownership, state ownership, LocalStorage access boundary):** canonically owned by [frontend/01_architecture.md](./frontend/01_architecture.md); `infra/01_deployment.md` references it rather than restating it.
+- **Design System component inventory and composition rules:** canonically owned by [design-system/01_design_system.md](./design-system/01_design_system.md); `frontend/01_architecture.md` references it rather than restating it.
 - **ADR numbering:** `ADR-NNNN`, sequential, never reused — see `sdd-framework/07_adr_process.md` for the full lifecycle rule this project follows.

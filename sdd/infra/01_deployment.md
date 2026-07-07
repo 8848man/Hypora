@@ -6,7 +6,7 @@ Created now because the trigger condition for `sdd/infra/` has fired — per `10
 
 ## Deployment Target
 
-*(Explicit.)* Hypora V1 is deployed as **one Vercel project**, containing both Landing and Workspace inside the same deployment.
+*(Explicit.)* Hypora V1 is deployed as **one Vercel project**, containing both Landing and Workspace inside the same deployment — realized as **one React application with one Router**, per [Frontend Architecture](../frontend/01_architecture.md), which is the canonical owner of the codebase-level detail; this document owns only the deployment-target fact itself.
 
 ## Applications Included / Excluded
 

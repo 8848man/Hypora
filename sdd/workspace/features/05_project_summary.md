@@ -61,3 +61,47 @@ Depends on the Project Summary screen owned by [Workspace Architecture](../01_ar
 
 - Constraint: must never let the Build-Ready confirmation become available through any path other than the Validated stage — this is the one transition in the entire model gated by explicit human judgment rather than pure data completeness, and it must stay that way per the domain model's Invalid Transitions.
 - Risk: if the "blocking artifact" messaging is vague, users may not understand why they can't reach Build-Ready — a UI-design concern out of scope for this document, but flagged so future UI work treats it as a requirement, not an afterthought.
+
+## User Journey
+
+| Stage | Description |
+|---|---|
+| Beginning | User opens Project Summary at any point in the Project's lifecycle, from Captured through Build-Ready |
+| Normal Flow | User reviews the aggregated status; if not yet Validated, follows a pointer to whichever section is blocking progress; if Validated, may confirm Build-Ready |
+| Alternative Flow | User views Summary purely to check progress, with no action taken |
+| Completion | Build-Ready is confirmed — the terminal, useful V1 outcome for a Project |
+| Cancellation | User views Summary and leaves without confirming Build-Ready — no effect, nothing is persisted by viewing alone |
+| Recovery | If the Build-Ready confirmation's write fails, the user is told it didn't take effect rather than assuming it did (per [Workspace Data & State](../02_data_and_state.md)'s Error States) |
+
+## User Interaction
+
+| Aspect | Definition |
+|---|---|
+| Primary Actions | Confirm Build-Ready (only when Validated) |
+| Secondary Actions | Follow a pointer to whichever section is blocking the next transition |
+| Empty State | A Captured Project with nothing filled in yet shows a minimal summary clearly stating that structuring hasn't started — not an error |
+| Loading State | Aggregating current data from Business Structuring, MVP Planning, and Validation Planning |
+| Error State | A read failure in any underlying artifact, or a failed Build-Ready write (per [Workspace Data & State](../02_data_and_state.md)) |
+| Validation State | The Build-Ready action is unavailable/disabled unless the Project is in the Validated stage |
+| Success State | Build-Ready is confirmed and reflected immediately |
+
+## Navigation
+
+| Aspect | Definition |
+|---|---|
+| Entry Point | From any other section of the Project, or from the Dashboard, at any time |
+| Exit Point | To the Dashboard, or to whichever section is named as blocking readiness |
+| Previous Screen | Whichever section the user came from (non-linear) |
+| Next Screen | None formally — this is a terminal view; after confirming Build-Ready, the user typically returns to the Dashboard |
+| Cross-Feature Navigation | Jump-links to whichever section (Business Structuring, MVP Planning, Validation Planning) is currently blocking progress |
+| Browser Back Behavior | Returns to whichever section or the Dashboard was previously open |
+| Deep Link Considerations | Applicable — Project Summary should be addressable within the Project |
+
+## Persistence
+
+| Aspect | Definition |
+|---|---|
+| Becomes dirty | N/A for viewing — the only "dirty" moment is the instant a user triggers the Build-Ready confirmation |
+| Automatically saved | N/A — Summary itself is never saved (it's always recomputed from the other Features' data, per [Workspace Data & State](../02_data_and_state.md)); the Build-Ready confirmation, once triggered, is committed immediately as a deliberate action, not a draft |
+| Restored | The Summary is recomputed fresh from current data every time it's viewed — there is nothing to "restore" for the Summary itself |
+| Discarded | N/A — there is no editable draft content in this Feature besides the atomic Build-Ready action, which either commits or fails (per Error State above) |

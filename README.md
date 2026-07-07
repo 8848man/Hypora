@@ -12,7 +12,7 @@ A web-based workspace that helps users transform business ideas into structured,
 
 ## Current Stage
 
-Product, Workspace, and V1 Feature specifications complete; still pre-implementation. No Application has real code yet, but Workspace now has its own dedicated architecture, data specification, and five Feature Specifications (see [`sdd/workspace/`](./sdd/workspace/), [`sdd/workspace/features/`](./sdd/workspace/features/000_index.md)), ahead of code, under the framework's "spec leads implementation" allowance. See [`sdd/00_index.md`](./sdd/00_index.md) for what's defined so far and what's deliberately deferred until its trigger condition is real.
+Product, Workspace, V1 Feature, UX, Frontend Architecture, and Design System specifications complete — implementation-readiness review in progress. No Application has real code yet, but Workspace now has its own dedicated architecture, data specification, and five Feature Specifications (see [`sdd/workspace/`](./sdd/workspace/), [`sdd/workspace/features/`](./sdd/workspace/features/000_index.md)), plus a shared [`sdd/frontend/01_architecture.md`](./sdd/frontend/01_architecture.md) and [`sdd/design-system/01_design_system.md`](./sdd/design-system/01_design_system.md), ahead of code, under the framework's "spec leads implementation" allowance. See [`sdd/00_index.md`](./sdd/00_index.md) for what's defined so far and what's deliberately deferred until its trigger condition is real.
 
 ## Product Architecture
 

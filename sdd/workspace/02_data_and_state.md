@@ -8,7 +8,7 @@
 
 | Concept | Conceptual shape | Owned by | Relationship |
 |---|---|---|---|
-| **Project** | The top-level entity — one per business idea | Workspace (authored), Platform API (persisted) | Root of every other concept below |
+| **Project** | The top-level entity — one per business idea; carries a required Name (identifying label, distinct from any Canvas field) | Workspace (authored), Platform API (persisted) | Root of every other concept below |
 | **Canvas** | The five structuring fields (Business Idea, Problem, Target Customer, Solution, Value Proposition) | Project | 1:1 with Project |
 | **Risk Notes** | An optional, freeform reflection on key hypothesis risks, authored alongside the Canvas | Project | 1:1 (optional) with Project; distinct from Validation's testable assumptions below — see [Feature: Business Structuring](./features/02_business_structuring.md) for the boundary between the two |
 | **MVP Scope** | A scope boundary statement authored once per Project | Project | 1:1 with Project |
@@ -17,7 +17,7 @@
 | **Summary** | The aggregate read view of Canvas + MVP Scope + Features + Validation | Project (derived) | **Not independently stored** — computed from the other four at render time, never persisted as its own record |
 | **Status / Lifecycle** | A Project's current lifecycle stage | [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) | Derived from the completion state of Canvas/Scope/Features/Validation per that document's guards — this document does not maintain an independent status field; it reads the domain model's derivation rules, never redefines them |
 
-**Ownership boundary:** this table is the canonical source for *what conceptually belongs to what* within Workspace's data. It must never be restated by a future `sdd/platform-api/` document — that document, once created, defines the persisted schema *implementing* this ownership, and should reference this table rather than re-deriving it. The Risk Notes, Feature priority, and Validation attributes above were added during Feature Specification (`sdd/workspace/features/`) — each is referenced, not redefined, by its owning Feature Specification.
+**Ownership boundary:** this table is the canonical source for *what conceptually belongs to what* within Workspace's data. It must never be restated by a future `sdd/platform-api/` document — that document, once created, defines the persisted schema *implementing* this ownership, and should reference this table rather than re-deriving it. The Risk Notes, Feature priority, and Validation attributes above were added during Feature Specification (`sdd/workspace/features/`) — each is referenced, not redefined, by its owning Feature Specification. **Project Name** was added during UX Specification (a gap surfaced while defining [Project Management](./features/01_project_management.md)'s User Interaction — a Dashboard/Project List cannot meaningfully distinguish Projects without one); owned by [Project Management](./features/01_project_management.md).
 
 ## State Model
 
@@ -40,6 +40,7 @@
 - Conceptually, persistence is scoped **per Project**: one Project's Canvas, MVP Scope, Features, and Validation Checklist items are stored and retrieved together as a single unit — Summary is never separately persisted (see Data Ownership above).
 - A second, separate persisted concept enumerates **all Project IDs** the user has created, so the Dashboard/Project List can render without loading every Project's full content.
 - No cross-device or cross-browser persistence exists in V1 — this is a known, already-recorded limitation (see [Product Scope](../context/02_product_scope.md)'s Risks table), not restated here beyond this reference.
+- **Forward-compatibility rule:** if a future change adds a new field to this data ownership table (e.g., a V2 addition), the persistence layer must treat that field's absence in already-stored data as an empty default, never as a read error — this is what lets [Future Expansion Strategy](../context/06_future_expansion_strategy.md)'s "no breaking migration" principle hold in practice, not just in intent.
 
 ## Error States
 

@@ -63,3 +63,47 @@ Depends on the Canvas screen structure and field order owned by [Workspace Archi
 
 - Constraint: must not introduce a sixth *required* (guard-gating) Canvas field without a corresponding update to [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) — Risk Notes is deliberately kept optional/non-gating specifically to avoid this.
 - Risk: if Risk Notes and Validation Planning's Assumptions are presented too similarly in the UI, users may confuse "wrote a risk down" with "validated a risk" — a Project Summary or UI-level distinction (out of scope for this document) should make the difference visible; flagged here as a constraint on future UI work, not resolved by this specification.
+
+## User Journey
+
+| Stage | Description |
+|---|---|
+| Beginning | User opens a Project's Business Canvas for the first time (Captured, all fields empty) or resumes one already partially filled (Structuring) |
+| Normal Flow | User fills the five Canvas fields, in any order, optionally adding Risk Notes; the Project moves Captured → Structuring on the first edit, and Structuring → Scoped once all five fields are non-empty (per [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md)) |
+| Alternative Flow | User revisits an already-completed field later to refine wording — per the Lifecycle's Stickiness Rule, this never regresses the Project's stage |
+| Completion | All five Canvas fields are non-empty; user proceeds to [MVP Planning](./03_mvp_planning.md) |
+| Cancellation | User leaves a field or Risk Notes empty and navigates elsewhere — not an error, simply an incomplete section |
+| Recovery | If a field's save fails, the user is told which field failed to save rather than assuming it succeeded (per [Workspace Data & State](../02_data_and_state.md)'s Error States) |
+
+## User Interaction
+
+| Aspect | Definition |
+|---|---|
+| Primary Actions | Edit a Canvas field, edit Risk Notes |
+| Secondary Actions | Move to the next field in the suggested order |
+| Empty State | An unfilled field shows a prompt appropriate to that field (e.g., what a "Problem" statement should contain) |
+| Loading State | Canvas and Risk Notes content loading when the Project is opened |
+| Error State | A field's save fails, or the Canvas fails to load (per [Workspace Data & State](../02_data_and_state.md)) |
+| Validation State | Each of the five Canvas fields must be non-empty to count toward the Structuring → Scoped guard; Risk Notes has no validation, being optional |
+| Success State | A field is saved; once all five are saved, the Project reaches Scoped |
+
+## Navigation
+
+| Aspect | Definition |
+|---|---|
+| Entry Point | From the Dashboard (new or resumed Project), or from any other section within the same Project (non-linear) |
+| Exit Point | To [MVP Planning](./03_mvp_planning.md) once Canvas is complete, or back to the Dashboard |
+| Previous Screen | Dashboard / Project List, or whichever section the user navigated from |
+| Next Screen | MVP Scope / Feature Planning |
+| Cross-Feature Navigation | Freely reachable from and to any other section of the same Project |
+| Browser Back Behavior | Returns to whichever section or the Dashboard was previously open |
+| Deep Link Considerations | Applicable — a Project's Canvas should be addressable on its own (e.g., a Canvas-specific URL within the Project) |
+
+## Persistence
+
+| Aspect | Definition |
+|---|---|
+| Becomes dirty | The moment the user types into a Canvas field or Risk Notes |
+| Automatically saved | On leaving the field (not on every keystroke) — a field's content is saved once the user moves on from it |
+| Restored | On reopening the Project, each field and Risk Notes shows its last-saved value |
+| Discarded | Content typed but not yet saved (e.g., the user navigates away before the save fires) may be lost — a known limitation shared with every other authoring Feature, per [Workspace Data & State](../02_data_and_state.md) |

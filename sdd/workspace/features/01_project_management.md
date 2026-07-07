@@ -32,7 +32,7 @@ Let a user create, resume, and retire a business idea as a Project, so that ever
 ## Acceptance Criteria
 
 - Creating a Project results in a Project in the Captured lifecycle stage, with all content Empty (see [Workspace Data & State](../02_data_and_state.md)).
-- The Project List shows every non-Archived Project by default, each labeled with its current lifecycle stage.
+- The Project List shows every non-Archived Project by default, each labeled with its current lifecycle stage. Archived Projects are excluded from the default view but remain accessible via an explicit "show archived" toggle — archiving hides, it does not delete (per Out of Scope above).
 - Selecting a Project from the list opens that Project's own scope, with no data from any other Project visible.
 - Archiving a Project is available from any lifecycle stage except Archived itself; once archived, no further transition is available in V1 (per [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md)'s Invalid Transitions).
 - Archiving requires explicit user confirmation — a Project must never move to Archived as a side effect of another action.
@@ -67,3 +67,47 @@ Depends on the Dashboard/Project List screen and its lifecycle-stage display, bo
 
 - Inherits the LocalStorage data-loss risk already recorded in [Product Scope](../../context/02_product_scope.md) — no new risk is introduced by this Feature specifically.
 - Constraint: must not implement deletion, even as a convenience, without first extending [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) — adding an undocumented transition would violate that document's ownership.
+
+## User Journey
+
+| Stage | Description |
+|---|---|
+| Beginning | User arrives at the Dashboard / Project List, populated or empty |
+| Normal Flow | User triggers "new Project," names it, and is taken directly into that Project's Business Structuring view |
+| Alternative Flow | User selects an existing Project from the list instead of creating a new one, resuming wherever it was left off |
+| Completion | A new Project exists in the Captured stage with a Name, visible in the list; or an existing Project is re-entered |
+| Cancellation | User backs out of the "new Project" action before confirming a Name — no Project is created |
+| Recovery | If the create action's write fails, no partial/orphaned Project is left behind — the user sees the failure and may retry (per [Workspace Data & State](../02_data_and_state.md)'s Error States) |
+
+## User Interaction
+
+| Aspect | Definition |
+|---|---|
+| Primary Actions | Create Project, Select Project, Archive Project |
+| Secondary Actions | Toggle visibility of Archived Projects on the Dashboard — no rename, duplicate, or delete (see Out of Scope) |
+| Empty State | Zero Projects: the list prompts creation of the first one |
+| Loading State | Project list is being read from persistence before rendering |
+| Error State | Persistence read failure while loading the list (per [Workspace Data & State](../02_data_and_state.md)) |
+| Validation State | Creating a Project requires a non-empty Name; the create action is blocked until one is entered |
+| Success State | Project appears in the list immediately after creation, or archiving is reflected immediately after confirmation |
+
+## Navigation
+
+| Aspect | Definition |
+|---|---|
+| Entry Point | Landing's call-to-action, or direct return to an already-bookmarked Workspace URL |
+| Exit Point | None formally — the Dashboard is the Workspace's root; a user may navigate to Landing manually, outside this Feature's own flow |
+| Previous Screen | None — this is the Workspace's entry surface |
+| Next Screen | The selected/created Project's Business Structuring view (see [Business Structuring](./02_business_structuring.md)) |
+| Cross-Feature Navigation | Entry point into every other Feature, by way of selecting a Project |
+| Browser Back Behavior | Back from any Project screen returns to the Dashboard / Project List |
+| Deep Link Considerations | Applicable — each Project should be addressable by its own identity (e.g., a Project-specific URL), so browser back/forward and bookmarking behave predictably |
+
+## Persistence
+
+| Aspect | Definition |
+|---|---|
+| Becomes dirty | The moment a user types a Name in the "new Project" action |
+| Automatically saved | Immediately upon confirming creation (the new Project, in Captured stage, is persisted at once — this is a deliberate action, not a draft); archiving is likewise persisted immediately upon confirmation |
+| Restored | The full Project list (identity, Name, current lifecycle stage) is read from persistence every time the Dashboard is opened; Archived Projects are included in this read but filtered from the default display |
+| Discarded | A Name typed but not yet confirmed is discarded if the user cancels the create action before confirming |

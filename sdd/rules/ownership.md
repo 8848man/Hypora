@@ -15,6 +15,8 @@ Who may modify which files, and the coordination rules for changes spanning area
 | Workspace | `sdd/workspace/**` | Landing's or Platform API's owned files; must not redefine a Business Idea Lifecycle transition (reference `sdd/domain/**` instead); must not redefine a Platform API contract it consumes once one exists |
 | Infra | `sdd/infra/**` | Any Application's own responsibilities/IA — infra owns deployment target and pipeline, not what each Application does |
 | Analysis | `sdd/analysis/**` | Any fact owned elsewhere — an analysis document synthesizes and cites; it must not become a second definition of a fact already owned by Context, Domain, Workspace, or Infra |
+| Frontend | `sdd/frontend/**` | Any Feature's own Purpose/Responsibilities/Acceptance Criteria — frontend owns codebase structure (routing, boundaries, state), not what a Feature does |
+| Design System | `sdd/design-system/**` | Any Feature-specific business logic or copy — the Design System owns presentational primitives only |
 | Landing (future) | Its own `sdd/landing/**`, once created | Workspace's or Platform API's owned files |
 | Platform API (future) | Its own `sdd/platform-api/**`, once created | Landing's or Workspace's owned files; must not dictate Workspace-side UI/navigation behavior |
 
@@ -30,6 +32,7 @@ Who may modify which files, and the coordination rules for changes spanning area
 | A new top-level content area is introduced (e.g., the first real `sdd/workspace/`, or `sdd/infra/` once a deployment target exists) | Three-step registration ritual: (1) row added here, (2) section added to `sdd/00_index.md`, (3) row added to the root `README.md` documentation map — all in the same task. |
 | A layer document (e.g., `sdd/workspace/`) needs to describe project state | Reference `sdd/domain/01_business_idea_lifecycle.md` by name; never re-specify a state, transition, or guard locally. |
 | A document needs to describe the V1 release boundary, deployment target, or git/versioning process | Reference `sdd/analysis/01_v1_release_specification.md`, `sdd/infra/01_deployment.md`, or `sdd/workflow/02_git_and_release_strategy.md` respectively by name; never restate them. |
+| A Feature needs a new UI pattern not yet in the Design System | Add it to the Feature-owned tier first (`sdd/frontend/01_architecture.md`'s Component Ownership); promote it to `sdd/design-system/01_design_system.md` only once a second Feature or Landing needs the identical pattern. |
 
 ## Sign-Off Requirements
 

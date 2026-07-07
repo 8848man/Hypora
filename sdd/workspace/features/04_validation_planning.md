@@ -59,3 +59,47 @@ Depends on the Validation Checklist screen owned by [Workspace Architecture](../
 
 - Constraint: must never conflate a per-assumption "success criterion" (this Feature) with the product-level Success Metrics owned by [Product Scope](../../context/02_product_scope.md#success-metrics) — any future UI or copy referencing "success criteria" must make clear which one is meant.
 - Risk: a user could mark items validated without genuinely testing them, since Hypora cannot verify real-world validation occurred — accepted as a V1 limitation consistent with the product's manual, trust-the-user model; not solved by this specification.
+
+## User Journey
+
+| Stage | Description |
+|---|---|
+| Beginning | Project has reached Validating (Scope + Feature Planning complete); user opens the Validation Checklist for the first time or resumes it |
+| Normal Flow | User adds Assumptions (statement, method, criterion) and resolves each as validated or invalidated |
+| Alternative Flow | User reopens MVP Scope or Feature Planning after invalidating an assumption, triggering the Validating → Scoped transition (per [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md)) |
+| Completion | Every Checklist item is explicitly resolved; Project transitions Validating → Validated |
+| Cancellation | User leaves an Assumption partially authored (statement only, no method/criterion yet) — not an error, simply unresolved |
+| Recovery | Same persistence-failure handling as every other authoring Feature (per [Workspace Data & State](../02_data_and_state.md)) |
+
+## User Interaction
+
+| Aspect | Definition |
+|---|---|
+| Primary Actions | Add an Assumption; edit its method or criterion; mark it validated or invalidated |
+| Secondary Actions | Reopen MVP Scope / Feature Planning |
+| Empty State | No Assumptions yet — this is a **blocking** empty state: an empty checklist cannot satisfy the Validating → Validated guard (per [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md)'s Invalid Transitions), so the prompt to add a first Assumption is more than a convenience |
+| Loading State | Checklist items loading when the section opens |
+| Error State | Persistence failure on read or write (per [Workspace Data & State](../02_data_and_state.md)) |
+| Validation State | An Assumption's statement must be non-empty to exist at all; resolving it (validated/invalidated) requires its method and criterion to be filled first — a statement alone cannot be resolved |
+| Success State | An item is resolved; once every item is resolved, the Project reaches Validated |
+
+## Navigation
+
+| Aspect | Definition |
+|---|---|
+| Entry Point | From [MVP Planning](./03_mvp_planning.md) once Scope + Feature Planning are complete, or directly from the Dashboard for a resumed Project |
+| Exit Point | To [Project Summary](./05_project_summary.md) to review readiness |
+| Previous Screen | MVP Scope / Feature Planning |
+| Next Screen | Project Summary |
+| Cross-Feature Navigation | Back to MVP Planning (reopening Scope/Planning); across to Business Structuring at any time |
+| Browser Back Behavior | Returns to whichever section was previously open |
+| Deep Link Considerations | Applicable — the Validation Checklist should be addressable within the Project |
+
+## Persistence
+
+| Aspect | Definition |
+|---|---|
+| Becomes dirty | Editing an Assumption's statement, method, or criterion |
+| Automatically saved | Field-level edits save on leaving the field; a resolution (validated/invalidated) is immediately committed as a deliberate action, not a draft |
+| Restored | On reopening, the full checklist (every item's statement, method, criterion, and status) is restored |
+| Discarded | Unsaved keystroke-level edits not yet auto-saved may be lost on abrupt navigation, same limitation as other authoring Features |
