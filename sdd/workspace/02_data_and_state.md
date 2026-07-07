@@ -10,7 +10,7 @@
 |---|---|---|---|
 | **Project** | The top-level entity — one per business idea; carries a required Name (identifying label, distinct from any Canvas field) | Workspace (authored), Platform API (persisted) | Root of every other concept below |
 | **Canvas** | The five structuring fields (Business Idea, Problem, Target Customer, Solution, Value Proposition) | Project | 1:1 with Project |
-| **Risk Notes** | An optional, freeform reflection on key hypothesis risks, authored alongside the Canvas | Project | 1:1 (optional) with Project; distinct from Validation's testable assumptions below — see [Feature: Business Structuring](./features/02_business_structuring.md) for the boundary between the two |
+| **Risk Notes** | An optional, freeform reflection on key hypothesis risks; authored in the Business Structuring Review step (not one of the five guided questions) | Project | 1:1 (optional) with Project; distinct from Validation's testable assumptions below — see [Feature: Business Structuring](./features/02_business_structuring.md) for the boundary between the two |
 | **MVP Scope** | A scope boundary statement authored once per Project | Project | 1:1 with Project |
 | **Feature** | A discrete planned item produced during Feature Planning, carrying a priority (e.g., an ordering or Must/Should/Could tier) | Project | Many per Project; each Feature may reference MVP Scope to indicate in/out-of-scope status |
 | **Validation** | A Validation Checklist item — an assumption statement, an intended validation method, a success criterion, and a resolution status (validated / invalidated / open) | Project | Many per Project |
@@ -40,6 +40,7 @@
 - Conceptually, persistence is scoped **per Project**: one Project's Canvas, MVP Scope, Features, and Validation Checklist items are stored and retrieved together as a single unit — Summary is never separately persisted (see Data Ownership above).
 - A second, separate persisted concept enumerates **all Project IDs** the user has created, so the Dashboard/Project List can render without loading every Project's full content.
 - No cross-device or cross-browser persistence exists in V1 — this is a known, already-recorded limitation (see [Product Scope](../context/02_product_scope.md)'s Risks table), not restated here beyond this reference.
+- **No guided-flow position is separately persisted.** Business Structuring's guided question flow ([02_business_structuring.md](./features/02_business_structuring.md)) resumes by deriving the current question from which Canvas fields already have a Saved value — this table has no "current question index" row, and none should be added; introducing one would duplicate what Canvas field completeness already tells you, and risks the same kind of state-desync bug documented and fixed in this project's implementation history.
 - **Forward-compatibility rule:** if a future change adds a new field to this data ownership table (e.g., a V2 addition), the persistence layer must treat that field's absence in already-stored data as an empty default, never as a read error — this is what lets [Future Expansion Strategy](../context/06_future_expansion_strategy.md)'s "no breaking migration" principle hold in practice, not just in intent.
 
 ## Error States

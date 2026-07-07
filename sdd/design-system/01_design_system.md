@@ -1,6 +1,6 @@
 # Design System
 
-**Refs:** → [00_index](../00_index.md) · [Frontend Architecture](../frontend/01_architecture.md) · [Workspace Feature Specifications](../workspace/features/000_index.md) · [Application Responsibilities](../context/05_application_responsibilities.md)
+**Refs:** → [00_index](../00_index.md) · [Frontend Architecture](../frontend/01_architecture.md) · [Workspace Feature Specifications](../workspace/features/000_index.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md)
 
 Created now because a second consumer needs this shared contract — Landing and Workspace both consume one Design System per the Development Target's explicit "one Design System" constraint, meeting the framework's cross-cutting-capability trigger (`02_directory_structure.md`: created "as soon as a second layer needs to agree on a shared contract"). Defines reusable UI concepts only — no pixel values, no color codes, no component code, per this task's instruction.
 
@@ -45,6 +45,11 @@ Actual values (hex codes, pixel sizes) are implementation detail, out of scope f
 | Feature Showcase Card | A card presenting one product capability | Landing Features page |
 | Roadmap Stepper | A sequential-stages presentation | Landing Roadmap page |
 | Responsive Layout Primitives (Stack / Grid) | Reflow building blocks | Every screen, both Applications |
+| Progress Indicator | A compact "step N of M" presentation, generic to any sequential flow | Business Structuring's guided question flow ([ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md)) |
+| Choice List | A set of 3–5 selectable preset options plus an always-available custom-input path, generic to any select-or-customize interaction | Business Structuring's per-question preset selection ([Question Model](../workspace/features/02_1_question_model.md)) |
+| Transition Wrapper | A generic enter/exit transition between two sequential views | Business Structuring's question-to-question advancement |
+
+**Progress Indicator, Choice List, and Transition Wrapper are generic interaction primitives, not Business Structuring-specific business logic** — added directly to the Design System rather than staying Feature-owned first, on the same basis as Stepper and Chip already were: a sequential-progress presentation and a pick-one-or-customize interaction are patterns any future guided flow could reuse, unlike a component that would need to know what a "Validation Checklist" is. This does not relax the [Frontend Architecture](../frontend/01_architecture.md) promotion rule for genuinely Feature-specific patterns — it recognizes that these three aren't one.
 
 ## Composition Rules
 
@@ -60,11 +65,11 @@ Every row in every Feature Specification's User Interaction section, plus Worksp
 |---|---|---|
 | All 5 Features | Empty / Loading / Error states | Empty State Pattern, Loading Indicator, Inline Alert |
 | Project Management | Project Name entry, list display | Text Field, List Item/Card |
-| Business Structuring | Canvas/Risk Notes entry | Text Area |
+| Business Structuring | One question at a time, preset-or-custom answer, visible progress, Review step, question-to-question transition | Text Area (custom answers, Risk Notes), Choice List (presets), Progress Indicator, Transition Wrapper, Page Header (Review) |
 | MVP Planning | Scope entry, Feature list, priority, scope tag | Text Area, List Item/Card, Priority Indicator, Tag/Chip |
 | Validation Planning | Assumption entry, status | Text Area, Status Badge |
 | Project Summary | Lifecycle stage, blocking-artifact pointer, Build-Ready confirmation | Status Badge, Readiness Callout, Confirmation Prompt, Primary Button |
 | Workspace Architecture | Persistent Project navigation | Section Navigation Shell |
 | Landing (context/05) | Home, Features, Roadmap, CTA | Hero Section, Feature Showcase Card, Roadmap Stepper, Primary Button |
 
-**Result: no gap found.** Every UI need surfaced through Phase 2's UX Specification and the existing Workspace/Landing screen inventories maps to a component already in this inventory — stated explicitly per the framework's Principle 5 ("no change required" is a valid, non-silent result), not omitted because nothing was found wanting.
+**Result (original pass): no gap found** for the form-based Business Structuring UI. **Result (this pass, guided-flow re-check):** three gaps found and closed — Progress Indicator, Choice List, and Transition Wrapper did not exist in the original inventory because the form-based Canvas had no sequential, one-at-a-time interaction to support. Added above, per [ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md). Every other UI need from the original Coverage Check still holds unchanged.

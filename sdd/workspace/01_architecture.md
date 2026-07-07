@@ -34,12 +34,10 @@ Workspace (Application)
 ├── Dashboard / Project List     — every Project the user has created, each showing its current
 │                                   lifecycle stage (see Business Idea Lifecycle)
 └── Project (one per business idea)
-    ├── Business Canvas
-    │   ├── Business Idea
-    │   ├── Problem
-    │   ├── Target Customer
-    │   ├── Solution
-    │   └── Value Proposition
+    ├── Business Structuring          — one guided question at a time (Business Idea → Problem →
+    │                                    Target Customer → Solution → Value Proposition), then Review
+    │                                    (see Business Structuring Feature Specification for the
+    │                                    guided-flow model; questions are not separately routed screens)
     ├── MVP Scope
     ├── Feature Planning
     ├── Validation Checklist
@@ -57,8 +55,8 @@ Workspace (Application)
 |---|---|
 | Entry | Landing's call-to-action leads into the Dashboard / Project List — see [Application Responsibilities](../context/05_application_responsibilities.md) for the cross-Application rule; this document does not restate it. |
 | Dashboard / Project List → Project | Selecting a Project enters that Project's own navigation scope. |
-| Within a Project | Business Canvas, MVP Scope, Feature Planning, and Validation Checklist are siblings — reachable in any order (non-linear), with Project Summary as a read-only aggregate, not a step in the sequence. |
-| Canvas internal order | The five Canvas fields follow the fixed suggested order from [Core User Journey](../context/03_personas_and_journey.md): Business Idea → Problem → Target Customer → Solution → Value Proposition. |
+| Within a Project | Business Structuring, MVP Scope, Feature Planning, and Validation Checklist are siblings — reachable in any order (non-linear), with Project Summary as a read-only aggregate, not a step in the sequence. |
+| Business Structuring internal order | Within the Business Structuring screen itself, the five questions follow a fixed guided sequence (not free navigation) per [Business Structuring](./features/02_business_structuring.md) and [Core User Journey](../context/03_personas_and_journey.md): Business Idea → Problem → Target Customer → Solution → Value Proposition, ending in Review. This internal sequence is a Feature-level concept, distinct from the Workspace-level non-linear navigation between Features on the row above. |
 
 ## Workspace Mental Model Review
 
@@ -75,7 +73,7 @@ Navigation remains organized around **Projects and their artifacts**, not around
 | Feature | Why core | Feature Specification |
 |---|---|---|
 | Project create / list / select / archive | Without this, no Project exists to structure — the entry point to every other feature | [Project Management](./features/01_project_management.md) |
-| Business Canvas authoring (5 fields) + Risk Notes | The Primary Persona's core need; directly implements the Structuring lifecycle stage | [Business Structuring](./features/02_business_structuring.md) |
+| Guided Business Structuring (5 questions, one at a time) + Review (incl. Risk Notes) | The Primary Persona's core need; directly implements the Structuring lifecycle stage — a guided flow, not a form, per [ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md) | [Business Structuring](./features/02_business_structuring.md) · [Question Model](./features/02_1_question_model.md) |
 | MVP Scope + Feature Planning | Required to reach the Scoped lifecycle stage; a named V1 deliverable per the product brief | [MVP Planning](./features/03_mvp_planning.md) |
 | Validation Checklist | Required to reach Validating/Validated; the product's differentiating "validation as first-class" principle | [Validation Planning](./features/04_validation_planning.md) |
 | Project Summary (read view) + Build-Ready confirmation | A named V1 deliverable; the aggregate view a Solo Founder reviews before treating a plan as Build-Ready | [Project Summary](./features/05_project_summary.md) |
@@ -107,7 +105,7 @@ Navigation remains organized around **Projects and their artifacts**, not around
 | Journey step (canonical) | Workspace screen |
 |---|---|
 | Enter the Workspace, create a project | Dashboard / Project List → "new Project" action |
-| Structure the idea across the Canvas | Project → Business Canvas |
+| Structure the idea across the Canvas | Project → Business Structuring (guided flow + Review) |
 | Define MVP Scope | Project → MVP Scope |
 | Feature Planning | Project → Feature Planning |
 | Validation Checklist | Project → Validation Checklist |

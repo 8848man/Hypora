@@ -7,7 +7,8 @@ Every V1 Feature Specification, in the order a Project moves through them (not a
 | # | Feature | Purpose |
 |---|---|---|
 | [01](./01_project_management.md) | Project Management | Create, list, select, and archive a business idea Project |
-| [02](./02_business_structuring.md) | Business Structuring | Transform an idea into a structured hypothesis (Canvas + optional Risk Notes) |
+| [02](./02_business_structuring.md) | Business Structuring | Transform an idea into a structured hypothesis via a guided, one-question-at-a-time flow ending in Review |
+| [02_1](./02_1_question_model.md) | ↳ Question Model & Preset Strategy | The conceptual Question schema and replaceable-preset-content contract behind Business Structuring's guided flow |
 | [03](./03_mvp_planning.md) | MVP Planning | Define the smallest valuable scope and a prioritized feature list |
 | [04](./04_validation_planning.md) | Validation Planning | Turn the hypothesis into testable, resolvable assumptions |
 | [05](./05_project_summary.md) | Project Summary | Aggregate readiness at a glance; own the Validated → Build-Ready confirmation |

@@ -13,9 +13,11 @@ One Router, two top-level route groups — this grouping is the primary mechanis
 | Route group | Screens | Owned by |
 |---|---|---|
 | Public (Landing) | Home, Features, Roadmap, Call-to-Action | Landing (per [Application Responsibilities](../context/05_application_responsibilities.md)) |
-| Workspace | Dashboard/Project List, and per-Project: Business Canvas, MVP Scope/Feature Planning, Validation Checklist, Project Summary | Workspace (per [Workspace Architecture](../workspace/01_architecture.md)) |
+| Workspace | Dashboard/Project List, and per-Project: Business Structuring, MVP Scope/Feature Planning, Validation Checklist, Project Summary | Workspace (per [Workspace Architecture](../workspace/01_architecture.md)) |
 
 Each Project's screens are addressable under that Project's own identity (per each Feature Specification's Deep Link Considerations) — consistent with [Workspace Architecture](../workspace/01_architecture.md)'s non-linear navigation model: every section is directly reachable, not nested behind a forced sequence.
+
+**Business Structuring's guided questions are not separate routes.** Per [ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md) and [Business Structuring](../workspace/features/02_business_structuring.md)'s Deep Link Considerations, the entire guided flow (five questions + Review) lives under the one Business Structuring route already listed above; which question is currently shown is local view state (see State Ownership below), not a router concept. This keeps the "no unnecessary routes" instruction satisfied and matches [Workspace Data & State](../workspace/02_data_and_state.md)'s rule against persisting a separate question-position pointer.
 
 ## Feature Boundaries
 
@@ -28,7 +30,7 @@ Three tiers, in order of how broadly a component may be reused:
 | Tier | Scope | Owned by |
 |---|---|---|
 | Design System primitives | Purely presentational, stateless UI building blocks (inputs, buttons, cards, status indicators, layout primitives) | [Design System](../design-system/01_design_system.md) |
-| Feature-owned components | Specific to one Feature's own screens (e.g., an Assumption row, a Canvas field editor) | The owning Feature module |
+| Feature-owned components | Specific to one Feature's own screens (e.g., an Assumption row) | The owning Feature module |
 | App-shell components | Cross-Feature but Workspace- or Landing-internal (Workspace's persistent Project navigation, Landing's page chrome) | The frontend layer itself — not any single Feature, not the Design System |
 
 **Promotion rule:** a component moves from Feature-owned to Design System only when a second Feature (or Landing) needs the identical pattern — mirroring the framework's "a cross-cutting capability is created only when a second consumer needs the contract" rule, applied at component granularity rather than document granularity.
@@ -41,7 +43,7 @@ The Design System must never contain business logic, Feature-specific copy, or d
 
 | State tier | Scope | Written by |
 |---|---|---|
-| Local/transient | In-progress edits before a save fires (the Draft state, per [Workspace Data & State](../workspace/02_data_and_state.md)) | The component currently being edited, only |
+| Local/transient | In-progress edits before a save fires (the Draft state, per [Workspace Data & State](../workspace/02_data_and_state.md)); Business Structuring's current-question-index within its guided flow | The component currently being edited, only — the current-question-index is derived at load time from Canvas field completeness (per [Workspace Data & State](../workspace/02_data_and_state.md)) and only overridden locally by explicit forward/back navigation within the same session, never persisted |
 | Project-level | The currently-open Project's full data (Canvas, Risk Notes, MVP Scope, Features, Validation items) | Only the owning Feature module for its own slice — e.g., MVP Planning writes Scope/Features, never Validation items |
 | App-level | The Project list (Dashboard) and each listed Project's current lifecycle stage | Project Management (list membership) and the derivation described in [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) (stage) |
 

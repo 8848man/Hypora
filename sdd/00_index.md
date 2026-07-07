@@ -39,7 +39,8 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [workspace/02_data_and_state.md](./workspace/02_data_and_state.md) | Conceptual Data Ownership, UI-level State Model, conceptual Local Persistence, Error States |
 | [workspace/features/000_index.md](./workspace/features/000_index.md) | Index of every V1 Feature Specification (user-goal capabilities, not screens) |
 | [workspace/features/01_project_management.md](./workspace/features/01_project_management.md) | Create, list, select, and archive a Project |
-| [workspace/features/02_business_structuring.md](./workspace/features/02_business_structuring.md) | Structure the Canvas hypothesis and optional Risk Notes |
+| [workspace/features/02_business_structuring.md](./workspace/features/02_business_structuring.md) | Structure the Canvas hypothesis via a guided, one-question-at-a-time flow ending in Review |
+| [workspace/features/02_1_question_model.md](./workspace/features/02_1_question_model.md) | Question domain model and replaceable Preset Strategy behind the guided flow (React-independent) |
 | [workspace/features/03_mvp_planning.md](./workspace/features/03_mvp_planning.md) | Define MVP Scope and a prioritized Feature list |
 | [workspace/features/04_validation_planning.md](./workspace/features/04_validation_planning.md) | Author and resolve testable Assumptions |
 | [workspace/features/05_project_summary.md](./workspace/features/05_project_summary.md) | Aggregate readiness; own the Validated → Build-Ready confirmation |
@@ -76,6 +77,7 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [architecture/decisions/ADR-0001-one-product-multiple-applications.md](./architecture/decisions/ADR-0001-one-product-multiple-applications.md) | Why Hypora is one Product with multiple Applications, not three products |
 | [architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md) | Why a canonical Project lifecycle was introduced as the domain model, and the alternatives rejected |
 | [architecture/decisions/ADR-0003-single-v1-deployment-target.md](./architecture/decisions/ADR-0003-single-v1-deployment-target.md) | Why Landing + Workspace are bundled into one Vercel project for V1, and Platform API excluded |
+| [architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md](./architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md) | Why Business Structuring's multi-field form was replaced with a guided, one-question-at-a-time flow with a Review step |
 
 ## Not Yet Created (by design)
 
@@ -103,4 +105,5 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 - **Git branch/merge/versioning strategy:** canonically owned by [workflow/02_git_and_release_strategy.md](./workflow/02_git_and_release_strategy.md).
 - **Frontend codebase structure (routing, feature boundaries, component ownership, state ownership, LocalStorage access boundary):** canonically owned by [frontend/01_architecture.md](./frontend/01_architecture.md); `infra/01_deployment.md` references it rather than restating it.
 - **Design System component inventory and composition rules:** canonically owned by [design-system/01_design_system.md](./design-system/01_design_system.md); `frontend/01_architecture.md` references it rather than restating it.
+- **Business Structuring's Question Model and Preset Strategy:** canonically owned by [workspace/features/02_1_question_model.md](./workspace/features/02_1_question_model.md); no other document (including `02_business_structuring.md` itself) restates the Question schema or the replaceable-content contract.
 - **ADR numbering:** `ADR-NNNN`, sequential, never reused — see `sdd-framework/07_adr_process.md` for the full lifecycle rule this project follows.
