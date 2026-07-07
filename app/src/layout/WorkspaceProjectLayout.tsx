@@ -34,7 +34,7 @@ export function WorkspaceProjectLayout() {
       </header>
 
       <nav className="workspace-project__nav">
-        <NavLink to={`/app/projects/${projectId}/canvas`}>Business Canvas</NavLink>
+        <NavLink to={`/app/projects/${projectId}/canvas`}>Business Structuring</NavLink>
         <NavLink to={`/app/projects/${projectId}/scope`}>MVP Planning</NavLink>
         <NavLink to={`/app/projects/${projectId}/validation`}>Validation Planning</NavLink>
         <NavLink to={`/app/projects/${projectId}/summary`}>Summary</NavLink>
