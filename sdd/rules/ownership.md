@@ -1,6 +1,6 @@
 # Ownership Map
 
-**Refs:** → [00_index](../00_index.md) · [Spec Authoring Rules](./spec_authoring_rules.md) · [Application Responsibilities](../context/05_application_responsibilities.md)
+**Refs:** → [00_index](../00_index.md) · [Spec Authoring Rules](./spec_authoring_rules.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md)
 
 Who may modify which files, and the coordination rules for changes spanning areas. Created at project inception, per `10_bootstrap_guide.md` Step 1. At this stage (product-specification phase, no implementation yet), areas map to the three Applications plus the shared governance/context areas — not to real codebases, since none exist yet.
 
@@ -8,8 +8,9 @@ Who may modify which files, and the coordination rules for changes spanning area
 
 | Area | Owns | Must Not Modify |
 |---|---|---|
-| Product / Context | `sdd/context/**` | Any future `sdd/<application>/` implementation-layer document — context describes intent, not implementation |
-| Governance | `sdd/rules/**`, `sdd/00_index.md`, `sdd/workflow/**` | `sdd/context/**` content itself (may only add/rename index entries referencing it) |
+| Product / Context | `sdd/context/**` | Any future `sdd/<application>/` implementation-layer document — context describes intent, not implementation; `sdd/domain/**` (context may reference lifecycle stage, never redefine a transition) |
+| Domain | `sdd/domain/**` | Any `sdd/context/**` document's own concerns (vision, scope, IA screen structure) — domain owns entity state/transitions only |
+| Governance | `sdd/rules/**`, `sdd/00_index.md`, `sdd/workflow/**` | `sdd/context/**` or `sdd/domain/**` content itself (may only add/rename index entries referencing it) |
 | Architecture | `sdd/architecture/decisions/**` | Rewriting an `Accepted` ADR's Decision/Consequences (immutable — supersede instead) |
 | Landing (future) | Its own `sdd/landing/**`, once created | Workspace's or Platform API's owned files |
 | Workspace (future) | Its own `sdd/workspace/**`, once created | Landing's or Platform API's owned files; must not redefine a Platform API contract it consumes — reference it instead |
@@ -25,6 +26,7 @@ Who may modify which files, and the coordination rules for changes spanning area
 | Landing references a feature or roadmap stage | Landing's copy points at `sdd/context/01_product_vision.md` / `06_future_expansion_strategy.md` for the canonical roadmap wording rather than re-describing it independently. |
 | A change touches the Product Architecture itself (adding/removing an Application, or changing how the three relate) | Requires an ADR (see `sdd/architecture/decisions/`) — this meets the "spans more than one owned area" and "expensive to reverse" ADR triggers by definition. |
 | A new top-level content area is introduced (e.g., the first real `sdd/workspace/`, or `sdd/infra/` once a deployment target exists) | Three-step registration ritual: (1) row added here, (2) section added to `sdd/00_index.md`, (3) row added to the root `README.md` documentation map — all in the same task. |
+| A future layer document (e.g., `sdd/workspace/`, once created) needs to describe project state | Reference `sdd/domain/01_business_idea_lifecycle.md` by name; never re-specify a state, transition, or guard locally. |
 
 ## Sign-Off Requirements
 

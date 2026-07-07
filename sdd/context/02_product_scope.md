@@ -52,6 +52,23 @@ Out of scope for V1 (deferred to later stages — see [Future Expansion Strategy
 - A visitor to Landing can understand what Hypora does and why, without needing to open the Workspace.
 - The V1 data structure requires no breaking migration when V2 (AI Canvas Assistant) is introduced — verified by design review before V1 ships, not by a real V2 migration (V2 doesn't exist yet).
 
+## Success Metrics
+
+*(Inferred — the brief gives Hypora's purpose ("transform business ideas into structured, validated MVP plans") but no metrics; these operationalize that purpose as measurable outcomes, extending the qualitative [MVP Success Criteria](#mvp-success-criteria) above with a quantitative North Star and supporting set. Chosen deliberately to measure *outcomes a user achieved*, not *activity a user performed* — a login count or session length would be trivially gameable by a confused user clicking around, and would not indicate the product actually did its job.)*
+
+**North Star Metric: Validated MVP Plans Completed** — the count of projects that reach a fully validated state (all five Canvas fields authored, MVP Scope defined, Feature Planning done, and every Validation Checklist item explicitly marked validated or resolved). This is the one number that most directly reflects Hypora's stated purpose: not "ideas started," but "ideas actually taken through to a structured, validated plan." A project that stalls at a half-filled Canvas has not yet delivered the product's core value, however much time was spent in the app.
+
+**Supporting Metrics:**
+
+| Metric | What it measures | Why it's a supporting signal, not the North Star |
+|---|---|---|
+| Canvas completion rate (% of started projects with all 5 Canvas fields filled) | Whether users get through the *structuring* half of the journey | Necessary but not sufficient — a completed Canvas without a validated checklist is still an unvalidated plan |
+| Validation Checklist completion rate (validated items ÷ total items, per project) | Whether validation is actually happening, not just present as a UI section | Directly tied to the "validation as a first-class step" [Product Principle](./01_product_vision.md#product-principles) |
+| MVP Scope → Feature Planning conversion rate | Whether users carry a defined scope forward into concrete features, or abandon after scoping | Signals whether the Scope → Planning step of the [Core User Journey](./03_personas_and_journey.md) is actually working end-to-end |
+| Projects reopened after Project Summary review | Whether users revisit and refine rather than treating the Summary as a dead end | A proxy for genuine iterative use vs. one-shot, throwaway use |
+
+**Explicitly excluded as metrics:** raw signups, login frequency, session count/duration, or page views. These measure activity, not whether an idea was actually transformed into a structured, validated plan — the stated purpose of the product — and are excluded on that basis, not merely because they're easy to game.
+
 ## Assumptions
 
 *(Inferred — reasonable defaults needed to make the spec concrete; flagged here rather than silently baked into other documents, per [Open Questions](#open-questions) below for the ones genuinely unresolved.)*

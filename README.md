@@ -7,7 +7,7 @@ A web-based workspace that helps users transform business ideas into structured,
 | Location | Contents |
 |---|---|
 | [`sdd-framework/`](./sdd-framework/) | The generalized Specification-Driven Development methodology this project follows — read this to understand *how* the specification tree below is organized and maintained. |
-| [`sdd/00_index.md`](./sdd/00_index.md) | Master index of this project's actual specification tree — product vision, scope, architecture decisions, and process/governance documents. |
+| [`sdd/00_index.md`](./sdd/00_index.md) | Master index of this project's actual specification tree — product vision, scope, domain model, architecture decisions, and process/governance documents. |
 | [`CLAUDE.md`](./CLAUDE.md) | Always-loaded agent instructions — read this first for any task. |
 
 ## Current Stage
@@ -21,3 +21,5 @@ One Product, multiple Applications — see [`sdd/context/05_application_responsi
 - **Landing** — marketing website.
 - **Workspace** — the primary MVP; the actual web application.
 - **Platform API** — backend platform (V1: LocalStorage; future: real backend).
+
+Every project's structuring/validation progress follows one canonical lifecycle — see [`sdd/domain/01_business_idea_lifecycle.md`](./sdd/domain/01_business_idea_lifecycle.md) and [`ADR-0002`](./sdd/architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md).

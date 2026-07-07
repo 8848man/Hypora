@@ -10,6 +10,28 @@ The long-term vision is an **AI Co-founder platform**: a system that doesn't jus
 
 **Design commitment:** the V1 MVP is structured so that future AI capabilities can be layered in without a major redesign. *(Explicit.)* Concretely, this means V1's data model and screen structure anticipate — without implementing — the fields, categories, and touchpoints that later stages will populate with AI-generated content (see [Future Expansion Strategy](./06_future_expansion_strategy.md)).
 
+## Product Positioning
+
+*(Inferred — the brief states Hypora's Vision and V1 feature list explicitly, but not a market-positioning statement; this section derives one from the Vision, V1 Scope, and Non-Goals already established, so that every future specification is written against a stable notion of what Hypora is competing to be, not just what it contains.)*
+
+**What Hypora is:** a purpose-built workspace for turning one business idea at a time into a structured, validated MVP plan — and, over time, an AI collaborator that participates in that structuring rather than a passive document store.
+
+**What Hypora is not:**
+- Not a generic note-taking tool (e.g., Notion, Evernote). Those capture unstructured thought; Hypora enforces a specific structure (Business Idea → Problem → Target Customer → Solution → Value Proposition → MVP Scope → Feature Planning → Validation) because the structure itself is the product's value, not an optional template.
+- Not a project-management or ticketing tool (e.g., Jira, Trello, Asana). Those manage execution once scope is already decided; Hypora deliberately stops before execution — see [Non-Goals](./02_product_scope.md#non-goals).
+- Not a one-click AI business-plan generator. V1 has zero AI involvement by design, and even at V5 the roadmap frames AI as *assisting* structuring and execution planning, not replacing the founder's judgment (see [Product Principles](#product-principles) below).
+
+**Primary problem solved:** a raw business idea has no dedicated home between "an unstructured note" and "a fully scoped execution plan." Generic note-taking tools don't force structure; generic PM tools assume the scope decision has already been made. Hypora exists specifically for the gap in between — structuring and validating an idea *before* it becomes a build plan.
+
+**Why users choose Hypora instead of generic tools:**
+- The structure (Canvas → MVP Scope → Feature Planning → Validation Checklist) is built into the product, not something the user has to invent with a blank note or a generic board.
+- Validation is a first-class, structural part of every project — not a side note a user has to remember to add.
+- The tool's scope is deliberately narrow (pre-build clarity), so it doesn't compete with — or get bloated by — full execution-management features a founder doesn't need yet.
+
+**Core value proposition:** turn a vague idea into a scoped, validated MVP plan, in one purpose-built workspace, without needing a business background or a patchwork of separate tools.
+
+**Long-term product identity:** an AI Co-founder that starts (V1) as a manual structuring tool and grows (V2–V5) into an active collaborator across canvas assistance, market intelligence, go-to-market planning, and product execution guidance — see [Product Roadmap](#product-roadmap).
+
 ## Product Goals
 
 *(Inferred — derived from the stated vision and MVP framing; not verbatim in the brief, but necessary to make "MVP" and "validated" operational.)*
@@ -20,6 +42,22 @@ The long-term vision is an **AI Co-founder platform**: a system that doesn't jus
 | Force scope discipline before building | MVP Scope and Feature Planning exist as explicit steps, separate from the idea itself |
 | Make validation a first-class step, not an afterthought | A Validation Checklist is a structural part of every project, not a side note |
 | Be honest about what's manual today vs. AI-assisted later | Every V1 screen and data shape is written to survive AI augmentation later without breaking existing user data |
+
+## Product Principles
+
+*(Inferred — the brief never states these as a named list, but each principle is a direct consequence of an already-Explicit fact: the "manual MVP, no AI" constraint, the "AI Co-founder" long-term vision, and the fixed Canvas → Scope → Feature Planning → Validation structure. Stated explicitly here so every future feature — V1 through V5 — can be checked against a stable, enduring bar rather than re-deriving it each time.)*
+
+Every future feature, in every stage of the roadmap, must respect:
+
+| Principle | What it rules out |
+|---|---|
+| **Structured thinking over freeform capture** | A feature that turns any Canvas/Scope/Planning/Validation field back into an unstructured blob (that would make Hypora indistinguishable from generic note-taking — see [Product Positioning](#product-positioning)) |
+| **Validation before implementation** | A feature that lets a user jump to Feature Planning or execution guidance without the Validation Checklist existing as a first-class, structurally required step |
+| **AI augmentation, not replacement** | Any V2–V5 AI feature that auto-fills or auto-decides without the user's explicit review; AI may suggest, the user always retains final authorship of their plan |
+| **Progressive disclosure** | Surfacing all eight V1 sections, or any future stage's full capability, at once, rather than guiding the user through one meaningful step at a time |
+| **Simplicity — narrow scope over feature breadth** | Any feature that turns Hypora into a general-purpose PM/ticketing tool, per the Non-Goals in [Product Scope](./02_product_scope.md) |
+
+These principles do not change across V1–V5 — a stage may add *capability* (e.g., AI suggestions in V2), but never in a way that violates a principle above (e.g., V2's AI Canvas Assistant may suggest a Value Proposition rewrite, but must never silently overwrite the user's own entry).
 
 ## Product Roadmap
 
