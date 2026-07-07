@@ -5,7 +5,7 @@ import { HomePage } from "./pages/landing/HomePage";
 import { FeaturesPage } from "./pages/landing/FeaturesPage";
 import { RoadmapPage } from "./pages/landing/RoadmapPage";
 import { ProjectListPage } from "./features/project-management/ProjectListPage";
-import { CanvasPage } from "./features/business-structuring/CanvasPage";
+import { BusinessStructuringPage } from "./features/business-structuring/BusinessStructuringPage";
 import { MvpPlanningPage } from "./features/mvp-planning/MvpPlanningPage";
 import { ValidationPage } from "./features/validation-planning/ValidationPage";
 import { SummaryPage } from "./features/project-summary/SummaryPage";
@@ -24,7 +24,7 @@ function App() {
       <Route path="/app" element={<ProjectListPage />} />
       <Route path="/app/projects/:projectId" element={<WorkspaceProjectLayout />}>
         <Route index element={<Navigate to="canvas" replace />} />
-        <Route path="canvas" element={<CanvasPage />} />
+        <Route path="canvas" element={<BusinessStructuringPage />} />
         <Route path="scope" element={<MvpPlanningPage />} />
         <Route path="validation" element={<ValidationPage />} />
         <Route path="summary" element={<SummaryPage />} />

@@ -1,0 +1,22 @@
+.ds-progress {
+  margin-bottom: var(--space-5);
+}
+
+.ds-progress__label {
+  font-size: var(--font-size-caption);
+  color: var(--color-neutral-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.ds-progress__track {
+  height: 6px;
+  background: var(--color-neutral-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ds-progress__fill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+}

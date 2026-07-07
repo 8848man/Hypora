@@ -11,3 +11,6 @@ export { PageHeader } from "./PageHeader";
 export { Stack } from "./Stack";
 export { ReadinessCallout } from "./ReadinessCallout";
 export { Stepper } from "./Stepper";
+export { ProgressIndicator } from "./ProgressIndicator";
+export { ChoiceList } from "./ChoiceList";
+export { TransitionWrapper } from "./TransitionWrapper";
