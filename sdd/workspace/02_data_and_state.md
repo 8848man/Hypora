@@ -1,6 +1,6 @@
 # Workspace Data Ownership, State Model, Persistence, and Error States
 
-**Refs:** → [00_index](../00_index.md) · [Workspace Architecture](./01_architecture.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Product Scope](../context/02_product_scope.md)
+**Refs:** → [00_index](../00_index.md) · [Workspace Architecture](./01_architecture.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Product Scope](../context/02_product_scope.md) · [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)
 
 *(Inferred — the brief names the artifacts a Project contains but not their conceptual data relationships, UI-level states, or persistence ownership; this document derives them. No database schema, field list, or storage key names are specified — only conceptual ownership, per this task's explicit instruction.)*
 
@@ -18,6 +18,24 @@
 | **Status / Lifecycle** | A Project's current lifecycle stage | [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) | Derived from the completion state of Canvas/Scope/Features/Validation per that document's guards — this document does not maintain an independent status field; it reads the domain model's derivation rules, never redefines them |
 
 **Ownership boundary:** this table is the canonical source for *what conceptually belongs to what* within Workspace's data. It must never be restated by a future `sdd/platform-api/` document — that document, once created, defines the persisted schema *implementing* this ownership, and should reference this table rather than re-deriving it. The Risk Notes, Feature priority, and Validation attributes above were added during Feature Specification (`sdd/workspace/features/`) — each is referenced, not redefined, by its owning Feature Specification. **Project Name** was added during UX Specification (a gap surfaced while defining [Project Management](./features/01_project_management.md)'s User Interaction — a Dashboard/Project List cannot meaningfully distinguish Projects without one); owned by [Project Management](./features/01_project_management.md).
+
+## Application-Level State (Non-Project)
+
+*(Explicit — this task's product decision. Distinct from the Data Ownership table above, which is entirely rooted at Project; `language` is a user preference independent of any Project.)*
+
+| Concept | Conceptual shape | Owned by | Relationship |
+|---|---|---|---|
+| **Language** | The user's currently selected UI language — `ko` or `en` in V1 | Workspace (selected), Platform API (persisted) | Independent of every Project; a single value shared across the whole Application, not per-Project |
+
+**Responsibilities:**
+- Tracking the current selected language.
+- Persisting it (see Local Persistence below).
+- Applying a language switch immediately across the UI — see [Frontend Architecture](../frontend/01_architecture.md#localization-layer) for the mechanism that resolves this value into displayed text.
+
+**Rules:**
+- Language preference survives refresh — persisted the same way Project data is, per Local Persistence below, but as its own independent record.
+- **Changing the language never touches Project data.** Canvas answers, Risk Notes, Project Names, and every other user-authored value (per [Workspace Architecture](./01_architecture.md#localization-scope)'s "Not localized" list) are stored exactly as the user entered them, in whatever language they were written in — a language switch re-renders product copy only, never rewrites or re-derives stored user content.
+- `language` is read by every screen that renders localized product copy, but is written only through an explicit user language-switch action — never inferred or silently changed after first launch's detection (see [Workspace Architecture](./01_architecture.md#localization-scope)'s Language Selection Flow for the detection-vs-override rule).
 
 ## State Model
 
@@ -39,6 +57,7 @@
 - Platform API's V1 implementation ([Application Responsibilities](../context/05_application_responsibilities.md)) owns all persistence; Workspace never accesses LocalStorage directly in its own right — it only consumes Platform API's conceptual contract.
 - Conceptually, persistence is scoped **per Project**: one Project's Canvas, MVP Scope, Features, and Validation Checklist items are stored and retrieved together as a single unit — Summary is never separately persisted (see Data Ownership above).
 - A second, separate persisted concept enumerates **all Project IDs** the user has created, so the Dashboard/Project List can render without loading every Project's full content.
+- A third, separate persisted concept holds **the selected `language`** (e.g., conceptually `language = "ko"`) — independent of both the Project-list concept and any individual Project's data, per [Application-Level State (Non-Project)](#application-level-state-non-project) above. This is a single global value, not scoped per Project.
 - No cross-device or cross-browser persistence exists in V1 — this is a known, already-recorded limitation (see [Product Scope](../context/02_product_scope.md)'s Risks table), not restated here beyond this reference.
 - **No guided-flow position is separately persisted.** Business Structuring's guided question flow ([02_business_structuring.md](./features/02_business_structuring.md)) resumes by deriving the current question from which Canvas fields already have a Saved value — this table has no "current question index" row, and none should be added; introducing one would duplicate what Canvas field completeness already tells you, and risks the same kind of state-desync bug documented and fixed in this project's implementation history.
 - **Forward-compatibility rule:** if a future change adds a new field to this data ownership table (e.g., a V2 addition), the persistence layer must treat that field's absence in already-stored data as an empty default, never as a read error — this is what lets [Future Expansion Strategy](../context/06_future_expansion_strategy.md)'s "no breaking migration" principle hold in practice, not just in intent.

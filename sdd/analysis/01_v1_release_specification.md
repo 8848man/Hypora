@@ -8,7 +8,7 @@ Audience: Anyone planning, reviewing, or validating the V1 release boundary
 
 # V1 Release Specification
 
-**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Product Scope](../context/02_product_scope.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Workspace Architecture](../workspace/01_architecture.md) · [Deployment Strategy](../infra/01_deployment.md) · [Git and Release Strategy](../workflow/02_git_and_release_strategy.md) · [ADR-0003](../architecture/decisions/ADR-0003-single-v1-deployment-target.md)
+**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Product Scope](../context/02_product_scope.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Workspace Architecture](../workspace/01_architecture.md) · [Deployment Strategy](../infra/01_deployment.md) · [Git and Release Strategy](../workflow/02_git_and_release_strategy.md) · [ADR-0003](../architecture/decisions/ADR-0003-single-v1-deployment-target.md) · [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)
 
 Placed under `sdd/analysis/` (Type 12: Large Cross-Layer Authoritative Spec) because it is a single, tightly-coupled contract about *what ships as V1* that cuts across Product Scope, both Applications, Infra, and Git process — none of which alone should own "the release boundary" as a whole. **This document synthesizes; it does not duplicate.** Every fact below already has a canonical owner elsewhere and is cited, not restated in full — this document's own content is limited to the facts that don't yet have a home anywhere else (the release boundary itself, and the included/excluded decision).
 
@@ -43,6 +43,21 @@ Canonically owned by [Product Scope](../context/02_product_scope.md#risks). One 
 | Risk | Why it matters | Mitigation direction |
 |---|---|---|
 | Bundling Landing and Workspace into one Vercel project removes the ability to deploy, scale, or roll back either Application independently | If Workspace needs an emergency rollback, Landing rolls back with it (and vice versa) | Accepted trade-off for V1 (see [ADR-0003](../architecture/decisions/ADR-0003-single-v1-deployment-target.md)); revisit if either Application's release cadence diverges enough to justify separate deployments |
+
+## Localization Readiness Gate
+
+*(Explicit — this task's product decision; see [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md). Owned here because this is the release-readiness synthesis document — the underlying localization facts it checks against are owned by [Product Vision](../context/01_product_vision.md#localization-principle), [Question Model](../workspace/features/02_1_question_model.md#localization), [Frontend Architecture](../frontend/01_architecture.md#localization-layer), and [Design System](../design-system/01_design_system.md#localization-requirements) — this gate cites them, it does not redefine them.)*
+
+No release — V1's first release or any later one — is considered ready while any of the following is unmet, per the [Localization Principle](../context/01_product_vision.md#localization-principle)'s "localization is product quality, not an optional layer":
+
+- ☐ Korean resources complete for every feature shipping in the release
+- ☐ English resources complete for every feature shipping in the release, and verified to preserve the original Korean meaning
+- ☐ No missing localization keys (every `localizationKey` referenced by a Question, preset, or UI string resolves in both languages)
+- ☐ No hardcoded UI strings (per [Frontend Architecture](../frontend/01_architecture.md#localization-layer)'s and [Design System](../design-system/01_design_system.md#localization-requirements)'s rules)
+- ☐ Language switching verified end-to-end (detection, manual switch, persistence across refresh, per [Workspace Architecture](../workspace/01_architecture.md#localization))
+- ☐ Responsive layout checked in both languages (per [Design System](../design-system/01_design_system.md#localization-requirements)'s English-expansion tolerance rule)
+
+This gate applies **in addition to**, not instead of, the Success Criteria above — a release must satisfy both.
 
 ## Known Limitations
 

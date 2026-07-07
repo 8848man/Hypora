@@ -56,8 +56,19 @@ Every future feature, in every stage of the roadmap, must respect:
 | **AI augmentation, not replacement** | Any V2–V5 AI feature that auto-fills or auto-decides without the user's explicit review; AI may suggest, the user always retains final authorship of their plan |
 | **Progressive disclosure** | Surfacing all eight V1 sections, or any future stage's full capability, at once, rather than guiding the user through one meaningful step at a time |
 | **Simplicity — narrow scope over feature breadth** | Any feature that turns Hypora into a general-purpose PM/ticketing tool, per the Non-Goals in [Product Scope](./02_product_scope.md) |
+| **Localization is product quality, not an optional layer** | Any feature shipped with only one language's resources complete — see Localization Principle below |
 
 These principles do not change across V1–V5 — a stage may add *capability* (e.g., AI suggestions in V2), but never in a way that violates a principle above (e.g., V2's AI Canvas Assistant may suggest a Value Proposition rewrite, but must never silently overwrite the user's own entry).
+
+### Localization Principle
+
+*(Explicit — this task's product decision, recorded here as it's an enduring product principle, not a one-time V1 scope item.)*
+
+- **Hypora is Korean-first.** Korean (`ko`) is the canonical language for all product content — every piece of product copy is authored in Korean first, as the source of truth.
+- **English (`en`) is an official supported localization**, not a lesser or informal translation — English resources must preserve the original Korean meaning, not merely approximate it.
+- **New features must include both Korean and English resources before release** — a feature shipped with only one language's copy complete is not release-ready, per the [Localization Readiness Gate](../analysis/01_v1_release_specification.md#localization-readiness-gate).
+- **The architecture must accommodate additional languages beyond Korean and English in the future without structural changes** — this is an architectural requirement flowing from the principle, detailed in [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md) and its affected specs (Workspace Architecture, Question Model, Frontend Architecture, Design System).
+- **Scope note:** this principle governs *product-facing copy* (what a user sees in Landing and Workspace) — it does not require this specification tree itself to be authored in Korean. The `sdd/` documents remain in English, per this project's established documentation language; see [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md) for this distinction stated explicitly.
 
 ## Product Roadmap
 

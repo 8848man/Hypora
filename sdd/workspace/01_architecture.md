@@ -1,6 +1,6 @@
 # Workspace Architecture
 
-**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Core User Journey](../context/03_personas_and_journey.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) · [Data & State](./02_data_and_state.md) · [Feature Specifications](./features/000_index.md)
+**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Core User Journey](../context/03_personas_and_journey.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) · [Data & State](./02_data_and_state.md) · [Feature Specifications](./features/000_index.md) · [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)
 
 Created ahead of any real Workspace code, per the SDD Framework's "spec leads implementation" principle (`03_document_lifecycle.md`, Type 3: a contract document is created "before or alongside the first real implementation ... spec leads implementation"). This is the point at which Workspace has enough definition to warrant its own architecture document rather than remaining a subsection of the shared context layer.
 
@@ -17,6 +17,7 @@ Created ahead of any real Workspace code, per the SDD Framework's "spec leads im
 - Feature Planning
 - Validation Checklist
 - Project Summary (read view)
+- Localization: presenting Workspace's own UI in the user's selected language — see the Localization section below
 
 **Explicitly NOT part of Workspace:**
 - Marketing content, value-proposition messaging, or roadmap presentation — owned entirely by Landing; Workspace never renders Landing's pages or duplicates its copy (see [Application Responsibilities](../context/05_application_responsibilities.md)'s Cross-Application Boundaries).
@@ -24,6 +25,49 @@ Created ahead of any real Workspace code, per the SDD Framework's "spec leads im
 - Authentication, multi-user accounts, or session management — not part of V1 scope (see [Product Scope](../context/02_product_scope.md)).
 - Cross-project comparison views — this would serve the Idea Explorer Future Persona specifically; deferred per the [Workspace Mental Model Review](#workspace-mental-model-review) below.
 - Persistence implementation details — Workspace consumes Platform API's conceptual contract; it does not define its own independent storage mechanism (see [Data & State](./02_data_and_state.md)).
+
+## Localization
+
+*(Explicit — this task's product decision; see [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md) for the full architectural rationale. This section owns the Workspace-facing language selection flow and scope; the persisted `language` state fact itself is owned by [Data & State](./02_data_and_state.md#application-level-state-non-project), and the mechanism that resolves UI text into a language is owned by [Frontend Architecture](../frontend/01_architecture.md#localization-layer) — this section references both rather than restating them.)*
+
+### Language Selection Flow
+
+```
+First launch
+     │
+     ▼
+Device language used as a detection hint
+     │
+     ▼
+Default language selected
+     │
+     ▼
+(User may manually switch at any time — see Rules below)
+```
+
+**Rules:**
+- Korean is the default language — if device-language detection is inconclusive or the device language isn't one Hypora supports yet, the default is Korean, never a silent fallback to English.
+- Device language may be used as a detection hint on first launch only — it informs the *initial* default, not a continuous override.
+- The user may manually switch language at any time; once a user has manually chosen a language, that choice **overrides** device-language detection permanently — detection is a first-launch convenience only, never re-applied over an existing user preference.
+- The selected language is persisted locally and survives refresh — see [Data & State](./02_data_and_state.md#application-level-state-non-project) for the persistence fact itself.
+
+### Localization Scope
+
+**Localized:**
+- Navigation labels
+- UI text (buttons, headers, hints)
+- Business Structuring's guided questions ([Question Model](./features/02_1_question_model.md))
+- Presets ([Preset Strategy](./features/02_1_question_model.md#preset-strategy))
+- Review field labels (not the answers themselves — see below)
+- Empty states
+- Validation messages
+- System messages (errors, confirmations)
+
+**Not localized in V1** — this is user-authored content, not product copy, and translating it would change its meaning rather than merely present it in another language:
+- User-created Project Name
+- User answers (Canvas field values, however they were entered — preset-derived or custom)
+- Business idea content generally
+- Anything in the Canvas that originated from user input, regardless of whether a preset supplied the starting text the user then kept or edited
 
 ## Information Architecture
 

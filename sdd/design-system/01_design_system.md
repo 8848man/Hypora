@@ -1,6 +1,6 @@
 # Design System
 
-**Refs:** → [00_index](../00_index.md) · [Frontend Architecture](../frontend/01_architecture.md) · [Workspace Feature Specifications](../workspace/features/000_index.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md)
+**Refs:** → [00_index](../00_index.md) · [Frontend Architecture](../frontend/01_architecture.md) · [Workspace Feature Specifications](../workspace/features/000_index.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [ADR-0004](../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md) · [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)
 
 Created now because a second consumer needs this shared contract — Landing and Workspace both consume one Design System per the Development Target's explicit "one Design System" constraint, meeting the framework's cross-cutting-capability trigger (`02_directory_structure.md`: created "as soon as a second layer needs to agree on a shared contract"). Defines reusable UI concepts only — no pixel values, no color codes, no component code, per this task's instruction.
 
@@ -56,6 +56,15 @@ Actual values (hex codes, pixel sizes) are implementation detail, out of scope f
 - A primitive never contains business logic, Feature-specific copy, or a persistence call — it receives content and emits interaction events; it does not know what a "Validation Checklist" is. (Restates [Frontend Architecture](../frontend/01_architecture.md)'s Shared Component Boundaries — canonically owned there; this document owns the primitive inventory itself.)
 - Landing composes these primitives for marketing-oriented layouts (Hero, Feature Showcase Card, Roadmap Stepper); Workspace composes the same primitives for functional, data-dense layouts (List Item/Card, Status Badge, Text Area) — same primitives, different composition, consistent with Landing/Workspace separation.
 - A new Feature-specific visual pattern is added to this inventory only once a second Feature (or Landing) needs the identical pattern — per [Frontend Architecture](../frontend/01_architecture.md)'s promotion rule; until then it stays owned by the single Feature that needs it.
+
+## Localization Requirements
+
+*(Explicit — this task's product decision; see [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md). This section owns the component-level contract every primitive must honor; the layer that resolves text and the persisted language fact are owned elsewhere — see [Frontend Architecture](../frontend/01_architecture.md#localization-layer) and [Data & State](../workspace/02_data_and_state.md#application-level-state-non-project) respectively.)*
+
+- **Every visible string a primitive renders must come from localization resources, passed in as data** — no primitive (Button, Page Header, Empty State Pattern, etc.) hardcodes label text, placeholder text, or copy of any kind. This extends the existing Composition Rule ("a primitive never contains business logic, Feature-specific copy...") to cover language as well as business meaning.
+- **Every primitive must support both Korean and English content without a layout break.** Korean and English differ substantially in character width and line-wrapping behavior — a primitive validated only against English text is not considered complete.
+- **Layout must tolerate English expansion.** Korean UI text is frequently more compact than its English equivalent for the same meaning; no primitive may assume a fixed width or a fixed number of lines sized to Korean content. Buttons, badges, chips, and navigation labels in particular must reflow or resize rather than clip when English text is longer.
+- **Text truncation rules must be defined wherever a primitive has a genuine space constraint** (e.g., a Status Badge or List Item/Card title in a fixed-width layout) — the primitive's own documentation must state whether it wraps, truncates with an ellipsis, or reflows the surrounding layout; "it happens to fit in English" is not an acceptable de facto rule.
 
 ## Coverage Check Against V1 Needs
 

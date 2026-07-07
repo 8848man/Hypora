@@ -1,6 +1,6 @@
 # Feature: Business Structuring
 
-**Refs:** → [Features Index](./000_index.md) · [Question Model & Preset Strategy](./02_1_question_model.md) · [Workspace Architecture](../01_architecture.md) · [Workspace Data & State](../02_data_and_state.md) · [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) · [Validation Planning](./04_validation_planning.md) · [ADR-0004](../../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md)
+**Refs:** → [Features Index](./000_index.md) · [Question Model & Preset Strategy](./02_1_question_model.md) · [Workspace Architecture](../01_architecture.md) · [Workspace Data & State](../02_data_and_state.md) · [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) · [Validation Planning](./04_validation_planning.md) · [ADR-0004](../../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md) · [ADR-0005](../../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)
 
 *(Explicit — the brief names Business Idea, Problem, Target Customer, Solution, and Value Proposition directly, and now explicitly mandates a guided, question-based interaction model over a form, per [ADR-0004](../../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md). Risk Notes remains Inferred scope, now placed in the Review step rather than the guided sequence — see Responsibilities below.)*
 
@@ -23,6 +23,7 @@ Let a user transform a raw business idea into a structured hypothesis — naming
 - Turning Risk Notes into testable, trackable items with a validation method and resolution status — that is Validation Planning's Assumptions responsibility (see below and [Validation Planning](./04_validation_planning.md)). Business Structuring captures *that* a risk exists in the founder's own words; it does not track *whether* it's been resolved.
 - Defining what to build (features, scope) — that is MVP Planning's responsibility.
 - Any AI generation of preset content — V1 presets are static, curated content; see the [Preset Strategy](./02_1_question_model.md#preset-strategy) for the V2 seam. Out of scope until V2.
+- Defining how question text, presets, or Review labels are localized — this Feature consumes the [Question Model](./02_1_question_model.md#localization)'s content-identity/presentation-content split and the [Frontend Architecture](../../frontend/01_architecture.md#localization-layer)'s Localization Layer; it does not define its own localization mechanism or resource format.
 
 **Why Risk Notes moved to Review, not a guided question:** Risk Notes is optional and non-gating (per the Boundary below); giving it a guided step would require either (a) a skippable step, which needs a persisted "was this skipped" flag purely to make resume behavior correct — introducing state with no other purpose — or (b) treating it as required, which it explicitly is not. Presenting it as an editable field within Review avoids inventing that flag entirely: Review is reachable exactly when the five required questions are done, and Risk Notes simply lives there as one more editable field, answered or not. See [ADR-0004](../../architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md).
 
@@ -47,6 +48,7 @@ Let a user transform a raw business idea into a structured hypothesis — naming
 - The Project transitions from Structuring to Scoped once all five Canvas fields are non-empty — unchanged from before, and not gated by Review confirmation (a user could in principle fill all five fields and navigate away before reaching Review; the guard already tolerates this per its Canvas-field-only definition).
 - Risk Notes may be left empty in Review without blocking anything.
 - No question's preset content is ever AI-generated in V1.
+- No question's Purpose text, preset options, or Review field labels are ever hardcoded display strings — each is resolved through a `localizationKey` per the [Question Model's Localization section](./02_1_question_model.md#localization), in the user's currently selected language.
 
 ## Relationships with Other Features
 
@@ -63,7 +65,7 @@ Owns the **Structuring** stage and the **Structuring → Scoped** transition gua
 
 ## Dependencies on Workspace
 
-Depends on the Canvas screen structure and field order owned by [Workspace Architecture](../01_architecture.md); depends on the Canvas and Risk Notes data ownership defined in [Workspace Data & State](../02_data_and_state.md); depends on the Question Model and Preset Strategy defined in [02_1_question_model.md](./02_1_question_model.md). Does not redefine any of these.
+Depends on the Canvas screen structure and field order owned by [Workspace Architecture](../01_architecture.md); depends on the Canvas and Risk Notes data ownership defined in [Workspace Data & State](../02_data_and_state.md); depends on the Question Model and Preset Strategy (including their localization contracts) defined in [02_1_question_model.md](./02_1_question_model.md); depends on the current `language` state ([Data & State](../02_data_and_state.md#application-level-state-non-project)) and the Localization Layer that resolves it into displayed text ([Frontend Architecture](../../frontend/01_architecture.md#localization-layer)). Does not redefine any of these.
 
 ## Future Expansion (V2–V5)
 
