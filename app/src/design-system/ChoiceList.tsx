@@ -5,7 +5,8 @@ import "./ChoiceList.css";
 /**
  * A pick-one-or-customize interaction: 3–5 preset options plus an always-available custom
  * answer path. Per sdd/design-system/01_design_system.md, presets and custom entry are
- * presented as equally valid — custom is never a hidden fallback.
+ * presented as equally valid — custom is never a hidden fallback. Per this document's
+ * Localization Requirements, all display text is passed in as data, never hardcoded.
  *
  * `onSelectPreset` and `onCustomChange` are separate so a consumer can auto-advance on a
  * discrete preset pick without doing the same on every custom-text keystroke.
@@ -13,11 +14,17 @@ import "./ChoiceList.css";
 export function ChoiceList({
   presets,
   value,
+  writeMyOwnLabel,
+  answerLabel,
+  answerPlaceholder,
   onSelectPreset,
   onCustomChange,
 }: {
   presets: string[];
   value: string;
+  writeMyOwnLabel: string;
+  answerLabel: string;
+  answerPlaceholder: string;
   onSelectPreset: (value: string) => void;
   onCustomChange: (value: string) => void;
 }) {
@@ -45,16 +52,16 @@ export function ChoiceList({
           className={`ds-choice-list__option ds-choice-list__option--custom ${customMode ? "ds-choice-list__option--selected" : ""}`}
           onClick={() => setCustomMode(true)}
         >
-          Write my own
+          {writeMyOwnLabel}
         </button>
       </div>
 
       {customMode && (
         <TextArea
-          label="Your answer"
+          label={answerLabel}
           value={matchesPreset ? "" : value}
           onChange={(e) => onCustomChange(e.target.value)}
-          placeholder="Type your own answer…"
+          placeholder={answerPlaceholder}
           autoFocus
         />
       )}

@@ -12,18 +12,21 @@ import {
 } from "../../design-system";
 import { advanceToValidating } from "../../domain/lifecycle";
 import type { FeaturePriority, PlannedFeature } from "../../domain/types";
+import { useLocalization } from "../../localization";
 import { useProjectContext } from "../useProject";
 
 const PRIORITIES: FeaturePriority[] = ["must", "should", "could"];
-const PRIORITY_LABEL: Record<FeaturePriority, string> = {
-  must: "Must",
-  should: "Should",
-  could: "Could",
-};
 
 export function MvpPlanningPage() {
   const { project, update } = useProjectContext();
+  const { t } = useLocalization();
   const [newFeatureName, setNewFeatureName] = useState("");
+
+  const priorityLabel: Record<FeaturePriority, string> = {
+    must: t.mvpPlanning.priorityMust,
+    should: t.mvpPlanning.priorityShould,
+    could: t.mvpPlanning.priorityCould,
+  };
 
   function addFeature() {
     if (!newFeatureName.trim()) return;
@@ -62,12 +65,12 @@ export function MvpPlanningPage() {
 
   return (
     <div>
-      <PageHeader title="MVP Planning" subtitle="Define the smallest valuable version, and what it takes to build it." />
+      <PageHeader title={t.mvpPlanning.title} subtitle={t.mvpPlanning.subtitle} />
 
       <Card style={{ marginBottom: "var(--space-5)" }}>
         <TextArea
-          label="MVP Scope"
-          hint="What counts as your first version? What's explicitly out?"
+          label={t.mvpPlanning.scopeLabel}
+          hint={t.mvpPlanning.scopeHint}
           value={project.mvpScope}
           onChange={(e) => update({ ...project, mvpScope: e.target.value })}
         />
@@ -76,26 +79,26 @@ export function MvpPlanningPage() {
           onClick={toggleScopeComplete}
           disabled={!project.mvpScope.trim() && !project.mvpScopeComplete}
         >
-          {project.mvpScopeComplete ? "Marked complete ✓" : "Mark Scope complete"}
+          {project.mvpScopeComplete ? t.mvpPlanning.markedComplete : t.mvpPlanning.markScopeComplete}
         </Button>
       </Card>
 
-      <h2 style={{ fontSize: "var(--font-size-heading-3)" }}>Feature Planning</h2>
+      <h2 style={{ fontSize: "var(--font-size-heading-3)" }}>{t.mvpPlanning.featurePlanningTitle}</h2>
 
       <Stack direction="row" style={{ marginBottom: "var(--space-4)" }}>
         <TextField
-          label="Add a feature"
+          label={t.mvpPlanning.addFeatureLabel}
           value={newFeatureName}
           onChange={(e) => setNewFeatureName(e.target.value)}
-          placeholder="e.g. Search by category"
+          placeholder={t.mvpPlanning.addFeaturePlaceholder}
         />
         <Button onClick={addFeature} disabled={!newFeatureName.trim()}>
-          Add
+          {t.mvpPlanning.add}
         </Button>
       </Stack>
 
       {project.features.length === 0 ? (
-        <EmptyState title="No features planned yet" description="Add your first feature above." />
+        <EmptyState title={t.mvpPlanning.emptyFeaturesTitle} description={t.mvpPlanning.emptyFeaturesDescription} />
       ) : (
         <Stack gap="var(--space-3)">
           {project.features.map((f) => (
@@ -103,20 +106,20 @@ export function MvpPlanningPage() {
               <Stack direction="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
                 <p style={{ margin: 0, fontWeight: 600 }}>{f.name}</p>
                 <Button variant="secondary" onClick={() => removeFeature(f.id)}>
-                  Remove
+                  {t.mvpPlanning.remove}
                 </Button>
               </Stack>
               <Stack direction="row" style={{ marginTop: "var(--space-2)" }}>
                 {PRIORITIES.map((p) => (
                   <Chip
                     key={p}
-                    label={PRIORITY_LABEL[p]}
+                    label={priorityLabel[p]}
                     active={f.priority === p}
                     onToggle={() => updateFeature(f.id, { priority: p })}
                   />
                 ))}
                 <Chip
-                  label={f.inScope ? "In Scope" : "Out of Scope"}
+                  label={f.inScope ? t.mvpPlanning.inScope : t.mvpPlanning.outOfScope}
                   active={f.inScope}
                   onToggle={() => updateFeature(f.id, { inScope: !f.inScope })}
                 />
@@ -132,12 +135,12 @@ export function MvpPlanningPage() {
         disabled={project.features.length === 0 && !project.featurePlanningComplete}
         style={{ marginTop: "var(--space-4)" }}
       >
-        {project.featurePlanningComplete ? "Marked complete ✓" : "Mark Feature Planning complete"}
+        {project.featurePlanningComplete ? t.mvpPlanning.markedComplete : t.mvpPlanning.markFeaturePlanningComplete}
       </Button>
 
       {project.stage === "validating" && (
         <div style={{ marginTop: "var(--space-4)" }}>
-          <Badge tone="success">Ready for Validation Planning</Badge>
+          <Badge tone="success">{t.mvpPlanning.readyForValidation}</Badge>
         </div>
       )}
     </div>

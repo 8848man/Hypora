@@ -31,6 +31,17 @@
   font-weight: 600;
 }
 
+.landing__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.landing__header-actions .language-switcher {
+  margin-bottom: 0;
+}
+
 .landing__main {
   max-width: var(--max-content-width);
   margin: 0 auto;

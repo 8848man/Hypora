@@ -5,12 +5,14 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  cancelLabel,
   onConfirm,
   onCancel,
 }: {
   title: string;
   description: string;
   confirmLabel: string;
+  cancelLabel: string;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -29,7 +31,7 @@ export function ConfirmDialog({
         <p className="ds-dialog__description">{description}</p>
         <div className="ds-dialog__actions">
           <Button variant="secondary" onClick={onCancel}>
-            Cancel
+            {cancelLabel}
           </Button>
           <Button variant="primary" onClick={onConfirm}>
             {confirmLabel}

@@ -4,8 +4,11 @@
 // sdd/context/05_application_responsibilities.md and sdd/workspace/02_data_and_state.md).
 
 import type { Project } from "../domain/types";
+import type { Language } from "../localization/types";
+import { SUPPORTED_LANGUAGES } from "../localization/types";
 
 const INDEX_KEY = "hypora:project-ids";
+const LANGUAGE_KEY = "hypora:language";
 const projectKey = (id: string) => `hypora:project:${id}`;
 
 export interface ProjectListEntry {
@@ -80,4 +83,31 @@ export function saveProject(project: Project): boolean {
 
 export function createProjectId(): string {
   return `proj_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * The persisted `language` concept — per sdd/workspace/02_data_and_state.md's
+ * Application-Level State (Non-Project) section: a third, independent persisted concept,
+ * separate from both the Project-list index and any individual Project's data. Reading or
+ * writing it never touches Project storage.
+ */
+export function readStoredLanguage(): Language | null {
+  try {
+    const raw = window.localStorage.getItem(LANGUAGE_KEY);
+    if (raw && (SUPPORTED_LANGUAGES as string[]).includes(raw)) {
+      return raw as Language;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeStoredLanguage(language: Language): boolean {
+  try {
+    window.localStorage.setItem(LANGUAGE_KEY, language);
+    return true;
+  } catch {
+    return false;
+  }
 }
