@@ -11,8 +11,10 @@ import {
   TextField,
   LoadingIndicator,
 } from "../../design-system";
-import { STAGE_LABELS } from "../../domain/lifecycle";
+import { archiveProject as archiveProjectStage } from "../../domain/lifecycle";
 import { createEmptyProject } from "../../domain/types";
+import { LanguageSwitcher } from "../../layout/LanguageSwitcher";
+import { useLocalization } from "../../localization";
 import {
   createProjectId,
   listProjects,
@@ -20,10 +22,10 @@ import {
   saveProject,
   type ProjectListEntry,
 } from "../../platform/storage";
-import { archiveProject as archiveProjectStage } from "../../domain/lifecycle";
 
 export function ProjectListPage() {
   const navigate = useNavigate();
+  const { t } = useLocalization();
   const [projects, setProjects] = useState<ProjectListEntry[] | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -51,33 +53,32 @@ export function ProjectListPage() {
     setPendingArchiveId(null);
   }
 
-  if (projects === null) return <LoadingIndicator label="Loading projects…" />;
+  if (projects === null) return <LoadingIndicator label={t.dashboard.loadingProjects} />;
 
   const visible = projects.filter((p) => showArchived || p.stage !== "archived");
   const archivedCount = projects.filter((p) => p.stage === "archived").length;
 
   return (
     <div className="workspace-shell">
+      <LanguageSwitcher />
       <PageHeader
-        title="Your Projects"
-        subtitle="Every business idea you're structuring, in one place."
-        actions={
-          !creating && <Button onClick={() => setCreating(true)}>New Project</Button>
-        }
+        title={t.dashboard.title}
+        subtitle={t.dashboard.subtitle}
+        actions={!creating && <Button onClick={() => setCreating(true)}>{t.dashboard.newProject}</Button>}
       />
 
       {creating && (
         <Card className="create-project-card">
           <TextField
-            label="Project name"
+            label={t.dashboard.projectNameLabel}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="e.g. Neighborhood tool-lending app"
+            placeholder={t.dashboard.projectNamePlaceholder}
             autoFocus
           />
           <Stack direction="row" gap="var(--space-2)">
             <Button onClick={handleCreate} disabled={!newName.trim()}>
-              Create
+              {t.common.create}
             </Button>
             <Button
               variant="secondary"
@@ -86,17 +87,14 @@ export function ProjectListPage() {
                 setNewName("");
               }}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
           </Stack>
         </Card>
       )}
 
       {visible.length === 0 ? (
-        <EmptyState
-          title="No projects yet"
-          description="Create your first project to start structuring an idea."
-        />
+        <EmptyState title={t.dashboard.emptyTitle} description={t.dashboard.emptyDescription} />
       ) : (
         <Stack gap="var(--space-3)">
           {visible.map((p) => (
@@ -104,15 +102,13 @@ export function ProjectListPage() {
               <Stack direction="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <p style={{ margin: 0, fontWeight: 600 }}>{p.name}</p>
-                  <Badge tone="neutral">{STAGE_LABELS[p.stage]}</Badge>
+                  <Badge tone="neutral">{t.lifecycleStage[p.stage]}</Badge>
                 </div>
                 <Stack direction="row" gap="var(--space-2)">
-                  <Button onClick={() => navigate(`/app/projects/${p.id}/canvas`)}>
-                    Open
-                  </Button>
+                  <Button onClick={() => navigate(`/app/projects/${p.id}/canvas`)}>{t.dashboard.open}</Button>
                   {p.stage !== "archived" && (
                     <Button variant="secondary" onClick={() => setPendingArchiveId(p.id)}>
-                      Archive
+                      {t.common.archive}
                     </Button>
                   )}
                 </Stack>
@@ -135,15 +131,16 @@ export function ProjectListPage() {
             textDecoration: "underline",
           }}
         >
-          {showArchived ? "Hide" : "Show"} archived projects ({archivedCount})
+          {showArchived ? t.dashboard.hideArchived : t.dashboard.showArchived} ({archivedCount})
         </button>
       )}
 
       {pendingArchiveId && (
         <ConfirmDialog
-          title="Archive this project?"
-          description="It will be hidden from your default list but not deleted — you can reveal archived projects at any time."
-          confirmLabel="Archive"
+          title={t.dashboard.archiveConfirmTitle}
+          description={t.dashboard.archiveConfirmDescription}
+          confirmLabel={t.common.archive}
+          cancelLabel={t.common.cancel}
           onConfirm={() => handleArchive(pendingArchiveId)}
           onCancel={() => setPendingArchiveId(null)}
         />

@@ -12,21 +12,15 @@ import {
   TransitionWrapper,
 } from "../../design-system";
 import { advanceAfterCanvasEdit } from "../../domain/lifecycle";
+import { useLocalization } from "../../localization";
 import { useProjectContext } from "../useProject";
 import { QUESTIONS, resumeQuestionIndex, v1StaticPresetProvider } from "./questionModel";
-
-const FIELD_LABELS: Record<string, string> = {
-  businessIdea: "Business Idea",
-  problem: "Problem",
-  targetCustomer: "Target Customer",
-  solution: "Solution",
-  valueProposition: "Value Proposition",
-};
 
 export function BusinessStructuringPage() {
   const { project, update, saveError } = useProjectContext();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const { t, language } = useLocalization();
 
   // Resume position derived from Canvas completeness, computed once on mount — never persisted
   // separately (per sdd/workspace/02_data_and_state.md). Backward/forward movement afterward is
@@ -38,7 +32,7 @@ export function BusinessStructuringPage() {
   const onReview = currentIndex >= total;
 
   function saveAnswer(value: string) {
-    const canvas = { ...project.canvas, [QUESTIONS[currentIndex].id]: value };
+    const canvas = { ...project.canvas, [QUESTIONS[currentIndex].relatedCanvasField]: value };
     const next = { ...project, canvas };
     next.stage = advanceAfterCanvasEdit(next);
     update(next);
@@ -69,26 +63,31 @@ export function BusinessStructuringPage() {
   }
 
   const question = QUESTIONS[currentIndex];
-  const value = project.canvas[question.id];
-  const presets = v1StaticPresetProvider(question.id, { project });
+  const value = project.canvas[question.relatedCanvasField];
+  const presets = v1StaticPresetProvider(question.questionId, { project, language });
+  const questionText = t.question[question.localizationKey].title;
 
   return (
     <div>
-      <PageHeader title="Business Structuring" subtitle="One focused question at a time." />
+      <PageHeader title={t.businessStructuring.title} subtitle={t.businessStructuring.subtitle} />
       {saveError && <Alert>{saveError}</Alert>}
 
-      <ProgressIndicator current={currentIndex} total={total} />
+      <ProgressIndicator
+        current={currentIndex}
+        total={total}
+        label={t.businessStructuring.progressLabel(Math.min(currentIndex + 1, total), total)}
+      />
 
-      <TransitionWrapper stepKey={question.id}>
+      <TransitionWrapper stepKey={question.questionId}>
         <Card>
-          <p style={{ margin: "0 0 var(--space-1)", fontSize: "var(--font-size-caption)", color: "var(--color-neutral-text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            {FIELD_LABELS[question.id]}
-          </p>
-          <h2 style={{ margin: "0 0 var(--space-4)" }}>{question.purpose}</h2>
+          <h2 style={{ margin: "0 0 var(--space-4)" }}>{questionText}</h2>
 
           <ChoiceList
             presets={presets}
             value={value}
+            writeMyOwnLabel={t.common.writeMyOwn}
+            answerLabel={t.common.yourAnswer}
+            answerPlaceholder={t.common.yourAnswerPlaceholder}
             onSelectPreset={handleSelectPreset}
             onCustomChange={saveAnswer}
           />
@@ -97,10 +96,10 @@ export function BusinessStructuringPage() {
 
       <Stack direction="row" style={{ marginTop: "var(--space-5)", justifyContent: "space-between" }}>
         <Button variant="secondary" onClick={goBack} disabled={currentIndex === 0}>
-          Back
+          {t.common.back}
         </Button>
         <Button onClick={goNext} disabled={!value.trim()}>
-          {currentIndex === total - 1 ? "Continue to Review" : "Continue"}
+          {currentIndex === total - 1 ? t.businessStructuring.continueToReview : t.common.continue}
         </Button>
       </Stack>
     </div>
@@ -115,23 +114,24 @@ function ReviewStep({
   onConfirm: () => void;
 }) {
   const { project, update } = useProjectContext();
+  const { t } = useLocalization();
 
   return (
     <div>
-      <PageHeader title="Review Your Business Canvas" subtitle="Everything in one place — edit anything before confirming." />
+      <PageHeader title={t.businessStructuring.reviewTitle} subtitle={t.businessStructuring.reviewSubtitle} />
 
       <Stack gap="var(--space-3)">
         {QUESTIONS.map((q, i) => (
-          <Card key={q.id}>
+          <Card key={q.questionId}>
             <Stack direction="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 600 }}>{FIELD_LABELS[q.id]}</p>
+                <p style={{ margin: 0, fontWeight: 600 }}>{t.question[q.localizationKey].title}</p>
                 <p style={{ margin: "var(--space-1) 0 0", color: "var(--color-neutral-text-muted)" }}>
-                  {project.canvas[q.id]}
+                  {project.canvas[q.relatedCanvasField]}
                 </p>
               </div>
               <Button variant="secondary" onClick={() => onEditQuestion(i)}>
-                Edit
+                {t.common.edit}
               </Button>
             </Stack>
           </Card>
@@ -139,8 +139,8 @@ function ReviewStep({
 
         <Card>
           <TextArea
-            label="Risk Notes (optional)"
-            hint="What could make this idea wrong? This doesn't block completion — it's just for your own reflection."
+            label={t.businessStructuring.riskNotesLabel}
+            hint={t.businessStructuring.riskNotesHint}
             value={project.riskNotes}
             onChange={(e) => update({ ...project, riskNotes: e.target.value })}
           />
@@ -148,7 +148,7 @@ function ReviewStep({
       </Stack>
 
       <Button onClick={onConfirm} style={{ marginTop: "var(--space-5)" }}>
-        Confirm and Continue to MVP Planning
+        {t.businessStructuring.confirmAndContinue}
       </Button>
     </div>
   );

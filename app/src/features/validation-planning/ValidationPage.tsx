@@ -11,10 +11,12 @@ import {
 } from "../../design-system";
 import { advanceToValidated, reopenScope } from "../../domain/lifecycle";
 import type { ValidationItem, ValidationStatus } from "../../domain/types";
+import { useLocalization } from "../../localization";
 import { useProjectContext } from "../useProject";
 
 export function ValidationPage() {
   const { project, update } = useProjectContext();
+  const { t } = useLocalization();
   const [newAssumption, setNewAssumption] = useState("");
 
   const canEditChecklist = project.stage === "validating" || project.stage === "validated";
@@ -50,14 +52,17 @@ export function ValidationPage() {
     update({ ...project, stage: reopenScope(project) });
   }
 
+  const statusLabel: Record<ValidationStatus, string> = {
+    open: t.validationPlanning.statusOpen,
+    validated: t.validationPlanning.statusValidated,
+    invalidated: t.validationPlanning.statusInvalidated,
+  };
+
   if (project.stage === "captured" || project.stage === "structuring" || project.stage === "scoped") {
     return (
       <div>
-        <PageHeader title="Validation Planning" />
-        <Alert tone="warning">
-          Complete Business Structuring and MVP Planning first — Validation Planning becomes available once
-          MVP Scope and Feature Planning are both marked complete.
-        </Alert>
+        <PageHeader title={t.validationPlanning.title} />
+        <Alert tone="warning">{t.validationPlanning.notReadyNotice}</Alert>
       </div>
     );
   }
@@ -65,12 +70,12 @@ export function ValidationPage() {
   return (
     <div>
       <PageHeader
-        title="Validation Planning"
-        subtitle="Turn your hypothesis into testable assumptions."
+        title={t.validationPlanning.title}
+        subtitle={t.validationPlanning.subtitle}
         actions={
           project.stage === "validating" && (
             <Button variant="secondary" onClick={handleReopenScope}>
-              Reopen MVP Planning
+              {t.validationPlanning.reopenMvpPlanning}
             </Button>
           )
         }
@@ -79,64 +84,57 @@ export function ValidationPage() {
       {canEditChecklist && (
         <Stack direction="row" style={{ marginBottom: "var(--space-4)" }}>
           <TextField
-            label="Add an assumption"
+            label={t.validationPlanning.addAssumptionLabel}
             value={newAssumption}
             onChange={(e) => setNewAssumption(e.target.value)}
-            placeholder="e.g. Customers will pay $10/month for this"
+            placeholder={t.validationPlanning.addAssumptionPlaceholder}
           />
           <Button onClick={addAssumption} disabled={!newAssumption.trim()}>
-            Add
+            {t.validationPlanning.add}
           </Button>
         </Stack>
       )}
 
       {project.validationItems.length === 0 ? (
-        <EmptyState
-          title="No assumptions yet"
-          description="Add at least one assumption — an empty checklist can't be marked Validated."
-        />
+        <EmptyState title={t.validationPlanning.emptyTitle} description={t.validationPlanning.emptyDescription} />
       ) : (
         <Stack gap="var(--space-3)">
           {project.validationItems.map((item) => (
             <Card key={item.id}>
               <p style={{ marginTop: 0, fontWeight: 600 }}>{item.assumption}</p>
               <TextField
-                label="Validation method"
+                label={t.validationPlanning.methodLabel}
                 value={item.method}
                 onChange={(e) => updateItem(item.id, { method: e.target.value })}
-                placeholder="How will you check this?"
+                placeholder={t.validationPlanning.methodPlaceholder}
               />
               <TextField
-                label="Success criterion"
+                label={t.validationPlanning.criterionLabel}
                 value={item.successCriterion}
                 onChange={(e) => updateItem(item.id, { successCriterion: e.target.value })}
-                placeholder="What result counts as confirmed?"
+                placeholder={t.validationPlanning.criterionPlaceholder}
               />
               <Stack direction="row" style={{ alignItems: "center" }}>
                 <Badge
                   tone={
-                    item.status === "validated"
-                      ? "success"
-                      : item.status === "invalidated"
-                        ? "danger"
-                        : "neutral"
+                    item.status === "validated" ? "success" : item.status === "invalidated" ? "danger" : "neutral"
                   }
                 >
-                  {item.status === "open" ? "Open" : item.status === "validated" ? "Validated" : "Invalidated"}
+                  {statusLabel[item.status]}
                 </Badge>
                 <Button
                   variant="secondary"
                   onClick={() => resolve(item.id, "validated")}
                   disabled={!item.method.trim() || !item.successCriterion.trim()}
                 >
-                  Mark Validated
+                  {t.validationPlanning.markValidated}
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => resolve(item.id, "invalidated")}
                   disabled={!item.method.trim() || !item.successCriterion.trim()}
                 >
-                  Mark Invalidated
+                  {t.validationPlanning.markInvalidated}
                 </Button>
               </Stack>
             </Card>
@@ -146,7 +144,7 @@ export function ValidationPage() {
 
       {project.stage === "validated" && (
         <div style={{ marginTop: "var(--space-4)" }}>
-          <Badge tone="success">All assumptions resolved — see Summary to confirm Build-Ready</Badge>
+          <Badge tone="success">{t.validationPlanning.allResolvedNotice}</Badge>
         </div>
       )}
     </div>

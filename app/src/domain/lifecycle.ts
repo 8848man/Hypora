@@ -3,15 +3,11 @@
 
 import type { Canvas, LifecycleStage, Project } from "./types";
 
-export const STAGE_LABELS: Record<LifecycleStage, string> = {
-  captured: "Captured",
-  structuring: "Structuring",
-  scoped: "Scoped",
-  validating: "Validating",
-  validated: "Validated",
-  "build-ready": "Build-Ready",
-  archived: "Archived",
-};
+// Stage display labels are presentation content, not domain identity — they live in
+// src/localization/resources/ (t.lifecycleStage), not here, per the same content-identity vs.
+// presentation-content separation this project already applies to the Question Model
+// (see sdd/workspace/features/02_1_question_model.md#localization). This file stays
+// language-independent, exactly as its header states.
 
 function isCanvasComplete(canvas: Canvas): boolean {
   return (
@@ -91,25 +87,34 @@ export function archiveProject(project: Project): LifecycleStage {
 }
 
 /**
- * Names which artifact is currently blocking progress to the next stage —
- * used by Project Summary's Readiness Callout. Returns null once Build-Ready.
+ * Names which artifact is currently blocking progress to the next stage — a language-independent
+ * code, not display text (per the content-identity/presentation-content separation this project
+ * applies consistently — see sdd/workspace/features/02_1_question_model.md#localization). The
+ * caller (Project Summary) resolves this code into localized text via the Localization Layer.
+ * Returns null once Build-Ready.
  */
-export function blockingReason(project: Project): string | null {
+export type BlockingReasonCode =
+  | "canvas"
+  | "scope"
+  | "feature-planning"
+  | "validation-empty"
+  | "validation-open"
+  | "confirm";
+
+export function blockingReason(project: Project): BlockingReasonCode | null {
   switch (project.stage) {
     case "captured":
     case "structuring":
-      return "Complete all five Business Canvas fields to continue.";
+      return "canvas";
     case "scoped":
-      if (!project.mvpScopeComplete) return "Mark MVP Scope as complete.";
-      if (!project.featurePlanningComplete) return "Mark Feature Planning as complete.";
+      if (!project.mvpScopeComplete) return "scope";
+      if (!project.featurePlanningComplete) return "feature-planning";
       return null;
     case "validating":
-      if (project.validationItems.length === 0) {
-        return "Add at least one Assumption to the Validation Checklist.";
-      }
-      return "Resolve every open Validation Checklist item.";
+      if (project.validationItems.length === 0) return "validation-empty";
+      return "validation-open";
     case "validated":
-      return "Confirm this project as Build-Ready when you're ready to act on it.";
+      return "confirm";
     case "build-ready":
     case "archived":
       return null;

@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { Button, Card, Stack } from "../../design-system";
+import { useLocalization } from "../../localization";
 
 export function HomePage() {
+  const { t } = useLocalization();
+
   return (
     <div>
       <section style={{ textAlign: "center", padding: "var(--space-7) 0" }}>
         <h1 style={{ fontSize: "var(--font-size-heading-1)", margin: "0 0 var(--space-3)" }}>
-          Turn a business idea into a validated MVP plan.
+          {t.landing.heroTitle}
         </h1>
         <p
           style={{
@@ -16,26 +19,25 @@ export function HomePage() {
             margin: "0 auto var(--space-5)",
           }}
         >
-          Hypora is a structured workspace for founders — no AI, no backend, just a clear path
-          from idea to a scoped, validated plan.
+          {t.landing.heroSubtitle}
         </p>
         <Link to="/app">
-          <Button>Open Workspace</Button>
+          <Button>{t.nav.openWorkspace}</Button>
         </Link>
       </section>
 
       <Stack direction="row" gap="var(--space-4)" style={{ marginTop: "var(--space-6)" }}>
         <Card style={{ flex: "1 1 240px" }}>
-          <h3>Structure the idea</h3>
-          <p>Business Idea, Problem, Target Customer, Solution, Value Proposition — one Canvas.</p>
+          <h3>{t.landing.valueCard1Title}</h3>
+          <p>{t.landing.valueCard1Body}</p>
         </Card>
         <Card style={{ flex: "1 1 240px" }}>
-          <h3>Scope the MVP</h3>
-          <p>Decide what's in your first version, and prioritize the features that matter.</p>
+          <h3>{t.landing.valueCard2Title}</h3>
+          <p>{t.landing.valueCard2Body}</p>
         </Card>
         <Card style={{ flex: "1 1 240px" }}>
-          <h3>Validate before you build</h3>
-          <p>Turn assumptions into testable checks — know what's confirmed, not just hoped.</p>
+          <h3>{t.landing.valueCard3Title}</h3>
+          <p>{t.landing.valueCard3Body}</p>
         </Card>
       </Stack>
     </div>

@@ -1,68 +1,91 @@
 // Implements sdd/workspace/features/02_1_question_model.md — the Question domain model and
 // Preset Strategy. Framework-independent: no React import here, per that document's instruction.
+//
+// Per the Question Model's Localization section, this file owns content IDENTITY only
+// (questionId, relatedCanvasField, localizationKey, validation, ordering). It never contains
+// display text — Purpose/title text and preset options are PRESENTATION CONTENT, resolved via
+// localizationKey through the Localization Layer (see src/localization/), not stored here.
 
 import type { Canvas, Project } from "../../domain/types";
+import type { Language, Resources } from "../../localization";
+import { en } from "../../localization/resources/en";
+import { ko } from "../../localization/resources/ko";
 
 export type CanvasFieldKey = keyof Canvas;
 
 export interface Question {
-  id: CanvasFieldKey;
-  purpose: string;
+  questionId: string;
+  relatedCanvasField: CanvasFieldKey;
+  localizationKey: keyof Resources["question"];
+  validation: "non-empty";
+  ordering: number;
 }
 
-/** The V1 Question Set — one question per Canvas field, in the fixed canonical order. */
+/**
+ * The V1 Question Set — one question per Canvas field, in the fixed canonical order
+ * (per sdd/context/03_personas_and_journey.md's Core User Journey). Identity only; do not add
+ * display text here — see resources/ko.ts and resources/en.ts for the Purpose title and presets
+ * behind each `localizationKey`.
+ */
 export const QUESTIONS: Question[] = [
-  { id: "businessIdea", purpose: "What's the idea, in a sentence or two?" },
-  { id: "problem", purpose: "What problem does this solve, and for whom?" },
-  { id: "targetCustomer", purpose: "Who specifically has this problem?" },
-  { id: "solution", purpose: "What are you proposing to build?" },
-  { id: "valueProposition", purpose: "Why would someone choose this over alternatives?" },
+  {
+    questionId: "business_idea",
+    relatedCanvasField: "businessIdea",
+    localizationKey: "businessIdea",
+    validation: "non-empty",
+    ordering: 0,
+  },
+  {
+    questionId: "problem_definition",
+    relatedCanvasField: "problem",
+    localizationKey: "problem",
+    validation: "non-empty",
+    ordering: 1,
+  },
+  {
+    questionId: "target_customer",
+    relatedCanvasField: "targetCustomer",
+    localizationKey: "targetCustomer",
+    validation: "non-empty",
+    ordering: 2,
+  },
+  {
+    questionId: "solution_definition",
+    relatedCanvasField: "solution",
+    localizationKey: "solution",
+    validation: "non-empty",
+    ordering: 3,
+  },
+  {
+    questionId: "value_proposition",
+    relatedCanvasField: "valueProposition",
+    localizationKey: "valueProposition",
+    validation: "non-empty",
+    ordering: 4,
+  },
 ];
 
 /**
- * A Preset Provider resolves 3–5 suggested answers for a question. V1 ships one static,
- * curated provider. V2's AI Canvas Assistant becomes a *different* provider — same signature,
- * same call site — per the Preset Strategy's replaceable-content contract. Nothing about the
- * guided flow, the Question Model, or the select-or-customize interaction changes when the
- * provider changes.
+ * A Preset Provider resolves 3–5 localized suggested answers for a question. Per the Preset
+ * Strategy's localization extension: Input is (questionId, current answers/context, current
+ * language); Output is 3–5 preset options already in that language. V1 ships one static,
+ * curated provider (Korean-authored, English preserving meaning). V2's AI Canvas Assistant
+ * becomes a *different* provider — same signature, same call site — receiving language as an
+ * ordinary input parameter and returning presets already localized. Nothing about the guided
+ * flow, the Question Model, or the select-or-customize interaction changes when the provider
+ * changes.
  */
-export type PresetContext = { project: Project };
-export type PresetProvider = (questionId: CanvasFieldKey, context: PresetContext) => string[];
+export type PresetContext = { project: Project; language: Language };
+export type PresetProvider = (questionId: string, context: PresetContext) => string[];
 
-const V1_STATIC_PRESETS: Record<CanvasFieldKey, string[]> = {
-  businessIdea: [
-    "A subscription service that helps [audience] do [job] more easily.",
-    "A marketplace connecting [group A] with [group B].",
-    "A tool that automates [tedious task] for [audience].",
-    "A local service that brings [thing people want] closer to [audience].",
-  ],
-  problem: [
-    "People waste time/money because there's no easy way to [do X].",
-    "Existing options are too expensive, slow, or inconvenient for [audience].",
-    "There's no trusted way for [audience] to find/do [X] today.",
-  ],
-  targetCustomer: [
-    "Busy urban professionals",
-    "Small business owners",
-    "Parents of young children",
-    "Students",
-    "People new to a neighborhood or city",
-  ],
-  solution: [
-    "A mobile app that connects [audience] directly with [resource].",
-    "A simple web tool that automates [manual process].",
-    "A curated marketplace with built-in trust/safety features.",
-  ],
-  valueProposition: [
-    "Saves time compared to the current alternative.",
-    "Costs less than existing options.",
-    "Builds trust/community in a way nothing else does.",
-    "Is simply more convenient — available when and where competitors aren't.",
-  ],
+const RESOURCES: Record<Language, Resources> = { ko, en };
+
+/** V1's Preset Provider: a fixed, curated list per question per language — no AI, per V1 scope. */
+export const v1StaticPresetProvider: PresetProvider = (questionId, { language }) => {
+  const question = QUESTIONS.find((q) => q.questionId === questionId);
+  if (!question) return [];
+  return RESOURCES[language].question[question.localizationKey].presets;
 };
-
-/** V1's Preset Provider: a fixed, curated list per question — no AI, per V1 scope. */
-export const v1StaticPresetProvider: PresetProvider = (questionId) => V1_STATIC_PRESETS[questionId];
 
 /**
  * Resume rule (sdd/workspace/02_data_and_state.md): derived from Canvas field completeness,
@@ -70,6 +93,6 @@ export const v1StaticPresetProvider: PresetProvider = (questionId) => V1_STATIC_
  * or QUESTIONS.length if every question is answered (meaning: show Review).
  */
 export function resumeQuestionIndex(canvas: Canvas): number {
-  const idx = QUESTIONS.findIndex((q) => canvas[q.id].trim() === "");
+  const idx = QUESTIONS.findIndex((q) => canvas[q.relatedCanvasField].trim() === "");
   return idx === -1 ? QUESTIONS.length : idx;
 }
