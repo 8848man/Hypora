@@ -1,6 +1,6 @@
 # Application Responsibilities
 
-**Refs:** → [00_index](../00_index.md) · [Product Vision](./01_product_vision.md) · [Information Architecture](./04_information_architecture.md) · [Future Expansion Strategy](./06_future_expansion_strategy.md) · [ADR-0001](../architecture/decisions/ADR-0001-one-product-multiple-applications.md)
+**Refs:** → [00_index](../00_index.md) · [Product Vision](./01_product_vision.md) · [Information Architecture](./04_information_architecture.md) · [Future Expansion Strategy](./06_future_expansion_strategy.md) · [Workspace Architecture](../workspace/01_architecture.md) · [ADR-0001](../architecture/decisions/ADR-0001-one-product-multiple-applications.md)
 
 ## Product Architecture
 
@@ -32,7 +32,7 @@ Per `10_bootstrap_guide.md` Step 3, no `sdd/<application>/` implementation-layer
 **V1 Functional Scope:**
 - Static/near-static pages: Home, Features, Roadmap, Call-to-Action (see [Information Architecture](./04_information_architecture.md)).
 - Roadmap content reproduces the stage table from [Product Vision](./01_product_vision.md) by reference — Landing does not maintain its own independent copy of roadmap wording.
-- Call-to-action links into the Workspace application; Landing does not embed any Workspace screen.
+- Call-to-action links into the Workspace's Dashboard/Project List (see [Workspace Architecture](../workspace/01_architecture.md)); Landing does not embed, preview, or describe in detail any Workspace screen — its Features page may name what the Workspace does (per its "feature showcase" responsibility) without reproducing Workspace's own Information Architecture, Feature Inventory, or data model, all of which are owned by [Workspace Architecture](../workspace/01_architecture.md) and [Workspace Data & State](../workspace/02_data_and_state.md).
 
 ## Workspace
 
@@ -47,13 +47,7 @@ Per `10_bootstrap_guide.md` Step 3, no `sdd/<application>/` implementation-layer
 
 **This is the primary MVP.** *(Explicit.)*
 
-**V1 Functional Scope:**
-- Create, list, and select projects (Project Management).
-- Author the five Business Canvas fields per project: Business Idea, Problem, Target Customer, Solution, Value Proposition.
-- Define MVP Scope and Feature Planning for the project.
-- Maintain a Validation Checklist per project.
-- View a Project Summary aggregating the above.
-- Persist all of the above via Platform API's V1 implementation (LocalStorage) — Workspace does not implement its own separate persistence mechanism; it consumes Platform API's contract (see below).
+**V1 Functional Scope:** now canonically owned by [Workspace Architecture](../workspace/01_architecture.md) and [Workspace Data & State](../workspace/02_data_and_state.md) — Workspace has its own dedicated specification directory as of this pass; this document no longer restates its screen inventory, feature inventory, or data model. In summary only: Workspace persists all Project data via Platform API's V1 implementation (LocalStorage); it does not implement its own separate persistence mechanism.
 
 ## Platform API
 

@@ -10,7 +10,7 @@ This project follows Specification-Driven Development (SDD), per the methodology
 
 ## Current Project Stage
 
-Hypora is in the **product-specification stage**: `sdd/context/` defines the product, but no Application (Landing, Workspace, Platform API) has real code yet. Do not begin implementation, generate development tasks, or design APIs beyond conceptual ownership until a specification-based task explicitly calls for it — see `sdd/00_index.md` for what exists today and what is deliberately deferred.
+Hypora is still pre-implementation: `sdd/context/` defines the product and `sdd/workspace/` now defines the Workspace application in detail, but no Application (Landing, Workspace, Platform API) has real code yet. Do not begin implementation, generate development tasks, generate UI components, or design backend APIs until a specification-based task explicitly calls for it — see `sdd/00_index.md` for what exists today and what is deliberately deferred.
 
 ## Non-Negotiable Rules
 
@@ -23,4 +23,4 @@ Hypora is in the **product-specification stage**: `sdd/context/` defines the pro
 
 ## Where Things Live
 
-See `sdd/00_index.md` for the full map. In short: product intent lives in `sdd/context/`, architectural decisions in `sdd/architecture/decisions/`, process/governance in `sdd/workflow/` and `sdd/rules/`. Directories not yet created (`sdd/landing/`, `sdd/domain/`, `sdd/infra/`, `release/`) are deliberately deferred — see the index's "Not Yet Created" table for their trigger conditions.
+See `sdd/00_index.md` for the full map. In short: product intent lives in `sdd/context/`, the Project lifecycle in `sdd/domain/`, Workspace's own spec in `sdd/workspace/`, deployment target in `sdd/infra/`, the unified V1 release plan in `sdd/analysis/`, architectural decisions in `sdd/architecture/decisions/`, process/governance (including the Git branch/release strategy) in `sdd/workflow/` and `sdd/rules/`. Directories not yet created (`sdd/landing/`, `sdd/platform-api/`, `release/`, `sdd/archive/`) are deliberately deferred — see the index's "Not Yet Created" table for their trigger conditions.

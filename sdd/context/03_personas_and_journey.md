@@ -1,6 +1,6 @@
 # User Personas and Core User Journey
 
-**Refs:** → [00_index](../00_index.md) · [Product Scope](./02_product_scope.md) · [Information Architecture](./04_information_architecture.md)
+**Refs:** → [00_index](../00_index.md) · [Product Scope](./02_product_scope.md) · [Information Architecture](./04_information_architecture.md) · [Workspace Architecture](../workspace/01_architecture.md)
 
 *(Inferred — the brief does not name personas or walk through a journey explicitly; both are derived from the stated purpose ("transform business ideas into structured, validated MVP plans") and the V1 feature list, since a workspace product cannot be specified without them.)*
 
@@ -67,6 +67,6 @@ All three personas are individual users in V1 — none require multi-user collab
         → see the whole structured plan in one place
 ```
 
-Steps 3–6 are not strictly linear in the UI (a user may revisit Problem after starting Feature Planning), but they represent the intended completion order for a first pass through a new project — see [Information Architecture](./04_information_architecture.md) for how this maps to actual screens and navigation.
+Steps 3–6 are not strictly linear in the UI (a user may revisit Problem after starting Feature Planning), but they represent the intended completion order for a first pass through a new project — see [Workspace Architecture](../workspace/01_architecture.md) for how this maps to actual Workspace screens and navigation.
 
-**This document owns persona definitions and the journey sequence.** [Information Architecture](./04_information_architecture.md) references this journey when defining navigation; it does not redefine the journey steps independently.
+**This document owns persona definitions and the journey sequence.** [Workspace Architecture](../workspace/01_architecture.md) references this journey when defining Workspace-internal navigation; [Information Architecture](./04_information_architecture.md) references it for Landing's entry point only. Neither redefines the journey steps independently.

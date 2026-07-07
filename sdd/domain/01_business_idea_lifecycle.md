@@ -1,6 +1,6 @@
 # Business Idea Lifecycle (Domain Model)
 
-**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Information Architecture](../context/04_information_architecture.md) · [ADR-0002](../architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)
+**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Workspace Architecture](../workspace/01_architecture.md) · [ADR-0002](../architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)
 
 *(Inferred — the product brief never states a formal lifecycle; this document introduces one as the conceptual backbone the Workspace, Feature Planning, and every future roadmap stage (V2–V5) can be checked against, per the SDD Framework's Type 6 "Domain / State Machine Document.")*
 
@@ -9,17 +9,17 @@
 Per the framework's `03_document_lifecycle.md` (Type 6) and `02_directory_structure.md` (`sdd/domain/`): a domain/state-machine document is warranted "as soon as a business entity has more than one lifecycle state and more than one [document/future layer] cares about it." A Project's lifecycle meets both conditions here:
 
 - It has more than one valid state (below), with real transition rules and guards — not a simple boolean flag.
-- More than one existing document already depends on it implicitly: [Information Architecture](../context/04_information_architecture.md) needs to know what a project's navigable state looks like; [Application Responsibilities](../context/05_application_responsibilities.md)'s Workspace scope needs an authoritative definition of "what does a completed project mean"; and every future roadmap stage (V2–V5) reads or writes this same state.
+- More than one existing document already depends on it implicitly: [Workspace Architecture](../workspace/01_architecture.md) needs to know what a project's navigable state looks like; [Application Responsibilities](../context/05_application_responsibilities.md)'s Workspace scope needs an authoritative definition of "what does a completed project mean"; and every future roadmap stage (V2–V5) reads or writes this same state.
 
-It cannot live inside `context/01_product_vision.md` (owns Vision/Positioning/Roadmap, not entity behavior), `context/02_product_scope.md` (owns scope/metrics, not state transitions), or `context/04_information_architecture.md` (owns navigable screen structure, not the underlying entity's valid states — IA describes *where* a user can go, not what state the data is in). Per the concept-ownership rule, this is a genuinely new concept requiring its own canonical owner, which is why `sdd/domain/` is created now — the trigger condition in `sdd/00_index.md`'s "Not Yet Created" table has fired.
+It cannot live inside `context/01_product_vision.md` (owns Vision/Positioning/Roadmap, not entity behavior), `context/02_product_scope.md` (owns scope/metrics, not state transitions), or `workspace/01_architecture.md` (owns navigable screen structure, not the underlying entity's valid states — IA describes *where* a user can go, not what state the data is in). Per the concept-ownership rule, this is a genuinely new concept requiring its own canonical owner, which is why `sdd/domain/` is created now — the trigger condition in `sdd/00_index.md`'s "Not Yet Created" table has fired.
 
 ## Entity: Project
 
-A **Project** is one business idea being structured inside the Workspace (see [Information Architecture](../context/04_information_architecture.md)). Its lifecycle stage is a property of the Project as a whole, derived from the completion state of its Canvas, MVP Scope, Feature Planning, and Validation Checklist — not a separately user-set field the user picks arbitrarily.
+A **Project** is one business idea being structured inside the Workspace (see [Workspace Architecture](../workspace/01_architecture.md)). Its lifecycle stage is a property of the Project as a whole, derived from the completion state of its Canvas, MVP Scope, Feature Planning, and Validation Checklist — not a separately user-set field the user picks arbitrarily.
 
 ## States
 
-| State | Meaning | Derived from |
+| State | Meaning | Entry condition (first time this state is reached) |
 |---|---|---|
 | **Captured** | A Project exists, but the Canvas has not been started | Project created, all five Canvas fields empty |
 | **Structuring** | The Canvas is being authored | At least one Canvas field filled, not all five |
@@ -28,6 +28,10 @@ A **Project** is one business idea being structured inside the Workspace (see [I
 | **Validated** | Every Validation Checklist item has been explicitly resolved (marked validated or explicitly invalidated) | All Checklist items resolved, none left open |
 | **Build-Ready** | The user has explicitly confirmed the Validated plan as ready to act on | User-triggered confirmation on a Validated project — the terminal "useful output" state for V1 |
 | **Archived** | The Project is no longer active | User-triggered archive action, from any prior state |
+
+### Stickiness Rule (resolves an ambiguity between this table and non-linear navigation)
+
+**Lifecycle stage is sticky, not continuously recomputed.** [Workspace Architecture](../workspace/01_architecture.md) and [Core User Journey](../context/03_personas_and_journey.md) both allow revisiting any already-completed artifact at any time (e.g., editing the Canvas after reaching Scoped). Editing a previously-completed artifact back to an incomplete state does **not** automatically regress the Project's lifecycle stage — regression happens only through the two explicitly named backward transitions below (`Validating → Scoped`) or an explicit archive action. The "Entry condition" column above governs only the *first* time a state is reached (i.e., what unlocks the forward transition); it is not re-evaluated continuously once the Project has already advanced past that state. This keeps the lifecycle model compatible with non-linear navigation without silently discarding a user's progress every time they revisit a finished section.
 
 ## Transitions
 
@@ -63,4 +67,4 @@ A **Project** is one business idea being structured inside the Workspace (see [I
 
 ## Ownership
 
-This document is the single authoritative source for Project lifecycle states, transitions, and guards. [Information Architecture](../context/04_information_architecture.md) references lifecycle stage as a display concern (see its Workspace Mental Model review) but must not redefine any transition here. Any future `sdd/workspace/` implementation document must reference this document rather than re-specifying the state machine.
+This document is the single authoritative source for Project lifecycle states, transitions, and guards. [Workspace Architecture](../workspace/01_architecture.md) references lifecycle stage as a display concern (see its Workspace Mental Model Review) but must not redefine any transition here. Any Workspace Feature Specification (`sdd/workspace/features/`) must reference this document rather than re-specifying the state machine.
