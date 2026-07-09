@@ -16,7 +16,7 @@
 
 ## Merge Strategy
 
-- Feature branch → `develop`: once the feature branch's own validation (per [Implementation Lifecycle](./00_implementation_lifecycle.md)) passes.
+- Feature branch → `develop`: once the feature branch's own validation (per [Implementation Lifecycle](./00_implementation_lifecycle.md)) passes. Within a feature branch, commit granularity (when and how often to commit while work is in progress) is owned by [Implementation Lifecycle](./00_implementation_lifecycle.md#commit-discipline) — this document governs branch-to-branch flow only, not individual commits.
 - `develop` → `main`: only at an actual release point — this merge *is* the release action. Per the framework's Release Flow rule, a release record is written only when something is actually deployed, never speculatively — so this merge and an actual Vercel deployment of `main` should happen together, not as two disconnected events.
 
 ## Versioning Strategy
