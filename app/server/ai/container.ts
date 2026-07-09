@@ -13,7 +13,11 @@ import { AiApplicationService } from "./AiApplicationService.js";
 import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.js";
 import type { Provider } from "./provider/ProviderInterface.js";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+// A "-latest" alias rather than a pinned version: Gemini model versions have been
+// observed to be deprecated (404) faster than expected — this alias always
+// resolves to the current recommended flash model instead of requiring a code
+// change each time a pinned version is retired.
+const GEMINI_MODEL = "gemini-flash-latest";
 
 // Default provider selection: Gemini if a credential is configured, Fake otherwise.
 // This is the ONLY place that decision is made — swapping which Provider backs the
