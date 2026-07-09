@@ -3,7 +3,7 @@
 // can be proven before any real vendor (Gemini) is integrated. Never used past Stage 4,
 // where it is swapped for GeminiProvider without any change to this file's consumers.
 
-import type { Provider, ProviderRequest, ProviderResponse } from "./ProviderInterface.ts";
+import type { Provider, ProviderRequest, ProviderResponse } from "./ProviderInterface.js";
 
 // A generic, capability-agnostic structured-output hint a Capability may pass via
 // ProviderRequest.parameters.responseSchema. FakeProvider honors it the same way a

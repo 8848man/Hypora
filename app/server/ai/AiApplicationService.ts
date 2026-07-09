@@ -8,8 +8,8 @@
 // no prompt/context/response logic yet; that is added in Stage 2 without changing this
 // file's public shape.
 
-import type { Provider, ProviderResponse } from "./provider/ProviderInterface.ts";
-import type { ProviderConfigRegistry } from "./config/providerConfig.ts";
+import type { Provider, ProviderResponse } from "./provider/ProviderInterface.js";
+import type { ProviderConfigRegistry } from "./config/providerConfig.js";
 
 export type AiApplicationServiceDeps = {
   provider: Provider;

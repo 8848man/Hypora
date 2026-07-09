@@ -6,7 +6,7 @@ import type {
   CanvasAssistantOperation,
   CanvasAssistantRequest,
   CanvasContextField,
-} from "../ai/capabilities/canvasAssistant/types.ts";
+} from "../ai/capabilities/canvasAssistant/types.js";
 
 export class HttpValidationError extends Error {
   constructor(message: string) {

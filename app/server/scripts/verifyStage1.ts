@@ -3,9 +3,9 @@
 // (or `npm run verify:stage1`). Exercises the skeleton end-to-end without a live
 // deployment: container wiring, health round-trip, and FakeProvider determinism.
 
-import { createContainer } from "../ai/container.ts";
-import { checkAiPlatformHealth } from "../ai/health.ts";
-import { FakeProvider } from "../ai/provider/FakeProvider.ts";
+import { createContainer } from "../ai/container.js";
+import { checkAiPlatformHealth } from "../ai/health.js";
+import { FakeProvider } from "../ai/provider/FakeProvider.js";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

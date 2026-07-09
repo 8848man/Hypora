@@ -9,13 +9,13 @@
 // generic, shared utilities this module composes but does not reimplement, per
 // sdd/ai/03_ownership_model.md.
 
-import type { AiApplicationService } from "../../AiApplicationService.ts";
-import { createTemplate } from "../../prompt/PromptRenderer.ts";
-import { serializeContext } from "../../context/ContextTransformer.ts";
-import { parseJson } from "../../response/ResponseParser.ts";
-import { assertNonEmptyText, assertShape } from "../../response/ResponseValidator.ts";
-import { OPERATION_TEMPLATES } from "./prompts.ts";
-import type { CanvasAssistantRequest, CanvasAssistantResponse } from "./types.ts";
+import type { AiApplicationService } from "../../AiApplicationService.js";
+import { createTemplate } from "../../prompt/PromptRenderer.js";
+import { serializeContext } from "../../context/ContextTransformer.js";
+import { parseJson } from "../../response/ResponseParser.js";
+import { assertNonEmptyText, assertShape } from "../../response/ResponseValidator.js";
+import { OPERATION_TEMPLATES } from "./prompts.js";
+import type { CanvasAssistantRequest, CanvasAssistantResponse } from "./types.js";
 
 export const CANVAS_ASSISTANT = {
   capabilityId: "canvas-assistant",

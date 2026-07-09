@@ -7,8 +7,8 @@
 // stage needs Vercel-specific request helpers.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { createContainer } from "../server/ai/container.ts";
-import { checkAiPlatformHealth } from "../server/ai/health.ts";
+import { createContainer } from "../server/ai/container.js";
+import { checkAiPlatformHealth } from "../server/ai/health.js";
 
 export default async function handler(_req: IncomingMessage, res: ServerResponse): Promise<void> {
   const container = createContainer();
