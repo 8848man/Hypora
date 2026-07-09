@@ -17,11 +17,19 @@ export type CanvasAssistantInvokeInput = {
   currentField?: string;
   priorAnswers?: CanvasContextField[];
   language: "ko" | "en";
+  projectName?: string;
   // The targeted field's live value at the moment of invocation — used only to
   // detect a manual edit made while the request is in flight (Manual-first:
   // sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability).
   fieldValueAtInvocation: string;
 };
+
+// A builder, not a static object: called fresh at the moment of the initial
+// invocation AND again at every Regenerate/Retry, so each of those — each a "new,
+// independent invocation" per 04_ai_interaction.md's Suggestion Lifecycle — reads
+// the truly current project state (Progressive Context Accumulation), not a
+// snapshot frozen at the first click.
+export type CanvasAssistantInputBuilder = () => CanvasAssistantInvokeInput;
 
 export type UseCanvasAssistantResult = {
   status: CanvasAssistantStatus;
@@ -30,7 +38,7 @@ export type UseCanvasAssistantResult = {
   failureKind?: CanvasAssistantFailureKind;
   // The only entry point into Requesting — nothing else in this hook can start a
   // request (Governing Rule 1, sdd/ai/04_ai_interaction.md).
-  invoke: (input: CanvasAssistantInvokeInput, getCurrentFieldValue: () => string) => void;
+  invoke: (buildInput: CanvasAssistantInputBuilder, getCurrentFieldValue: () => string) => void;
   regenerate: () => void;
   retry: () => void;
   reject: () => void;
@@ -43,18 +51,22 @@ export function useCanvasAssistant(): UseCanvasAssistantResult {
   const [rationale, setRationale] = useState<string | undefined>(undefined);
   const [failureKind, setFailureKind] = useState<CanvasAssistantFailureKind | undefined>(undefined);
 
-  const lastInputRef = useRef<CanvasAssistantInvokeInput | null>(null);
+  const lastBuildInputRef = useRef<CanvasAssistantInputBuilder | null>(null);
   const getCurrentFieldValueRef = useRef<() => string>(() => "");
   const abortRef = useRef<AbortController | null>(null);
 
   const run = useCallback(
-    (input: CanvasAssistantInvokeInput, getCurrentFieldValue: () => string) => {
+    (buildInput: CanvasAssistantInputBuilder, getCurrentFieldValue: () => string) => {
       // Duplicate-request prevention (sdd/ai/05#duplicate-request-handling): a
       // request already in flight is never joined by a second concurrent one.
       if (status === "loading") return;
 
-      lastInputRef.current = input;
+      lastBuildInputRef.current = buildInput;
       getCurrentFieldValueRef.current = getCurrentFieldValue;
+
+      // Built fresh right now — this is what makes Progressive Context Accumulation
+      // hold for Regenerate/Retry, not only the first invocation.
+      const input = buildInput();
 
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -70,6 +82,7 @@ export function useCanvasAssistant(): UseCanvasAssistantResult {
           currentField: input.currentField,
           priorAnswers: input.priorAnswers,
           language: input.language,
+          projectName: input.projectName,
         },
         controller.signal,
       )
@@ -103,25 +116,19 @@ export function useCanvasAssistant(): UseCanvasAssistantResult {
   );
 
   const invoke = useCallback(
-    (input: CanvasAssistantInvokeInput, getCurrentFieldValue: () => string) => run(input, getCurrentFieldValue),
+    (buildInput: CanvasAssistantInputBuilder, getCurrentFieldValue: () => string) =>
+      run(buildInput, getCurrentFieldValue),
     [run],
   );
 
-  // Both Regenerate and Retry re-snapshot fieldValueAtInvocation at the moment
-  // they're clicked — reusing the *original* invocation's snapshot would treat any
-  // edit made between the first attempt and this retry as "stale", wrongly
-  // discarding a legitimate response even though nothing changed during the retry
-  // itself. Only edits made *during this* retry/regenerate should count as stale.
   const regenerate = useCallback(() => {
-    if (!lastInputRef.current) return;
-    const refreshed = { ...lastInputRef.current, fieldValueAtInvocation: getCurrentFieldValueRef.current() };
-    run(refreshed, getCurrentFieldValueRef.current);
+    if (!lastBuildInputRef.current) return;
+    run(lastBuildInputRef.current, getCurrentFieldValueRef.current);
   }, [run]);
 
   const retry = useCallback(() => {
-    if (!lastInputRef.current) return;
-    const refreshed = { ...lastInputRef.current, fieldValueAtInvocation: getCurrentFieldValueRef.current() };
-    run(refreshed, getCurrentFieldValueRef.current);
+    if (!lastBuildInputRef.current) return;
+    run(lastBuildInputRef.current, getCurrentFieldValueRef.current);
   }, [run]);
 
   const reject = useCallback(() => {
@@ -136,7 +143,7 @@ export function useCanvasAssistant(): UseCanvasAssistantResult {
     setSuggestionText(undefined);
     setRationale(undefined);
     setFailureKind(undefined);
-    lastInputRef.current = null;
+    lastBuildInputRef.current = null;
   }, []);
 
   return { status, suggestionText, rationale, failureKind, invoke, regenerate, retry, reject, reset };

@@ -13,7 +13,7 @@ import { AiApplicationService } from "./AiApplicationService.ts";
 import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.ts";
 import type { Provider } from "./provider/ProviderInterface.ts";
 
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 // Default provider selection: Gemini if a credential is configured, Fake otherwise.
 // This is the ONLY place that decision is made — swapping which Provider backs the

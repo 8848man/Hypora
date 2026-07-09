@@ -17,6 +17,9 @@ export type CanvasAssistantRequest = {
   currentField?: string;
   priorAnswers?: CanvasContextField[];
   language: "ko" | "en";
+  // Seed context for AI-first Draft Generation — send only when canvasContext is
+  // empty (per sdd/ai/capabilities/01_canvas_assistant.md).
+  projectName?: string;
 };
 
 export type CanvasAssistantResponse = {

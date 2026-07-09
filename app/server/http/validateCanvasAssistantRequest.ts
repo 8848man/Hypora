@@ -62,6 +62,9 @@ export function validateCanvasAssistantRequest(body: unknown): CanvasAssistantRe
   if (typeof candidate.language !== "string" || !VALID_LANGUAGES.includes(candidate.language as "ko" | "en")) {
     throw new HttpValidationError(`"language" must be one of: ${VALID_LANGUAGES.join(", ")}`);
   }
+  if (candidate.projectName !== undefined && typeof candidate.projectName !== "string") {
+    throw new HttpValidationError('"projectName" must be a string if provided');
+  }
 
   return {
     operation: candidate.operation as CanvasAssistantOperation,
@@ -69,5 +72,6 @@ export function validateCanvasAssistantRequest(body: unknown): CanvasAssistantRe
     currentField: candidate.currentField as string | undefined,
     priorAnswers: candidate.priorAnswers as CanvasContextField[] | undefined,
     language: candidate.language as "ko" | "en",
+    projectName: candidate.projectName as string | undefined,
   };
 }

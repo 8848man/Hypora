@@ -47,6 +47,20 @@ async function main(): Promise<void> {
   });
   assert(typeof refinement.suggestionText === "string", "refinement response missing suggestionText");
 
+  // AI-first Draft Generation: empty canvasContext + a projectName seed must still
+  // produce a valid suggestion (Step 2 of the Context Accumulation implementation).
+  const bootstrapped = await container.canvasAssistant.invoke({
+    operation: "suggestion",
+    canvasContext: [],
+    currentField: "businessIdea",
+    language: "en",
+    projectName: "TravelMate",
+  });
+  assert(
+    typeof bootstrapped.suggestionText === "string" && bootstrapped.suggestionText.length > 0,
+    "expected a non-empty draft suggestion when seeded only from projectName",
+  );
+
   // Malformed-response path: a provider that ignores the schema hint entirely must
   // surface a validation error, not a silently wrong result.
   const misbehavingProvider = {

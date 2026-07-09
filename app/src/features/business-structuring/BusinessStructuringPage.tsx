@@ -16,9 +16,9 @@ import {
 import { advanceAfterCanvasEdit } from "../../domain/lifecycle";
 import { useLocalization } from "../../localization";
 import { useCanvasAssistant } from "../../ai/useCanvasAssistant";
-import type { CanvasContextField } from "../../ai/types";
 import { useProjectContext } from "../useProject";
 import { QUESTIONS, resumeQuestionIndex, v1StaticPresetProvider } from "./questionModel";
+import { buildWorkspaceSnapshot } from "./workspaceSnapshot";
 
 export function BusinessStructuringPage() {
   const { project, update, saveError } = useProjectContext();
@@ -72,21 +72,35 @@ export function BusinessStructuringPage() {
   // answered, mirroring Canvas Assistant's Request Contract.
   function handleAskAi() {
     const question = QUESTIONS[currentIndex];
-    const canvasContext: CanvasContextField[] = QUESTIONS.filter(
-      (q) => project.canvas[q.relatedCanvasField].trim() !== "",
-    ).map((q) => ({ field: q.relatedCanvasField, value: project.canvas[q.relatedCanvasField] }));
 
-    assistant.invoke(
-      {
-        operation: "suggestion",
+    // A builder, not a pre-computed object: called fresh both now and again on
+    // every later Regenerate/Retry, so each of those — each its own "new,
+    // independent invocation" per 04_ai_interaction.md's Suggestion Lifecycle —
+    // reads projectRef.current, never a snapshot frozen at this first click
+    // (Progressive Context Accumulation, sdd/ai/04_ai_interaction.md#conversation-policy).
+    const buildInput = () => {
+      // Single source of truth for current confirmed Canvas state — no separate,
+      // duplicate construction of "prior answers" alongside it. The Capability
+      // reuses this same data for its "prior answers" template variable when the
+      // Feature doesn't have a genuinely different set to supply (see
+      // CanvasAssistantCapability.invoke()'s fallback).
+      const canvasContext = buildWorkspaceSnapshot(projectRef.current);
+
+      return {
+        operation: "suggestion" as const,
         canvasContext,
         currentField: question.relatedCanvasField,
-        priorAnswers: canvasContext,
         language,
-        fieldValueAtInvocation: project.canvas[question.relatedCanvasField],
-      },
-      () => projectRef.current.canvas[question.relatedCanvasField],
-    );
+        // AI-first Draft Generation: seed context is sent only when the Canvas is
+        // entirely empty — per sdd/ai/capabilities/01_canvas_assistant.md, this is
+        // context selection (a Feature-owned decision), not something the
+        // Capability decides on its own.
+        projectName: canvasContext.length === 0 ? projectRef.current.name : undefined,
+        fieldValueAtInvocation: projectRef.current.canvas[question.relatedCanvasField],
+      };
+    };
+
+    assistant.invoke(buildInput, () => projectRef.current.canvas[question.relatedCanvasField]);
   }
 
   // Accept: the same saveAnswer() path a preset or manually typed answer already

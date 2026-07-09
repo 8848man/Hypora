@@ -23,7 +23,7 @@ Give every AI Capability (Canvas Assistant today; Persona Review, Market Intelli
 | Mode | V2 status | Rule |
 |---|---|---|
 | **Manual invocation** | Allowed | A user takes an explicit action (e.g., activating an "Ask AI" affordance) that starts the lifecycle at Requesting. This is the only invocation mode V2 implements. |
-| **Automatic invocation** | Intentionally deferred | The system starting a capability call without an explicit user action (e.g., on field blur, on a timer, on page load) is out of scope for V2. Per Governing Rule 1, merely *showing* an AI affordance is never itself invocation — deferring automatic invocation means no code path may trigger Requesting except a user's explicit action. |
+| **Automatic invocation** | Intentionally deferred | The system starting a capability call without an explicit user action (e.g., on field blur, on a timer, on page load) is out of scope for V2. Per Governing Rule 1, merely *showing* an AI affordance is never itself invocation — deferring automatic invocation means no code path may trigger Requesting except a user's explicit action. A capability offering richer seed context when a field is empty (e.g., [Canvas Assistant](./capabilities/01_canvas_assistant.md)'s AI-first Draft Generation) changes what context is available to an invocation, never whether the invocation itself is automatic — that distinction still binds. |
 
 ## Interaction Lifecycle {#interaction-lifecycle}
 
@@ -92,6 +92,15 @@ Restates Governing Rule 2 with its full operational detail:
 ## Conversation Policy
 
 - **V2 is stateless per invocation**, per [ADR-0011](../architecture/decisions/ADR-0011-defer-multi-step-workflow-orchestration.md): no turn or session memory is carried between invocations. Every Regenerate or Retry is a fresh capability call, re-supplied with whatever context the Feature currently holds — the AI Platform does not remember a prior response.
+
+- **Progressive Context Accumulation.** "Fresh" does not mean "minimal": every invocation uses all currently available, user-approved project state, not only the immediately previous question. As a user answers more questions, each subsequent invocation reflects the fuller, current picture — this is what "whatever context the Feature currently holds" (above) already means, stated explicitly as a named rule so it is never mistaken for "only the last answer." No new mechanism is implied — a Feature already reads its own current data on every invocation; this rule only makes that expectation binding rather than incidental.
+
+- **User Input Has Highest Authority.** Whenever a field's value has been manually edited — including editing over a previously Accepted AI suggestion — that live value is what every future invocation reads. Per [ADR-0009](../architecture/decisions/ADR-0009-ai-platform-localization-integration.md), accepted AI content is ordinary user-authored content the moment it's accepted; there is no separate record of "what the AI originally suggested" for a later invocation to fall back on. A capability reads whatever the Feature's current data holds — never a history of prior values. This holds structurally, not by convention: Canvas fields carry a single current value, not a version history. Even when a request is built entirely from an edited value, the response remains advisory only — Suggestion Lifecycle's Accept/Reject mechanics and Governing Rule 2 apply exactly as to any other invocation; a new suggestion never overwrites confirmed content without the user's own explicit Accept.
+
+- **Context Quality.** Context supplied to an invocation should contain only meaningful, current information — a behavioral expectation, not a prescribed algorithm or token-management strategy (token/length management is an implementation concern, not specified here). Concretely: do not repeat the same information more than once within a single request, and do not include a value already known to be obsolete (e.g., a field's prior value once it has been overwritten) — only the current value accumulates, never a running history of every value a field ever held.
+
+- **Future Consideration.** No formal priority-resolution algorithm exists for combining multiple context sources. Future AI capabilities may require a formal Context Priority Rule once multiple context sources or capabilities coexist (e.g., a composed AI+Search experience, or multiple concurrent capabilities informing one request) — this is a placeholder for a decision to make explicitly if and when that need is real, not a design adopted now.
+
 - This is a deliberate, current-stage answer, not a permanent one: V5 (per ADR-0011) may require session/workflow state. This document's lifecycle explicitly does not model that; extending it to cover conversation memory is a decision to make explicitly when V5 is planned, not something a future Capability may quietly assume this document already supports.
 
 ## Accessibility (AI-Interaction-Specific Only)

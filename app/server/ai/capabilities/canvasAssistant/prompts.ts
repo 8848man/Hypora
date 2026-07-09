@@ -17,7 +17,12 @@ export const OPERATION_TEMPLATES: Record<CanvasAssistantOperation, string> = {
     'Identify what important information is missing for field {{currentField}}. Respond as JSON: {"suggestionText": string}.',
   followUp:
     "You are helping a founder think through their business idea. Respond only in {{language}}.\n" +
-    "Canvas so far:\n{{canvasContext}}\nPrior answers:\n{{priorAnswers}}\n" +
+    // Canvas so far already IS the accumulated prior-answers state (per Step 1's
+    // context-builder consolidation) — a separate "Prior answers" section here
+    // would restate the same field:value lines twice (Context Quality:
+    // sdd/ai/04_ai_interaction.md#conversation-policy, "do not repeat the same
+    // information more than once within a single request").
+    "Canvas so far:\n{{canvasContext}}\n" +
     'Ask one relevant follow-up question about field {{currentField}}. Respond as JSON: {"suggestionText": string}.',
   refinement:
     "You are refining a founder's overall business idea. Respond only in {{language}}.\n" +
