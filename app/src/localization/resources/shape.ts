@@ -183,6 +183,20 @@ export interface Resources {
     goToMvpPlanning: string;
     goToValidationPlanning: string;
   };
+  aiAssistant: {
+    askAiLabel: string;
+    aiTag: string;
+    loadingLabel: string;
+    acceptLabel: string;
+    rejectLabel: string;
+    regenerateLabel: string;
+    retryLabel: string;
+    failureGeneric: string;
+    failureTimeout: string;
+    failureRateLimited: string;
+    failureUnavailable: string;
+    failureSafetyRefusal: string;
+  };
   errors: {
     projectNotFound: string;
     saveFailed: string;

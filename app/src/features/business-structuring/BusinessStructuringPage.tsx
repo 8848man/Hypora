@@ -1,18 +1,22 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Button,
   Card,
   ChoiceList,
+  LoadingIndicator,
   PageHeader,
   ProgressIndicator,
   Stack,
+  SuggestionCard,
   TextArea,
   TransitionWrapper,
 } from "../../design-system";
 import { advanceAfterCanvasEdit } from "../../domain/lifecycle";
 import { useLocalization } from "../../localization";
+import { useCanvasAssistant } from "../../ai/useCanvasAssistant";
+import type { CanvasContextField } from "../../ai/types";
 import { useProjectContext } from "../useProject";
 import { QUESTIONS, resumeQuestionIndex, v1StaticPresetProvider } from "./questionModel";
 
@@ -27,9 +31,26 @@ export function BusinessStructuringPage() {
   // purely local view state.
   const [currentIndex, setCurrentIndex] = useState(() => resumeQuestionIndex(project.canvas));
   const advanceTimeout = useRef<number | null>(null);
+  const assistant = useCanvasAssistant();
+
+  // Always-current snapshot of `project`, read by the stale-response guard below.
+  // A plain closure over `project` would freeze at invocation time — by the time an
+  // in-flight response arrives, that closure is stale even though React has since
+  // re-rendered with the user's edits. This ref is what lets the guard see the
+  // truly live field value (Manual-first, sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability).
+  const projectRef = useRef(project);
+  projectRef.current = project;
 
   const total = QUESTIONS.length;
   const onReview = currentIndex >= total;
+
+  // Switching questions targets a different field — the previous field's AI state
+  // (per sdd/ai/04_ai_interaction.md, this lifecycle governs one invocation for one
+  // target) does not carry over; any in-flight request for the old field is aborted.
+  const resetAssistant = assistant.reset;
+  useEffect(() => {
+    resetAssistant();
+  }, [currentIndex, resetAssistant]);
 
   function saveAnswer(value: string) {
     const canvas = { ...project.canvas, [QUESTIONS[currentIndex].relatedCanvasField]: value };
@@ -44,6 +65,47 @@ export function BusinessStructuringPage() {
     if (advanceTimeout.current) window.clearTimeout(advanceTimeout.current);
     advanceTimeout.current = window.setTimeout(() => goNext(), 350);
   }
+
+  // AI invocation entry point: an explicit user action only (Governing Rule 1,
+  // sdd/ai/04_ai_interaction.md) — nothing here fires on mount, focus, typing, or
+  // scroll. Canvas context is built from whatever Canvas fields are already
+  // answered, mirroring Canvas Assistant's Request Contract.
+  function handleAskAi() {
+    const question = QUESTIONS[currentIndex];
+    const canvasContext: CanvasContextField[] = QUESTIONS.filter(
+      (q) => project.canvas[q.relatedCanvasField].trim() !== "",
+    ).map((q) => ({ field: q.relatedCanvasField, value: project.canvas[q.relatedCanvasField] }));
+
+    assistant.invoke(
+      {
+        operation: "suggestion",
+        canvasContext,
+        currentField: question.relatedCanvasField,
+        priorAnswers: canvasContext,
+        language,
+        fieldValueAtInvocation: project.canvas[question.relatedCanvasField],
+      },
+      () => projectRef.current.canvas[question.relatedCanvasField],
+    );
+  }
+
+  // Accept: the same saveAnswer() path a preset or manually typed answer already
+  // uses — from this point the accepted text is ordinary user-authored content,
+  // per ADR-0009, indistinguishable from a preset-derived answer.
+  function handleAcceptSuggestion() {
+    if (assistant.suggestionText) saveAnswer(assistant.suggestionText);
+    assistant.reset();
+  }
+
+  const failureMessage = assistant.failureKind
+    ? {
+        timeout: t.aiAssistant.failureTimeout,
+        rate_limited: t.aiAssistant.failureRateLimited,
+        unavailable: t.aiAssistant.failureUnavailable,
+        safety_refusal: t.aiAssistant.failureSafetyRefusal,
+        generic: t.aiAssistant.failureGeneric,
+      }[assistant.failureKind]
+    : undefined;
 
   function goNext() {
     setCurrentIndex((i) => Math.min(i + 1, total));
@@ -91,6 +153,43 @@ export function BusinessStructuringPage() {
             onSelectPreset={handleSelectPreset}
             onCustomChange={saveAnswer}
           />
+
+          {/* AI area: the field above remains editable in every state below —
+              Manual-first (sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability).
+              aria-live announces loading/ready/failed transitions to assistive
+              technology without stealing focus (sdd/ai/04#accessibility-ai-interaction-specific-only). */}
+          <div aria-live="polite" aria-atomic="true" style={{ marginTop: "var(--space-3)" }}>
+            {assistant.status === "idle" && (
+              <Button variant="secondary" onClick={handleAskAi}>
+                {t.aiAssistant.askAiLabel}
+              </Button>
+            )}
+
+            {assistant.status === "loading" && <LoadingIndicator label={t.aiAssistant.loadingLabel} />}
+
+            {assistant.status === "ready" && assistant.suggestionText && (
+              <SuggestionCard
+                aiTag={t.aiAssistant.aiTag}
+                suggestionText={assistant.suggestionText}
+                rationale={assistant.rationale}
+                acceptLabel={t.aiAssistant.acceptLabel}
+                rejectLabel={t.aiAssistant.rejectLabel}
+                regenerateLabel={t.aiAssistant.regenerateLabel}
+                onAccept={handleAcceptSuggestion}
+                onReject={assistant.reject}
+                onRegenerate={assistant.regenerate}
+              />
+            )}
+
+            {assistant.status === "failed" && failureMessage && (
+              <Stack gap="var(--space-2)">
+                <Alert tone="warning">{failureMessage}</Alert>
+                <Button variant="secondary" onClick={assistant.retry}>
+                  {t.aiAssistant.retryLabel}
+                </Button>
+              </Stack>
+            )}
+          </div>
         </Card>
       </TransitionWrapper>
 

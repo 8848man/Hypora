@@ -14,3 +14,4 @@ export { Stepper } from "./Stepper";
 export { ProgressIndicator } from "./ProgressIndicator";
 export { ChoiceList } from "./ChoiceList";
 export { TransitionWrapper } from "./TransitionWrapper";
+export { SuggestionCard } from "./SuggestionCard";
