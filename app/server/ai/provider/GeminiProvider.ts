@@ -6,8 +6,8 @@
 // conditional rule) — AiApplicationService and every Capability call only the
 // generic Provider interface.
 
-import type { Provider, ProviderRequest, ProviderResponse } from "./ProviderInterface.ts";
-import { ProviderError } from "./ProviderInterface.ts";
+import type { Provider, ProviderRequest, ProviderResponse } from "./ProviderInterface.js";
+import { ProviderError } from "./ProviderInterface.js";
 
 export type GeminiProviderConfig = {
   apiKey: string;

@@ -3,9 +3,9 @@
 // (or `npm run verify:stage2`). Exercises the Canvas Assistant Capability end-to-end
 // against FakeProvider only — no HTTP endpoint (that's Stage 3), no Gemini (Stage 4).
 
-import { createContainer } from "../ai/container.ts";
-import { FakeProvider } from "../ai/provider/FakeProvider.ts";
-import type { CanvasAssistantOperation } from "../ai/capabilities/canvasAssistant/types.ts";
+import { createContainer } from "../ai/container.js";
+import { FakeProvider } from "../ai/provider/FakeProvider.js";
+import type { CanvasAssistantOperation } from "../ai/capabilities/canvasAssistant/types.js";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

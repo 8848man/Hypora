@@ -5,13 +5,13 @@
 // Service, config-shape, and Frontend code must never change as a result
 // (ADR-0007's provider-independence guarantee, made concrete).
 
-import { FakeProvider } from "./provider/FakeProvider.ts";
-import { GeminiProvider } from "./provider/GeminiProvider.ts";
-import { tryResolveCredential } from "./config/credentialLoader.ts";
-import { createInMemoryProviderConfig } from "./config/providerConfig.ts";
-import { AiApplicationService } from "./AiApplicationService.ts";
-import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.ts";
-import type { Provider } from "./provider/ProviderInterface.ts";
+import { FakeProvider } from "./provider/FakeProvider.js";
+import { GeminiProvider } from "./provider/GeminiProvider.js";
+import { tryResolveCredential } from "./config/credentialLoader.js";
+import { createInMemoryProviderConfig } from "./config/providerConfig.js";
+import { AiApplicationService } from "./AiApplicationService.js";
+import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.js";
+import type { Provider } from "./provider/ProviderInterface.js";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 

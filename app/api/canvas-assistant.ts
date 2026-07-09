@@ -5,10 +5,10 @@
 // composition root (createContainer) — it never constructs a Provider itself.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { createContainer } from "../server/ai/container.ts";
-import { readJsonBody } from "../server/http/readJsonBody.ts";
-import { validateCanvasAssistantRequest } from "../server/http/validateCanvasAssistantRequest.ts";
-import { translateErrorToHttpResponse } from "../server/http/errors.ts";
+import { createContainer } from "../server/ai/container.js";
+import { readJsonBody } from "../server/http/readJsonBody.js";
+import { validateCanvasAssistantRequest } from "../server/http/validateCanvasAssistantRequest.js";
+import { translateErrorToHttpResponse } from "../server/http/errors.js";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   if (req.method !== "POST") {

@@ -4,7 +4,7 @@
 // Illustrative content only: real prompt engineering happens once a live Provider
 // (Stage 4) exists to iterate against.
 
-import type { CanvasAssistantOperation } from "./types.ts";
+import type { CanvasAssistantOperation } from "./types.js";
 
 export const OPERATION_TEMPLATES: Record<CanvasAssistantOperation, string> = {
   suggestion:
