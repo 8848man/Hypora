@@ -89,6 +89,32 @@ Restates Governing Rule 2 with its full operational detail:
 - **Suggestion replacement rule:** if a new suggestion (from Regenerate) arrives while a prior one is still `Suggestion Ready` and unacted on, the new suggestion **replaces** the old one entirely. Suggestions are never shown side by side — this matches [Canvas Assistant](./capabilities/01_canvas_assistant.md#response-contract)'s Response Contract, which returns one suggestion, not a list.
 - An already-`Accepted` suggestion is never retroactively altered by a later invocation for the same field — a later invocation starts its own fresh cycle from `Idle`.
 
+**Acceptance Confirmation (Feature-local presentation, not a new lifecycle state):** The Interaction Lifecycle diagram above already models `Accepted` and `Completed` as two distinct points, reached in sequence; nothing here changes that shape or adds a state. A Feature may give that already-existing `Accepted → Completed` transition a brief, visible dwell time — a transient confirmation displayed in the same UI region the Suggestion Card occupied, disappearing automatically without requiring a user action. This is Feature-owned presentation, per [Ownership Model](./03_ownership_model.md#single-owner-principle)'s Feature-specific view model — not a new shared status value, and adopting it is optional per-Feature.
+
+**Purpose.** The confirmation exists for exactly one reason: to acknowledge that the accepted suggestion has been successfully applied, before the interaction returns to `Idle`. It is an acknowledgment of a completed action, not a new decision point, not a review surface, and not a second suggestion — the user takes no action on it.
+
+**End conditions.** The confirmation is present only between `Accepted` and the interaction's return to `Idle`, and ends — returning the interaction to `Idle` — the moment either of the following becomes true, whichever happens first:
+- its intended display period has elapsed, or
+- a new invocation begins for the same target (Ask AI, Regenerate).
+
+No other condition ends it, and neither condition above is optional — a Feature adopting this confirmation must satisfy both. How either condition is detected or enforced is an implementation concern this document does not prescribe.
+
+**Requirements that bind regardless of which Feature implements it:**
+- It must not move keyboard focus — Manual-first and the page's ordinary tab order are undisturbed.
+- A new invocation for the same target supersedes any confirmation still visible for that target, per the End conditions above; the confirmation is transient view-state, not a queued or guaranteed-to-be-seen message.
+- Navigating away from the target before the confirmation's own display period elapses must not cause it to later resurface against a different question or field.
+
+**Optional rationale.** If the Response Contract's optional rationale was present on the accepted suggestion, a Feature may include it in this same transient confirmation. Its lifetime is identical to the confirmation's own — governed by the same End conditions above, with no lifetime of its own: it disappears together with the confirmation, is never persisted anywhere, is never treated as conversation or session history (Conversation Policy below remains stateless-per-invocation), and never extends the AI lifecycle beyond `Completed`. It remains an optional UX enhancement to the confirmation, never a requirement for adopting one.
+
+**Non-goals.** This confirmation's sole responsibility is acknowledging successful application of the accepted suggestion. It is deliberately not, and must never be extended to become:
+- a history or log of past suggestions,
+- an audit trail,
+- conversation memory or session state,
+- a post-completion review surface a user returns to later, or
+- a persistent marker of AI provenance on the field.
+
+Any future need for these belongs to a separate, explicit decision — never an incremental extension of this confirmation.
+
 ## Conversation Policy
 
 - **V2 is stateless per invocation**, per [ADR-0011](../architecture/decisions/ADR-0011-defer-multi-step-workflow-orchestration.md): no turn or session memory is carried between invocations. Every Regenerate or Retry is a fresh capability call, re-supplied with whatever context the Feature currently holds — the AI Platform does not remember a prior response.
@@ -108,6 +134,7 @@ Restates Governing Rule 2 with its full operational detail:
 Per Governing Rule 4, only what is specific to this lifecycle is stated here; the general accessibility baseline (focus order, general ARIA contract) remains an open, project-wide item owned by Frontend/Design System, not resolved by this document.
 
 - The transition into `Suggestion Ready` must be announced to assistive technology (e.g., via a live region), since it arrives asynchronously and is not the direct result of the user's most recent keystroke.
+- The `Accepted → Completed` transition, when a Feature chooses to surface a completion confirmation (see Suggestion Lifecycle's Acceptance Confirmation), must be announced to assistive technology using the same mechanism as the Suggestion Ready and Failed transitions above — a sighted-only confirmation is not sufficient.
 - Accept, Reject, and Regenerate affordances must be reachable via standard keyboard navigation — satisfied by using compliant Design System primitives for these actions, not custom unreachable controls. This document does not redefine what makes a primitive keyboard-compliant; that contract is Design System's own (`design-system/01_design_system.md`).
 - A failure transition into `Failed` must also be announced (detailed failure-messaging content is owned by [05_ai_feedback_and_error_experience.md](./05_ai_feedback_and_error_experience.md); this section only requires that the state change itself is not silent to assistive technology).
 

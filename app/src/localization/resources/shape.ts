@@ -191,6 +191,7 @@ export interface Resources {
     rejectLabel: string;
     regenerateLabel: string;
     retryLabel: string;
+    appliedLabel: string;
     failureGeneric: string;
     failureTimeout: string;
     failureRateLimited: string;
