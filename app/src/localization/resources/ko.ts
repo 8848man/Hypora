@@ -219,6 +219,7 @@ export const ko: Resources = {
     rejectLabel: "닫기",
     regenerateLabel: "다시 받기",
     retryLabel: "다시 시도",
+    appliedLabel: "적용되었습니다",
     failureGeneric: "지금은 제안을 가져올 수 없습니다. 직접 답변을 계속 작성할 수 있습니다.",
     failureTimeout: "응답이 예상보다 오래 걸리고 있습니다. 다시 시도하거나 직접 답변을 계속 작성할 수 있습니다.",
     failureRateLimited: "AI 지원에 잠시 시간이 필요합니다. 곧 다시 시도하거나 직접 답변을 계속 작성할 수 있습니다.",

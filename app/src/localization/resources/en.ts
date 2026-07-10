@@ -229,6 +229,7 @@ export const en: Resources = {
     rejectLabel: "Dismiss",
     regenerateLabel: "Try another",
     retryLabel: "Retry",
+    appliedLabel: "Applied",
     failureGeneric: "Couldn't get a suggestion right now. You can keep writing your own answer.",
     failureTimeout: "This is taking longer than expected. You can retry, or keep writing your own answer.",
     failureRateLimited: "AI assistance needs a moment. You can retry shortly, or keep writing your own answer.",
