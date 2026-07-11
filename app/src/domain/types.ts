@@ -35,6 +35,22 @@ export interface PlannedFeature {
   inScope: boolean;
 }
 
+// Three independently-addressable, optional fields — never a combined blob.
+// Per sdd/workspace/features/06_risk_memo.md: deliberately not named
+// "Assumptions" to avoid colliding with ValidationItem.assumption below,
+// which owns that concept.
+export interface RiskMemo {
+  technicalRisks: string;
+  businessRisks: string;
+  openQuestions: string;
+}
+
+export const emptyRiskMemo: RiskMemo = {
+  technicalRisks: "",
+  businessRisks: "",
+  openQuestions: "",
+};
+
 export type ValidationStatus = "open" | "validated" | "invalidated";
 
 export interface ValidationItem {
@@ -53,6 +69,7 @@ export interface Project {
 
   canvas: Canvas;
   riskNotes: string;
+  riskMemo: RiskMemo;
 
   mvpScope: string;
   mvpScopeComplete: boolean;
@@ -70,6 +87,7 @@ export function createEmptyProject(id: string, name: string): Project {
     stage: "captured",
     canvas: { ...emptyCanvas },
     riskNotes: "",
+    riskMemo: { ...emptyRiskMemo },
     mvpScope: "",
     mvpScopeComplete: false,
     features: [],

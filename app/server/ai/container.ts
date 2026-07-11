@@ -11,6 +11,7 @@ import { tryResolveCredential } from "./config/credentialLoader.js";
 import { createInMemoryProviderConfig } from "./config/providerConfig.js";
 import { AiApplicationService } from "./AiApplicationService.js";
 import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.js";
+import { RiskMemoAssistantCapability, RISK_MEMO_ASSISTANT } from "./capabilities/riskMemoAssistant/RiskMemoAssistantCapability.js";
 import type { Provider } from "./provider/ProviderInterface.js";
 
 // A "-latest" alias rather than a pinned version: Gemini model versions have been
@@ -35,6 +36,7 @@ function selectDefaultProvider(): Provider {
 export type Container = {
   aiApplicationService: AiApplicationService;
   canvasAssistant: CanvasAssistantCapability;
+  riskMemoAssistant: RiskMemoAssistantCapability;
   providerId: string;
 };
 
@@ -62,12 +64,20 @@ export function createContainer(overrideProvider?: Provider): Container {
       model: "n/a",
       providerParameters: {},
     },
+    {
+      providerId: provider.id,
+      capabilityId: RISK_MEMO_ASSISTANT.capabilityId,
+      contractVersion: RISK_MEMO_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
   ]);
 
   const aiApplicationService = new AiApplicationService({ provider, config });
   const canvasAssistant = new CanvasAssistantCapability(aiApplicationService);
+  const riskMemoAssistant = new RiskMemoAssistantCapability(aiApplicationService);
 
-  return { aiApplicationService, canvasAssistant, providerId: provider.id };
+  return { aiApplicationService, canvasAssistant, riskMemoAssistant, providerId: provider.id };
 }
 
 export const HEALTH_CHECK = {

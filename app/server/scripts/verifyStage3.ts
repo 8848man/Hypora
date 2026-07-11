@@ -8,7 +8,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import handler from "../../api/canvas-assistant.js";
 import { translateErrorToHttpResponse } from "../http/errors.js";
 import { ProviderError } from "../ai/provider/ProviderInterface.js";
-import { HttpValidationError } from "../http/validateCanvasAssistantRequest.js";
+import { HttpValidationError } from "../http/HttpValidationError.js";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

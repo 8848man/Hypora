@@ -41,6 +41,7 @@ export function WorkspaceProjectLayout() {
         <NavLink to={`/app/projects/${projectId}/canvas`}>{t.nav.businessStructuring}</NavLink>
         <NavLink to={`/app/projects/${projectId}/scope`}>{t.nav.mvpPlanning}</NavLink>
         <NavLink to={`/app/projects/${projectId}/validation`}>{t.nav.validationPlanning}</NavLink>
+        <NavLink to={`/app/projects/${projectId}/risks`}>{t.nav.riskMemo}</NavLink>
         <NavLink to={`/app/projects/${projectId}/summary`}>{t.nav.summary}</NavLink>
       </nav>
 
