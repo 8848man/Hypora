@@ -46,6 +46,15 @@ Per [ADR-0007](../architecture/decisions/ADR-0007-llm-provider-independence-and-
 
 Static, configuration-driven provider selection via the routing table above is sufficient until a real product need for any of the above is identified — at which point that is a new, additive decision, not a reversal of this one.
 
+## Context Budget
+
+*(Clarifies, rather than adds to, the Context Ownership split already stated in [Ownership Model](./03_ownership_model.md) — no new responsibility is introduced.)*
+
+- **The token budget threshold itself is provider/model data**, not a new configuration field: it is already covered by the Provider Configuration Schema's existing "Provider-specific configuration" row below (e.g., "max tokens" is already named there as an example). A Feature never hardcodes a budget number; it is resolved from the active Provider × Capability configuration profile at request time.
+- **Truncation is a mechanical operation, owned by the AI Application Service** — this restates, not extends, [Ownership Model](./03_ownership_model.md#context-ownership)'s existing "Context transformation" row. The mechanism (how to cut when Normalized Context exceeds the resolved budget) is generic and provider-independent; only the numeric threshold it's cutting against varies by Provider × Capability configuration.
+- **Summarization, if ever introduced, is not a new ownership category** — it splits along the boundary already established: condensing that requires no business judgment (e.g., a fixed-length excerpt) remains AI Application Service-owned, identically to truncation; condensing that requires judgment about *what matters most to keep* is already Feature-owned, per the existing "Context selection (business priority)" row. Neither case needs a new row in the Context Ownership table.
+- **Provider independence is preserved throughout:** neither the Feature nor the AI Application Service's truncation mechanism branches on provider identity (the Zero-Provider-Conditional Rule above is unaffected) — the mechanism reads whatever threshold the current configuration profile states and applies it uniformly; it never needs to know which provider chose that number or why.
+
 ## Provider Configuration Schema
 
 The logical shape every Provider × Capability configuration profile carries. This is a **logical contract** — field names and meaning only. It contains no real values, no secrets, and no deployment mechanics; those remain owned by [Infra Deployment](../infra/01_deployment.md), referenced below rather than restated.

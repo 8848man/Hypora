@@ -1,6 +1,6 @@
 # Workspace Architecture
 
-**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Core User Journey](../context/03_personas_and_journey.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) · [Data & State](./02_data_and_state.md) · [Feature Specifications](./features/000_index.md) · [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)
+**Refs:** → [00_index](../00_index.md) · [Product Vision](../context/01_product_vision.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [Core User Journey](../context/03_personas_and_journey.md) · [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) · [Data & State](./02_data_and_state.md) · [Feature Specifications](./features/000_index.md) · [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md) · [AI Ownership Model](../ai/03_ownership_model.md)
 
 Created ahead of any real Workspace code, per the SDD Framework's "spec leads implementation" principle (`03_document_lifecycle.md`, Type 3: a contract document is created "before or alongside the first real implementation ... spec leads implementation"). This is the point at which Workspace has enough definition to warrant its own architecture document rather than remaining a subsection of the shared context layer.
 
@@ -85,6 +85,9 @@ Workspace (Application)
     ├── MVP Scope
     ├── Feature Planning
     ├── Validation Checklist
+    ├── Risk Memo                  — three independently-addressable, optional fields (Technical
+    │                                 Risks, Business Risks, Open Questions); non-gating (see
+    │                                 Risk Memo Feature Specification)
     └── Project Summary            — read-only aggregate view; not a separately stored artifact
                                       (see Data & State)
 ```
@@ -131,6 +134,7 @@ Navigation remains organized around **Projects and their artifacts**, not around
 |---|---|
 | Export/print a completed Project Summary | Named as an open question in [Product Scope](../context/02_product_scope.md#open-questions) — not yet resolved as required; ship V1 without it unless resolved before release |
 | Freeform notes attached to a Canvas field | Not named in the brief; a plausible convenience, not required to reach any lifecycle transition |
+| [Risk Memo](./features/06_risk_memo.md) | Gates no lifecycle transition (see its own Ownership section); its manual authoring is a self-contained addition, and its AI Assist integration is the first validation consumer of the generalized AI-assisted structured-feature architecture |
 
 ### Future Features (explicitly deferred, V2+)
 
@@ -141,6 +145,20 @@ Navigation remains organized around **Projects and their artifacts**, not around
 | Go-to-market recommendations against a Validated project | V4 |
 | Requirement/SDD/development-plan generation from a Build-Ready project | V5 |
 | Cross-project comparison view | Not yet scheduled — tied to the Idea Explorer persona's promotion (see [Personas](../context/03_personas_and_journey.md)) |
+
+## Workspace Context Builder
+
+*(Cross-cutting, forward-looking — this section documents a promotion rule and its trigger condition, not a component that exists in V1's 100%-manual scope. It becomes real the moment a second consumer needs it; see Promotion below.)*
+
+A single, Workspace-owned mechanism that serializes Project data — starting with the Canvas — into **Normalized Workspace Context** (see [AI Ownership Model](../ai/03_ownership_model.md#context-representation-pipeline)'s Context Representation Pipeline for that term's exact place in the request lifecycle) — a shape any consumer can read, so that "how do I read this Project's current state" is implemented once, not independently inside every Feature that needs it.
+
+**Ownership:** Workspace (`sdd/rules/ownership.md`'s Workspace row already owns `sdd/workspace/**` and, by extension, the shape of the data described in [Data & State](./02_data_and_state.md)). This is Workspace's own data being read, not an AI Platform concept — an AI Capability's Context Creation step (Feature-owned, per [AI Ownership Model](../ai/03_ownership_model.md#context-ownership)) is one consumer of this builder, never its owner.
+
+**Promotion rule:** follows the same "promote on second need" discipline `sdd/rules/ownership.md`'s Cross-Boundary Rules already uses for Design System components. It starts, and should remain, Feature-local (as it is today — Business Structuring's own Canvas-serialization logic) until a second consumer genuinely needs the identical shape. At that point, the existing Feature-local logic is promoted into a shared Workspace-level utility; it is not built speculatively ahead of that second real need.
+
+**Consumers, once promoted:** any AI Capability's Context Creation step for any structured Feature (Business Structuring, and any future structured Feature whose own specification exists); also legitimately reusable by non-AI consumers — [Project Summary](./features/05_project_summary.md) already aggregates Canvas + MVP Scope + Features + Validation today, per [Data & State](./02_data_and_state.md)'s "Summary" row, with no AI involved, and would be a natural second (or third) consumer independent of any AI use.
+
+**Explicitly not owned here:** what a Feature does with the data once received — a Feature's own Context Selection (business priority over what's included) remains Feature-owned, unchanged, per [AI Ownership Model](../ai/03_ownership_model.md#context-ownership); nor anything AI-specific (token budgets, provider-specific formatting) — that remains the AI Application Service's own responsibility, referenced there, not restated here.
 
 ## User Flow (Workspace View)
 
