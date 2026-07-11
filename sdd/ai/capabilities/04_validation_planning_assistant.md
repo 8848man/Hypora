@@ -54,7 +54,9 @@ Per [ADR-0009](../../architecture/decisions/ADR-0009-ai-platform-localization-in
 
 ## Acceptance Criteria
 
-- A new-assumption suggestion is shown as an offer, never auto-inserted.
+- **This capability's true commitment point is the Feature's existing "Add" action, not a separate Accept step.** Unlike every other capability, its target is the not-yet-created new-assumption draft field, itself gated by a further, unchanged manual action before anything is written to `project.validationItems`. A ready suggestion therefore populates that draft field directly, without an intermediate Accept click — the field remains fully editable and clearable before Add, and Add's own logic is entirely unmodified. This does not weaken "AI may suggest, the user always retains final authorship": authorship is exercised at Add, exactly as before.
+- The auto-population is gated by the same Manual-first stale-response guard every capability already uses: if the draft field's value has changed since invocation, the arriving suggestion is discarded, never applied over live user input.
+- Once populated, the field's content is ordinary, indistinguishable draft text — no different in kind from anything the user typed directly, per ADR-0009's precedent applied to a pre-commit field.
 - If this capability is unavailable or fails, Validation Planning behaves exactly as it does with no AI available.
 - A suggestion is never generated for, or applied to, an already-created Validation Checklist item's fields.
 
