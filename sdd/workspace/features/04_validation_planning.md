@@ -1,6 +1,6 @@
 # Feature: Validation Planning
 
-**Refs:** → [Features Index](./000_index.md) · [Workspace Architecture](../01_architecture.md) · [Workspace Data & State](../02_data_and_state.md) · [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) · [Business Structuring](./02_business_structuring.md) · [Product Scope](../../context/02_product_scope.md)
+**Refs:** → [Features Index](./000_index.md) · [Workspace Architecture](../01_architecture.md) · [Workspace Data & State](../02_data_and_state.md) · [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) · [Business Structuring](./02_business_structuring.md) · [Product Scope](../../context/02_product_scope.md) · [AI Ownership Model](../../ai/03_ownership_model.md) · [Future Expansion Strategy](../../context/06_future_expansion_strategy.md)
 
 *(Explicit — the brief names Assumptions, Validation Methods, and Success Criteria directly.)*
 
@@ -53,7 +53,7 @@ Depends on the Validation Checklist screen owned by [Workspace Architecture](../
 ## Future Expansion (V2–V5)
 
 - V3 (Market Intelligence) may surface external market/competitor data as supporting evidence for an assumption's resolution — additive context, not a change to the checklist item's own shape.
-- V4 (Go-to-Market Planning) explicitly extends this Feature's data shape with AI-suggested experiment ideas, per [Future Expansion Strategy](../../context/06_future_expansion_strategy.md) — reusing the same Validation Checklist concept rather than introducing a parallel one.
+- **Two coexisting, non-conflicting sources may populate a Validation Checklist item's suggested content over time**, per [Future Expansion Strategy](../../context/06_future_expansion_strategy.md#future-ready-architecture-principle)'s "AI stages add a *source*... rather than introducing new field types": (1) this Feature's own direct, field-level AI Assist (Business Canvas + this Feature's own current values, per the generalized structured-feature AI architecture — see [AI Ownership Model](../../ai/03_ownership_model.md#context-representation-pipeline)), and (2) V4 (Go-to-Market Planning) supplying AI-suggested experiment ideas as a cross-Feature output, per [Future Expansion Strategy](../../context/06_future_expansion_strategy.md). Neither supersedes the other — a Validation Checklist item's shape does not distinguish which source suggested it, only whether it is suggested or user-authored (per the same principle).
 
 ## Risks and Constraints
 

@@ -14,6 +14,7 @@
 | **MVP Scope** | A scope boundary statement authored once per Project | Project | 1:1 with Project |
 | **Feature** | A discrete planned item produced during Feature Planning, carrying a priority (e.g., an ordering or Must/Should/Could tier) | Project | Many per Project; each Feature may reference MVP Scope to indicate in/out-of-scope status |
 | **Validation** | A Validation Checklist item — an assumption statement, an intended validation method, a success criterion, and a resolution status (validated / invalidated / open) | Project | Many per Project |
+| **Risk Memo** | Three independently-addressable, optional freeform fields: Technical Risks, Business Risks, Open Questions | Project | 1:1 (optional) with Project; distinct from Validation's testable assumptions and from Risk Notes above — see [Feature: Risk Memo](./features/06_risk_memo.md) for the boundary between all three |
 | **Summary** | The aggregate read view of Canvas + MVP Scope + Features + Validation | Project (derived) | **Not independently stored** — computed from the other four at render time, never persisted as its own record |
 | **Status / Lifecycle** | A Project's current lifecycle stage | [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) | Derived from the completion state of Canvas/Scope/Features/Validation per that document's guards — this document does not maintain an independent status field; it reads the domain model's derivation rules, never redefines them |
 

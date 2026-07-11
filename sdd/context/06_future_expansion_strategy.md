@@ -1,6 +1,6 @@
 # Future Expansion Strategy
 
-**Refs:** → [00_index](../00_index.md) · [Product Vision](./01_product_vision.md) · [Application Responsibilities](./05_application_responsibilities.md)
+**Refs:** → [00_index](../00_index.md) · [Product Vision](./01_product_vision.md) · [Application Responsibilities](./05_application_responsibilities.md) · [AI Ownership Model](../ai/03_ownership_model.md) · [Workspace Architecture](../workspace/01_architecture.md)
 
 This document owns *how* the architecture stays compatible with V2–V5 without requiring a redesign. It does not restate the roadmap stages themselves — those are canonically owned by [Product Vision](./01_product_vision.md).
 
@@ -11,6 +11,7 @@ This document owns *how* the architecture stays compatible with V2–V5 without 
 1. **Data shape stability:** each Canvas field, MVP Scope entry, Feature Planning item, and Validation Checklist item is a discrete, independently-addressable unit in V1's data model — never a single freeform blob per project. This is what lets a future AI capability *augment* one unit (e.g., suggest a rewording of the Value Proposition) without needing to parse or migrate the whole project.
 2. **Manual-first, AI-optional fields:** every field a future AI stage would populate or suggest already exists as a manual, user-editable field in V1. AI stages add a *source* (suggested vs. user-authored) to existing fields rather than introducing new field types.
 3. **Platform API as the seam:** all future AI, Search, and Integrations capabilities ([Application Responsibilities](./05_application_responsibilities.md)) are additions to Platform API's surface, not changes to how Workspace's screens are structured. Workspace calls Platform API; it does not need to know whether a given response was computed by a human, a LocalStorage read, or a future AI service.
+4. **Generalized structured-feature AI Assist is architecture, not a roadmap stage.** Business Structuring's Canvas Assistant (V2) established a reusable pattern — Business Canvas + a Feature's own current structured values, field-level interaction, one AI Capability per Feature — documented in full at [AI Ownership Model](../ai/03_ownership_model.md#context-representation-pipeline) and [Workspace Context Builder](../workspace/01_architecture.md#workspace-context-builder). This pattern applies to *any* structured Feature once that Feature's own specification exists, independent of which V-number introduces it — it is not itself a new roadmap stage, and adopting it for an existing Feature (e.g., MVP Planning, Validation Planning) does not require waiting for a specific future V-stage unless that Feature's own specification says otherwise.
 
 ## Per-Stage Expansion Notes
 
