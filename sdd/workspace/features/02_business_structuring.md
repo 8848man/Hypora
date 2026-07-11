@@ -58,6 +58,7 @@ Let a user transform a raw business idea into a structured hypothesis — naming
 | MVP Planning | Consumes the completed Canvas as context, but does not read Risk Notes directly — MVP Planning operates on Scope/Features, not on the hypothesis narrative |
 | Validation Planning | May be informed by Risk Notes, but Validation Planning owns its own, separately-authored Assumptions — no automatic conversion in V1 |
 | Project Summary | Reads Canvas completion state (Section-Complete, per [Workspace Data & State](../02_data_and_state.md)) to report structuring progress — unaffected by whether Review has been confirmed, since that's a guided-flow concept, not a Canvas data concept |
+| Risk Memo | Per [ADR-0012](../../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md), Business Structuring's flow offers an optional, non-gating entry point into [Risk Memo](./06_risk_memo.md) once the Canvas exists — Business Structuring neither owns nor reads Risk Memo's data, and this entry point carries no guard or completion meaning of its own |
 
 ## Dependencies on Product Lifecycle
 

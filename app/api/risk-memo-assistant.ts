@@ -1,13 +1,13 @@
-// Platform API — Canvas Assistant endpoint (POST /api/canvas-assistant).
+// Platform API — Risk Memo Assistant endpoint (POST /api/risk-memo-assistant).
 //
 // HTTP request -> validation -> Capability invocation -> error translation ->
-// JSON response. This handler performs dependency injection by way of the existing
-// composition root (createContainer) — it never constructs a Provider itself.
+// JSON response. Identical shape to /api/canvas-assistant, confirming the
+// pattern generalizes per capability without inventing new HTTP mechanics.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createContainer } from "../server/ai/container.js";
 import { readJsonBody } from "../server/http/readJsonBody.js";
-import { validateCanvasAssistantRequest } from "../server/http/validateCanvasAssistantRequest.js";
+import { validateRiskMemoAssistantRequest } from "../server/http/validateRiskMemoAssistantRequest.js";
 import { translateErrorToHttpResponse } from "../server/http/errors.js";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -20,10 +20,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   try {
     const rawBody = await readJsonBody(req);
-    const request = validateCanvasAssistantRequest(rawBody);
+    const request = validateRiskMemoAssistantRequest(rawBody);
 
     const container = createContainer();
-    const response = await container.canvasAssistant.invoke(request);
+    const response = await container.riskMemoAssistant.invoke(request);
 
     res.statusCode = 200;
     res.setHeader("content-type", "application/json");

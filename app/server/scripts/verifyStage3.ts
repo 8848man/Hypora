@@ -5,10 +5,10 @@
 
 import { Readable } from "node:stream";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import handler from "../../api/canvas-assistant.ts";
-import { translateErrorToHttpResponse } from "../http/errors.ts";
-import { ProviderError } from "../ai/provider/ProviderInterface.ts";
-import { HttpValidationError } from "../http/validateCanvasAssistantRequest.ts";
+import handler from "../../api/canvas-assistant.js";
+import { translateErrorToHttpResponse } from "../http/errors.js";
+import { ProviderError } from "../ai/provider/ProviderInterface.js";
+import { HttpValidationError } from "../http/HttpValidationError.js";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

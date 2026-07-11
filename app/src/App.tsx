@@ -8,6 +8,7 @@ import { ProjectListPage } from "./features/project-management/ProjectListPage";
 import { BusinessStructuringPage } from "./features/business-structuring/BusinessStructuringPage";
 import { MvpPlanningPage } from "./features/mvp-planning/MvpPlanningPage";
 import { ValidationPage } from "./features/validation-planning/ValidationPage";
+import { RiskMemoPage } from "./features/risk-memo/RiskMemoPage";
 import { SummaryPage } from "./features/project-summary/SummaryPage";
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="canvas" element={<BusinessStructuringPage />} />
         <Route path="scope" element={<MvpPlanningPage />} />
         <Route path="validation" element={<ValidationPage />} />
+        <Route path="risks" element={<RiskMemoPage />} />
         <Route path="summary" element={<SummaryPage />} />
       </Route>
 

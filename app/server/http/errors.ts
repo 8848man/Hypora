@@ -4,11 +4,11 @@
 // type; none of it is provider-specific logic, and no Provider-specific exception
 // or message ever escapes past this point unclassified.
 
-import { HttpValidationError } from "./validateCanvasAssistantRequest.ts";
-import { HttpBodyError } from "./readJsonBody.ts";
-import { ResponseParseError } from "../ai/response/ResponseParser.ts";
-import { ResponseValidationError } from "../ai/response/ResponseValidator.ts";
-import { ProviderError } from "../ai/provider/ProviderInterface.ts";
+import { HttpValidationError } from "./HttpValidationError.js";
+import { HttpBodyError } from "./readJsonBody.js";
+import { ResponseParseError } from "../ai/response/ResponseParser.js";
+import { ResponseValidationError } from "../ai/response/ResponseValidator.js";
+import { ProviderError } from "../ai/provider/ProviderInterface.js";
 
 export type HttpErrorResponse = {
   status: number;

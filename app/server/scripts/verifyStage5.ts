@@ -7,9 +7,9 @@
 // If GEMINI_API_KEY is not present in process.env when this runs, live checks are
 // skipped and reported as skipped — never fabricated as passing.
 
-import { createContainer } from "../ai/container.ts";
-import { GeminiProvider } from "../ai/provider/GeminiProvider.ts";
-import { FakeProvider } from "../ai/provider/FakeProvider.ts";
+import { createContainer } from "../ai/container.js";
+import { GeminiProvider } from "../ai/provider/GeminiProvider.js";
+import { FakeProvider } from "../ai/provider/FakeProvider.js";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {

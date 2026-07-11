@@ -18,7 +18,7 @@ import { useLocalization } from "../../localization";
 import { useCanvasAssistant } from "../../ai/useCanvasAssistant";
 import { useProjectContext } from "../useProject";
 import { QUESTIONS, resumeQuestionIndex, v1StaticPresetProvider } from "./questionModel";
-import { buildWorkspaceSnapshot } from "./workspaceSnapshot";
+import { buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
 
 export function BusinessStructuringPage() {
   const { project, update, saveError } = useProjectContext();
@@ -32,6 +32,30 @@ export function BusinessStructuringPage() {
   const [currentIndex, setCurrentIndex] = useState(() => resumeQuestionIndex(project.canvas));
   const advanceTimeout = useRef<number | null>(null);
   const assistant = useCanvasAssistant();
+
+  // Acceptance Confirmation (sdd/ai/04_ai_interaction.md#suggestion-lifecycle):
+  // Feature-local, transient view-state only — not a new AI lifecycle state.
+  // `assistant.reset()` already returns the hook's own status to "idle" the
+  // instant Accept fires; this local state independently controls what renders
+  // in the same slot for a brief acknowledgment window afterward.
+  const [confirmation, setConfirmation] = useState<{ text: string; rationale?: string } | null>(null);
+  const confirmationTimeout = useRef<number | null>(null);
+
+  function clearConfirmation() {
+    if (confirmationTimeout.current !== null) {
+      window.clearTimeout(confirmationTimeout.current);
+      confirmationTimeout.current = null;
+    }
+    setConfirmation(null);
+  }
+
+  // Unmount cleanup only — question-change and new-invocation supersession are
+  // each handled where they occur, below.
+  useEffect(() => {
+    return () => {
+      if (confirmationTimeout.current !== null) window.clearTimeout(confirmationTimeout.current);
+    };
+  }, []);
 
   // Always-current snapshot of `project`, read by the stale-response guard below.
   // A plain closure over `project` would freeze at invocation time — by the time an
@@ -50,6 +74,11 @@ export function BusinessStructuringPage() {
   const resetAssistant = assistant.reset;
   useEffect(() => {
     resetAssistant();
+    // Acceptance Confirmation end condition (sdd/ai/04_ai_interaction.md#suggestion-lifecycle):
+    // navigating to a different question must not let a still-pending
+    // confirmation resurface later against the wrong field.
+    clearConfirmation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, resetAssistant]);
 
   function saveAnswer(value: string) {
@@ -71,6 +100,11 @@ export function BusinessStructuringPage() {
   // scroll. Canvas context is built from whatever Canvas fields are already
   // answered, mirroring Canvas Assistant's Request Contract.
   function handleAskAi() {
+    // Acceptance Confirmation end condition (sdd/ai/04_ai_interaction.md#suggestion-lifecycle):
+    // a new invocation for the same target supersedes any confirmation still
+    // showing from a prior Accept.
+    clearConfirmation();
+
     const question = QUESTIONS[currentIndex];
 
     // A builder, not a pre-computed object: called fresh both now and again on
@@ -107,8 +141,25 @@ export function BusinessStructuringPage() {
   // uses — from this point the accepted text is ordinary user-authored content,
   // per ADR-0009, indistinguishable from a preset-derived answer.
   function handleAcceptSuggestion() {
-    if (assistant.suggestionText) saveAnswer(assistant.suggestionText);
+    // Captured before reset() wipes the hook's own suggestion state — this is
+    // the same in-memory data the Acceptance Confirmation may optionally reuse
+    // (sdd/ai/04_ai_interaction.md#suggestion-lifecycle's Optional rationale),
+    // never a new fetch or a persisted copy.
+    const text = assistant.suggestionText;
+    const rationale = assistant.rationale;
+
+    if (text) saveAnswer(text);
     assistant.reset();
+
+    if (text) {
+      clearConfirmation();
+      setConfirmation({ text, rationale });
+      // End condition: intended display period elapses (sdd/ai/04_ai_interaction.md#suggestion-lifecycle).
+      confirmationTimeout.current = window.setTimeout(() => {
+        confirmationTimeout.current = null;
+        setConfirmation(null);
+      }, 1600);
+    }
   }
 
   const failureMessage = assistant.failureKind
@@ -170,38 +221,52 @@ export function BusinessStructuringPage() {
 
           {/* AI area: the field above remains editable in every state below —
               Manual-first (sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability).
-              aria-live announces loading/ready/failed transitions to assistive
-              technology without stealing focus (sdd/ai/04#accessibility-ai-interaction-specific-only). */}
+              aria-live announces loading/ready/failed/accepted transitions to
+              assistive technology without stealing focus
+              (sdd/ai/04#accessibility-ai-interaction-specific-only). The Acceptance
+              Confirmation below renders in this exact same slot, ahead of the
+              status-based branches, since assistant.status has already returned
+              to "idle" by the time it's shown (sdd/ai/04#suggestion-lifecycle). */}
           <div aria-live="polite" aria-atomic="true" style={{ marginTop: "var(--space-3)" }}>
-            {assistant.status === "idle" && (
-              <Button variant="secondary" onClick={handleAskAi}>
-                {t.aiAssistant.askAiLabel}
-              </Button>
-            )}
+            {confirmation ? (
+              <Alert tone="success">
+                {confirmation.rationale
+                  ? `${t.aiAssistant.appliedLabel} — ${confirmation.rationale}`
+                  : t.aiAssistant.appliedLabel}
+              </Alert>
+            ) : (
+              <>
+                {assistant.status === "idle" && (
+                  <Button variant="secondary" onClick={handleAskAi}>
+                    {t.aiAssistant.askAiLabel}
+                  </Button>
+                )}
 
-            {assistant.status === "loading" && <LoadingIndicator label={t.aiAssistant.loadingLabel} />}
+                {assistant.status === "loading" && <LoadingIndicator label={t.aiAssistant.loadingLabel} />}
 
-            {assistant.status === "ready" && assistant.suggestionText && (
-              <SuggestionCard
-                aiTag={t.aiAssistant.aiTag}
-                suggestionText={assistant.suggestionText}
-                rationale={assistant.rationale}
-                acceptLabel={t.aiAssistant.acceptLabel}
-                rejectLabel={t.aiAssistant.rejectLabel}
-                regenerateLabel={t.aiAssistant.regenerateLabel}
-                onAccept={handleAcceptSuggestion}
-                onReject={assistant.reject}
-                onRegenerate={assistant.regenerate}
-              />
-            )}
+                {assistant.status === "ready" && assistant.suggestionText && (
+                  <SuggestionCard
+                    aiTag={t.aiAssistant.aiTag}
+                    suggestionText={assistant.suggestionText}
+                    rationale={assistant.rationale}
+                    acceptLabel={t.aiAssistant.acceptLabel}
+                    rejectLabel={t.aiAssistant.rejectLabel}
+                    regenerateLabel={t.aiAssistant.regenerateLabel}
+                    onAccept={handleAcceptSuggestion}
+                    onReject={assistant.reject}
+                    onRegenerate={assistant.regenerate}
+                  />
+                )}
 
-            {assistant.status === "failed" && failureMessage && (
-              <Stack gap="var(--space-2)">
-                <Alert tone="warning">{failureMessage}</Alert>
-                <Button variant="secondary" onClick={assistant.retry}>
-                  {t.aiAssistant.retryLabel}
-                </Button>
-              </Stack>
+                {assistant.status === "failed" && failureMessage && (
+                  <Stack gap="var(--space-2)">
+                    <Alert tone="warning">{failureMessage}</Alert>
+                    <Button variant="secondary" onClick={assistant.retry}>
+                      {t.aiAssistant.retryLabel}
+                    </Button>
+                  </Stack>
+                )}
+              </>
             )}
           </div>
         </Card>

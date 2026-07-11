@@ -6,14 +6,8 @@ import type {
   CanvasAssistantOperation,
   CanvasAssistantRequest,
   CanvasContextField,
-} from "../ai/capabilities/canvasAssistant/types.ts";
-
-export class HttpValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "HttpValidationError";
-  }
-}
+} from "../ai/capabilities/canvasAssistant/types.js";
+import { HttpValidationError } from "./HttpValidationError.js";
 
 const VALID_OPERATIONS: readonly CanvasAssistantOperation[] = [
   "suggestion",

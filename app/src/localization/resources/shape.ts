@@ -39,6 +39,7 @@ export interface Resources {
     businessStructuring: string;
     mvpPlanning: string;
     validationPlanning: string;
+    riskMemo: string;
     summary: string;
   };
   language: {
@@ -107,6 +108,13 @@ export interface Resources {
     confirmAndContinue: string;
     loadingProject: string;
     guardedNotice: string;
+  };
+  riskMemo: {
+    title: string;
+    subtitle: string;
+    technicalRisksLabel: string;
+    businessRisksLabel: string;
+    openQuestionsLabel: string;
   };
   question: {
     businessIdea: QuestionResource;
@@ -191,6 +199,7 @@ export interface Resources {
     rejectLabel: string;
     regenerateLabel: string;
     retryLabel: string;
+    appliedLabel: string;
     failureGeneric: string;
     failureTimeout: string;
     failureRateLimited: string;

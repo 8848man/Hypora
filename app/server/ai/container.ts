@@ -5,15 +5,20 @@
 // Service, config-shape, and Frontend code must never change as a result
 // (ADR-0007's provider-independence guarantee, made concrete).
 
-import { FakeProvider } from "./provider/FakeProvider.ts";
-import { GeminiProvider } from "./provider/GeminiProvider.ts";
-import { tryResolveCredential } from "./config/credentialLoader.ts";
-import { createInMemoryProviderConfig } from "./config/providerConfig.ts";
-import { AiApplicationService } from "./AiApplicationService.ts";
-import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.ts";
-import type { Provider } from "./provider/ProviderInterface.ts";
+import { FakeProvider } from "./provider/FakeProvider.js";
+import { GeminiProvider } from "./provider/GeminiProvider.js";
+import { tryResolveCredential } from "./config/credentialLoader.js";
+import { createInMemoryProviderConfig } from "./config/providerConfig.js";
+import { AiApplicationService } from "./AiApplicationService.js";
+import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.js";
+import { RiskMemoAssistantCapability, RISK_MEMO_ASSISTANT } from "./capabilities/riskMemoAssistant/RiskMemoAssistantCapability.js";
+import type { Provider } from "./provider/ProviderInterface.js";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+// A "-latest" alias rather than a pinned version: Gemini model versions have been
+// observed to be deprecated (404) faster than expected — this alias always
+// resolves to the current recommended flash model instead of requiring a code
+// change each time a pinned version is retired.
+const GEMINI_MODEL = "gemini-flash-latest";
 
 // Default provider selection: Gemini if a credential is configured, Fake otherwise.
 // This is the ONLY place that decision is made — swapping which Provider backs the
@@ -31,6 +36,7 @@ function selectDefaultProvider(): Provider {
 export type Container = {
   aiApplicationService: AiApplicationService;
   canvasAssistant: CanvasAssistantCapability;
+  riskMemoAssistant: RiskMemoAssistantCapability;
   providerId: string;
 };
 
@@ -58,12 +64,20 @@ export function createContainer(overrideProvider?: Provider): Container {
       model: "n/a",
       providerParameters: {},
     },
+    {
+      providerId: provider.id,
+      capabilityId: RISK_MEMO_ASSISTANT.capabilityId,
+      contractVersion: RISK_MEMO_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
   ]);
 
   const aiApplicationService = new AiApplicationService({ provider, config });
   const canvasAssistant = new CanvasAssistantCapability(aiApplicationService);
+  const riskMemoAssistant = new RiskMemoAssistantCapability(aiApplicationService);
 
-  return { aiApplicationService, canvasAssistant, providerId: provider.id };
+  return { aiApplicationService, canvasAssistant, riskMemoAssistant, providerId: provider.id };
 }
 
 export const HEALTH_CHECK = {

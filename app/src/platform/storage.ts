@@ -3,9 +3,16 @@
 // this is where Platform API's V1 implementation lives inside the shared codebase (see
 // sdd/context/05_application_responsibilities.md and sdd/workspace/02_data_and_state.md).
 
-import type { Project } from "../domain/types";
+import { emptyRiskMemo, type Project } from "../domain/types";
 import type { Language } from "../localization/types";
 import { SUPPORTED_LANGUAGES } from "../localization/types";
+
+// Forward-compatibility (sdd/workspace/02_data_and_state.md's Local Persistence
+// rule): a field added after some Projects were already stored (riskMemo) must
+// read back as an empty default, never a read error or an undefined crash.
+function withDefaults(project: Project): Project {
+  return { ...project, riskMemo: project.riskMemo ?? { ...emptyRiskMemo } };
+}
 
 const INDEX_KEY = "hypora:project-ids";
 const LANGUAGE_KEY = "hypora:language";
@@ -60,7 +67,7 @@ export function readProject(id: string): Project | null {
   try {
     const raw = window.localStorage.getItem(projectKey(id));
     if (!raw) return null;
-    return JSON.parse(raw) as Project;
+    return withDefaults(JSON.parse(raw) as Project);
   } catch {
     // Corrupted/unreadable project data — surfaced by the caller as a recoverable error state,
     // never a silent crash (per sdd/workspace/02_data_and_state.md Error States).

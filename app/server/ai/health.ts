@@ -2,7 +2,7 @@
 // Service -> Provider Interface -> Provider, proving the Stage 1 pipeline is actually
 // wired (not merely that the process is running).
 
-import { HEALTH_CHECK, type Container } from "./container.ts";
+import { HEALTH_CHECK, type Container } from "./container.js";
 
 export type HealthResult = {
   status: "ok" | "error";
