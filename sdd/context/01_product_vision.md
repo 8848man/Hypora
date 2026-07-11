@@ -28,7 +28,7 @@ The long-term vision is an **AI Co-founder platform**: a system that doesn't jus
 - Validation is a first-class, structural part of every project — not a side note a user has to remember to add.
 - The tool's scope is deliberately narrow (pre-build clarity), so it doesn't compete with — or get bloated by — full execution-management features a founder doesn't need yet.
 
-**Core value proposition:** turn a vague idea into a scoped, validated MVP plan, in one purpose-built workspace, without needing a business background or a patchwork of separate tools.
+**Core value proposition:** turn a vague idea into a scoped, validated MVP plan, in one purpose-built workspace, without needing a business background or a patchwork of separate tools. The workspace is experienced as answering meaningful questions, not filling out framework-labeled forms — see [ADR-0012](../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md).
 
 **Long-term product identity:** an AI Co-founder that starts (V1) as a manual structuring tool and grows (V2–V5) into an active collaborator across canvas assistance, market intelligence, go-to-market planning, and product execution guidance — see [Product Roadmap](#product-roadmap).
 
@@ -57,6 +57,8 @@ Every future feature, in every stage of the roadmap, must respect:
 | **Progressive disclosure** | Surfacing all eight V1 sections, or any future stage's full capability, at once, rather than guiding the user through one meaningful step at a time |
 | **Simplicity — narrow scope over feature breadth** | Any feature that turns Hypora into a general-purpose PM/ticketing tool, per the Non-Goals in [Product Scope](./02_product_scope.md) |
 | **Localization is product quality, not an optional layer** | Any feature shipped with only one language's resources complete — see Localization Principle below |
+| **Thinking before documents** | Any Feature designed to present an empty structured form, or its framework's name, as the first thing a user encounters — per [ADR-0012](../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md), guided thinking is the preferred entry; the structured artifact it produces remains a fully editable, equally permanent surface, never a replacement for it. Guided questions may cross Feature boundaries in service of better thinking, but every answer is still written to its one canonical owner (see ADR-0012). |
+| **Internal identity is not required UX vocabulary** | Any requirement that a user understand or see a Feature's internal name (Business Structuring, Risk Memo, Validation Planning) before making progress — Feature identity is an architecture concept; users experience questions and progressively revealed structure, not a map of internal Features (see [ADR-0012](../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md)) |
 
 These principles do not change across V1–V5 — a stage may add *capability* (e.g., AI suggestions in V2), but never in a way that violates a principle above (e.g., V2's AI Canvas Assistant may suggest a Value Proposition rewrite, but must never silently overwrite the user's own entry).
 

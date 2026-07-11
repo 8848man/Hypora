@@ -18,7 +18,7 @@ import { useLocalization } from "../../localization";
 import { useCanvasAssistant } from "../../ai/useCanvasAssistant";
 import { useProjectContext } from "../useProject";
 import { QUESTIONS, resumeQuestionIndex, v1StaticPresetProvider } from "./questionModel";
-import { buildWorkspaceSnapshot } from "./workspaceSnapshot";
+import { buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
 
 export function BusinessStructuringPage() {
   const { project, update, saveError } = useProjectContext();

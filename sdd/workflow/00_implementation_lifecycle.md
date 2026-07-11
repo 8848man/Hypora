@@ -52,6 +52,12 @@ Before writing any new fact, resolve to exactly one outcome:
 
 Before authoring a change, check whether it meets any trigger in the framework's `07_adr_process.md`: spans more than one owned area, expensive/risky to reverse, chosen among real alternatives, or not reconstructible from the artifact alone. If yes, write or supersede an ADR in `sdd/architecture/decisions/` before proceeding.
 
+## Conversation-First UX Prototyping Checkpoint
+
+*(Delivery/process policy, not an architectural decision — does not modify [ADR-0012](../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md)'s Decision.)*
+
+For any implementation step that introduces or changes conversation-first / guided-entry UX per ADR-0012, Phase 4 (Implement / Author) includes a low-fidelity interaction prototype, validated before production implementation begins rather than after. This extends Phase 4's existing scope; it is not a new phase — the prototype step precedes writing production code within the same Phase 4 unit of work, and is still followed by Phases 5–8 (Verify, Validate, Sync Documentation, Commit) exactly as already defined above. It does not apply to non-conversational changes (e.g., data model or capability-contract work), which proceed through Phase 4 as already defined.
+
 ## Commit Discipline
 
 Whenever a meaningful unit of work is completed, it must be committed before continuing to the next one. A meaningful unit includes, but is not limited to: completion of one implementation step, one specification update, one architecture refinement, one bug fix, one refactoring task, one validation stage, or one review-driven improvement.

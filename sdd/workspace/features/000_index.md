@@ -12,6 +12,7 @@ Every V1 Feature Specification, in the order a Project moves through them (not a
 | [03](./03_mvp_planning.md) | MVP Planning | Define the smallest valuable scope and a prioritized feature list |
 | [04](./04_validation_planning.md) | Validation Planning | Turn the hypothesis into testable, resolvable assumptions |
 | [05](./05_project_summary.md) | Project Summary | Aggregate readiness at a glance; own the Validated → Build-Ready confirmation |
+| [06](./06_risk_memo.md) | Risk Memo | Structure Technical/Business Risks and Open Questions as three discrete, optional fields; first downstream consumer of the generalized AI-assisted structured-feature architecture |
 
 ## Feature Philosophy
 

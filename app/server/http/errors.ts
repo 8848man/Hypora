@@ -4,7 +4,7 @@
 // type; none of it is provider-specific logic, and no Provider-specific exception
 // or message ever escapes past this point unclassified.
 
-import { HttpValidationError } from "./validateCanvasAssistantRequest.js";
+import { HttpValidationError } from "./HttpValidationError.js";
 import { HttpBodyError } from "./readJsonBody.js";
 import { ResponseParseError } from "../ai/response/ResponseParser.js";
 import { ResponseValidationError } from "../ai/response/ResponseValidator.js";
