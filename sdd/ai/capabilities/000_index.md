@@ -10,6 +10,7 @@ Every AI Capability that exists, in the order it was introduced. Mirrors the ADR
 | [02](./02_risk_memo_assistant.md) | Risk Memo Assistant | First consumer of the generalized structured-feature AI architecture (not a V-numbered roadmap stage — see [Future Expansion Strategy](../../context/06_future_expansion_strategy.md#future-ready-architecture-principle)) | Suggest content for one Risk Memo field at a time, grounded in the Business Canvas and the field's Risk Memo siblings |
 | [03](./03_mvp_planning_assistant.md) | MVP Planning Assistant | Same as above | Suggest MVP Scope content, grounded in Business Canvas and Risk Memo (read-only) |
 | [04](./04_validation_planning_assistant.md) | Validation Planning Assistant | Same as above | Suggest a new Assumption statement, grounded in Business Canvas, Risk Memo, and MVP Scope (read-only) |
+| [05](./05_feature_suggestion_assistant.md) | Feature Suggestion Assistant | Same as above | Propose a batch of Feature names for the Feature Plan, grounded in Business Canvas, MVP Scope, existing Features, and Risk Memo (read-only, optional) |
 
 ## Capability Specification Template
 
