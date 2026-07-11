@@ -7,6 +7,7 @@ Every AI Capability that exists, in the order it was introduced. Mirrors the ADR
 | # | Capability | Roadmap Stage | Purpose |
 |---|---|---|---|
 | [01](./01_canvas_assistant.md) | Canvas Assistant | V2 | Improve, complete, and refine a Business Canvas through AI-generated suggestions and follow-up questions |
+| [02](./02_risk_memo_assistant.md) | Risk Memo Assistant | First consumer of the generalized structured-feature AI architecture (not a V-numbered roadmap stage — see [Future Expansion Strategy](../../context/06_future_expansion_strategy.md#future-ready-architecture-principle)) | Suggest content for one Risk Memo field at a time, grounded in the Business Canvas and the field's Risk Memo siblings |
 
 ## Capability Specification Template
 
