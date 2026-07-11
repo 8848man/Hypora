@@ -11,8 +11,18 @@
 // Canvas fields hold only their current value, never a history.
 
 import type { Project } from "../domain/types";
-import type { CanvasContextField } from "../ai/types";
 import { QUESTIONS } from "../features/business-structuring/questionModel";
+
+// Normalized Workspace Context's field shape (sdd/ai/03_ownership_model.md#context-representation-pipeline).
+// Owned here, not by the AI layer: this is Workspace's own data being
+// serialized, per this module's own ownership (sdd/workspace/01_architecture.md#workspace-context-builder).
+// src/ai/types.ts imports and re-exports this — the AI layer consumes
+// Workspace's shape, never the reverse, per the pipeline's "isolate
+// Workspace's own data models from AI contracts" principle.
+export type CanvasContextField = {
+  field: string;
+  value: string;
+};
 
 export function buildWorkspaceSnapshot(project: Project): CanvasContextField[] {
   return QUESTIONS.filter((q) => project.canvas[q.relatedCanvasField].trim() !== "").map((q) => ({

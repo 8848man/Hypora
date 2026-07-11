@@ -4,12 +4,15 @@
 // code directly (server/ assumes a Node runtime; Frontend is browser-bundled), and
 // never leaks Provider concepts (vendor names, HTTP status codes) into this shape.
 
-export type CanvasAssistantOperation = "suggestion" | "missingInfo" | "followUp" | "refinement";
+// CanvasContextField is Workspace-owned (it's Workspace's own Normalized
+// Context shape, not an AI concept) — imported and re-exported here so every
+// existing capability-layer import (`from "./types.ts"` / `"../../ai/types"`)
+// keeps working unchanged; the AI layer consumes Workspace's shape, never
+// defines it.
+import type { CanvasContextField } from "../workspace/contextBuilder";
+export type { CanvasContextField } from "../workspace/contextBuilder";
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+export type CanvasAssistantOperation = "suggestion" | "missingInfo" | "followUp" | "refinement";
 
 export type CanvasAssistantRequest = {
   operation: CanvasAssistantOperation;
