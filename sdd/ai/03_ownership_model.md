@@ -85,3 +85,5 @@ No stage above reassigns an existing row's owner. "Normalized Workspace Context"
 ## How a New Capability Uses This Table
 
 Every AI Capability specification under [`capabilities/`](./capabilities/000_index.md) is written against this same ownership split — a capability spec does not reassign any row above, and does not restate the split inline; it references this document.
+
+When a new Capability's Context Selection step needs an artifact not yet part of Normalized Workspace Context, see [Workspace Context Builder](../workspace/01_architecture.md#context-eligibility-rules)'s Context Eligibility Rules for the promotion discipline that governs adding it — demand-driven, not automatic, and never a change to this document's ownership rows.
