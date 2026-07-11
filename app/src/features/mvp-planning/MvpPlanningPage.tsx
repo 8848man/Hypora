@@ -1,26 +1,100 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Badge,
   Button,
   Card,
   Chip,
   EmptyState,
+  LoadingIndicator,
   PageHeader,
   Stack,
+  SuggestionCard,
   TextArea,
   TextField,
 } from "../../design-system";
 import { advanceToValidating } from "../../domain/lifecycle";
 import type { FeaturePriority, PlannedFeature } from "../../domain/types";
 import { useLocalization } from "../../localization";
+import { useMvpPlanningAssistant } from "../../ai/useMvpPlanningAssistant";
 import { useProjectContext } from "../useProject";
+import { buildRiskMemoContext, buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
 
 const PRIORITIES: FeaturePriority[] = ["must", "should", "could"];
 
 export function MvpPlanningPage() {
   const { project, update } = useProjectContext();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const [newFeatureName, setNewFeatureName] = useState("");
+
+  const assistant = useMvpPlanningAssistant();
+
+  // Fresh-on-every-render snapshot, read by buildInput at call time (not
+  // capture time) — same reasoning as RiskMemoPage's projectRef: Regenerate/
+  // Retry reuse the same buildInput reference later, so it must dereference a
+  // ref, never close over a stale `project` value.
+  const projectRef = useRef(project);
+  projectRef.current = project;
+
+  // Acceptance Confirmation (sdd/ai/04_ai_interaction.md#suggestion-lifecycle):
+  // Feature-local, transient view-state only — identical shape to Business
+  // Structuring's and Risk Memo's own.
+  const [confirmation, setConfirmation] = useState<{ text: string; rationale?: string } | null>(null);
+  const confirmationTimeout = useRef<number | null>(null);
+
+  function clearConfirmation() {
+    if (confirmationTimeout.current !== null) {
+      window.clearTimeout(confirmationTimeout.current);
+      confirmationTimeout.current = null;
+    }
+    setConfirmation(null);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (confirmationTimeout.current !== null) window.clearTimeout(confirmationTimeout.current);
+    };
+  }, []);
+
+  function handleAskAi() {
+    clearConfirmation();
+
+    const buildInput = () => ({
+      canvasContext: buildWorkspaceSnapshot(projectRef.current),
+      riskContext: buildRiskMemoContext(projectRef.current),
+      language,
+      fieldValueAtInvocation: projectRef.current.mvpScope,
+    });
+
+    assistant.invoke(buildInput, () => projectRef.current.mvpScope);
+  }
+
+  function handleAcceptSuggestion() {
+    const text = assistant.suggestionText;
+    const rationale = assistant.rationale;
+
+    if (text) update({ ...projectRef.current, mvpScope: text });
+    assistant.reset();
+
+    if (text) {
+      clearConfirmation();
+      setConfirmation({ text, rationale });
+      confirmationTimeout.current = window.setTimeout(() => {
+        confirmationTimeout.current = null;
+        setConfirmation(null);
+      }, 1600);
+    }
+  }
+
+  const failureMessage = assistant.failureKind
+    ? {
+        timeout: t.aiAssistant.failureTimeout,
+        rate_limited: t.aiAssistant.failureRateLimited,
+        unavailable: t.aiAssistant.failureUnavailable,
+        safety_refusal: t.aiAssistant.failureSafetyRefusal,
+        generic: t.aiAssistant.failureGeneric,
+      }[assistant.failureKind]
+    : undefined;
 
   const priorityLabel: Record<FeaturePriority, string> = {
     must: t.mvpPlanning.priorityMust,
@@ -74,6 +148,52 @@ export function MvpPlanningPage() {
           value={project.mvpScope}
           onChange={(e) => update({ ...project, mvpScope: e.target.value })}
         />
+
+        {/* AI area: the field above remains editable in every state below —
+            Manual-first (sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability). */}
+        <div aria-live="polite" aria-atomic="true" style={{ margin: "var(--space-3) 0" }}>
+          {confirmation ? (
+            <Alert tone="success">
+              {confirmation.rationale
+                ? `${t.aiAssistant.appliedLabel} — ${confirmation.rationale}`
+                : t.aiAssistant.appliedLabel}
+            </Alert>
+          ) : (
+            <>
+              {assistant.status === "idle" && (
+                <Button variant="secondary" onClick={handleAskAi}>
+                  {t.aiAssistant.askAiLabel}
+                </Button>
+              )}
+
+              {assistant.status === "loading" && <LoadingIndicator label={t.aiAssistant.loadingLabel} />}
+
+              {assistant.status === "ready" && assistant.suggestionText && (
+                <SuggestionCard
+                  aiTag={t.aiAssistant.aiTag}
+                  suggestionText={assistant.suggestionText}
+                  rationale={assistant.rationale}
+                  acceptLabel={t.aiAssistant.acceptLabel}
+                  rejectLabel={t.aiAssistant.rejectLabel}
+                  regenerateLabel={t.aiAssistant.regenerateLabel}
+                  onAccept={handleAcceptSuggestion}
+                  onReject={assistant.reject}
+                  onRegenerate={assistant.regenerate}
+                />
+              )}
+
+              {assistant.status === "failed" && failureMessage && (
+                <Stack gap="var(--space-2)">
+                  <Alert tone="warning">{failureMessage}</Alert>
+                  <Button variant="secondary" onClick={assistant.retry}>
+                    {t.aiAssistant.retryLabel}
+                  </Button>
+                </Stack>
+              )}
+            </>
+          )}
+        </div>
+
         <Button
           variant={project.mvpScopeComplete ? "secondary" : "primary"}
           onClick={toggleScopeComplete}

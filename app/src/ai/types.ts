@@ -64,3 +64,39 @@ export type RiskMemoAssistantResponse = {
 };
 
 export type RiskMemoAssistantFailureKind = AiFailureKind;
+
+// MVP Planning Assistant's own outward contract (sdd/ai/capabilities/03_mvp_planning_assistant.md,
+// Contract Version 1.0). Separate type from Canvas/Risk Memo Assistant's — shapes diverge,
+// per that capability spec's Promotion Rules citation.
+
+export type MvpPlanningAssistantRequest = {
+  operation: "suggestion";
+  canvasContext: CanvasContextField[];
+  riskContext: CanvasContextField[];
+  language: "ko" | "en";
+};
+
+export type MvpPlanningAssistantResponse = {
+  suggestionText: string;
+  rationale?: string;
+};
+
+export type MvpPlanningAssistantFailureKind = AiFailureKind;
+
+// Validation Planning Assistant's own outward contract (sdd/ai/capabilities/04_validation_planning_assistant.md,
+// Contract Version 1.0). Separate type from every other capability's — shapes diverge.
+
+export type ValidationPlanningAssistantRequest = {
+  operation: "suggestion";
+  canvasContext: CanvasContextField[];
+  riskContext: CanvasContextField[];
+  mvpContext: CanvasContextField[];
+  language: "ko" | "en";
+};
+
+export type ValidationPlanningAssistantResponse = {
+  suggestionText: string;
+  rationale?: string;
+};
+
+export type ValidationPlanningAssistantFailureKind = AiFailureKind;
