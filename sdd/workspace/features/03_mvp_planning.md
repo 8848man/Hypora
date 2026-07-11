@@ -57,7 +57,11 @@ Depends on the MVP Scope and Feature Planning screens owned by [Workspace Archit
 
 ## History
 
-Feature Plan changes are recorded automatically, without ever requiring the user to justify an action: a Feature's creation and its removal each produce a lightweight, Feature-local history event (name snapshot, timestamp), never a field-level edit log. A user may optionally attach a free-text annotation to any event, but only from a dedicated History view, after the fact — never as a required step of creating or removing a Feature. This is Workspace/MVP-Planning-owned data, unrelated to any AI capability's own interaction state; it exists regardless of whether a given Feature originated from a manual entry or an accepted AI suggestion, and never records or exposes which. See [Workspace Data & State](../02_data_and_state.md) for the data ownership fact.
+Feature Plan changes are recorded automatically, without ever requiring the user to justify an action: a Feature's creation and its removal each produce a lightweight, Feature-local history event (name snapshot, timestamp), never a field-level edit log. A user may optionally attach a free-text annotation to any event, but only from a dedicated History view, after the fact — never as a required step of creating or removing a Feature. This is Workspace/MVP-Planning-owned data, unrelated to any AI capability's own interaction state.
+
+**A History event never records a Feature's origin.** Whether a Feature was typed manually or accepted from [Feature Suggestion Assistant](../../ai/capabilities/05_feature_suggestion_assistant.md), its Created event carries exactly the same fields — no `source`, no `origin`, no AI-provenance flag of any kind. Recording origin would reintroduce the persistent AI-provenance marker this project has already rejected (ADR-0009; [04_ai_interaction.md](../../ai/04_ai_interaction.md)'s Suggestion Lifecycle Non-goals) through a different door. A batch Accept producing several new Features records one Created event per Feature, not one combined "batch" event, and each Feature's Removed event (if it ever occurs) is entirely independent of any other event's annotation — annotations are never merged or carried forward between a Feature's own events.
+
+See [Workspace Data & State](../02_data_and_state.md) for the data ownership fact.
 
 ## Future Expansion (V2–V5)
 
