@@ -2,7 +2,7 @@
 
 **Refs:** → [Features Index](./000_index.md) · [Workspace Architecture](../01_architecture.md) · [Workspace Data & State](../02_data_and_state.md) · [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) · [Business Structuring](./02_business_structuring.md) · [Validation Planning](./04_validation_planning.md) · [AI Ownership Model](../../ai/03_ownership_model.md) · [Canvas Assistant](../../ai/capabilities/01_canvas_assistant.md) · [Risk Memo Assistant](../../ai/capabilities/02_risk_memo_assistant.md)
 
-*(First downstream consumer of the generalized AI-assisted structured-feature architecture, per [Future Expansion Strategy](../../context/06_future_expansion_strategy.md#future-ready-architecture-principle)'s 4th principle. Authored as a real Feature Specification, not a placeholder — this document is the prerequisite the AI architecture review series previously identified as missing.)*
+*(First downstream consumer of the generalized AI-assisted structured-feature architecture, per [Future Expansion Strategy](../../context/06_future_expansion_strategy.md#future-ready-architecture-principle)'s 4th principle. Authored as a real Feature Specification, not a placeholder — this document is the prerequisite the AI architecture review series previously identified as missing. Also the first Feature to apply the guided-thinking entry pattern retroactively, per [ADR-0012](../../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md).)*
 
 ## Purpose
 
@@ -90,7 +90,7 @@ Each field is a discrete, independently-addressable unit — the same "Data shap
 
 | Aspect | Definition |
 |---|---|
-| Entry Point | From Business Structuring once the Canvas exists (Structuring stage reached), or directly from the Dashboard for a resumed Project |
+| Entry Point | An optional guided-thinking activity reachable from within Business Structuring's flow once the Canvas exists (Structuring stage reached), per [ADR-0012](../../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md) — not an independent Dashboard-level entry. Its structured, directly-editable three-field view (see Structured Data Model above) remains reachable at any time thereafter for a resumed Project. |
 | Exit Point | Back to the Dashboard or any other section, at any time |
 | Previous Screen | Whichever section the user came from (non-linear) |
 | Next Screen | None formally — Risk Memo is not a step in any required sequence |

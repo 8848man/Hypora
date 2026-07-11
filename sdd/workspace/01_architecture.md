@@ -85,9 +85,11 @@ Workspace (Application)
     ├── MVP Scope
     ├── Feature Planning
     ├── Validation Checklist
-    ├── Risk Memo                  — three independently-addressable, optional fields (Technical
-    │                                 Risks, Business Risks, Open Questions); non-gating (see
-    │                                 Risk Memo Feature Specification)
+    ├── Risk Memo                  — an optional guided-thinking activity reached from within
+    │                                 Business Structuring's flow (per ADR-0012), producing three
+    │                                 independently-addressable, optional, directly-editable fields
+    │                                 (Technical Risks, Business Risks, Open Questions); non-gating
+    │                                 (see Risk Memo Feature Specification)
     └── Project Summary            — read-only aggregate view; not a separately stored artifact
                                       (see Data & State)
 ```
@@ -110,6 +112,10 @@ Workspace (Application)
 *(Relocated from `context/04_information_architecture.md`, unchanged in substance — restated here because it is now Workspace-internal reasoning, not cross-Application IA.)*
 
 Navigation remains organized around **Projects and their artifacts**, not around lifecycle stages as top-level screens. The [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md)'s stages are a derived status, layered onto the Dashboard/Project List and each Project's own view (showing which artifact is blocking the next transition) — not a parallel navigation structure. See the [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) document for the state/transition model this status is derived from. Revisit this recommendation only if the Idea Explorer persona is promoted from Future to Secondary/Primary (see [Personas](../context/03_personas_and_journey.md)).
+
+**Thinking flow vs. Feature flow** (per [ADR-0012](../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md)): a guided flow's questions may move between conceptual domains whenever it improves the user's thinking, without that transition reading as a navigation event between separate screens — this is a refinement of the Mental Model above, not a change to it. Concept ownership never changes: every answer is still written to its single canonical Feature-owned field; no shared ownership, no duplicated data, and no cross-Feature orchestration state is introduced by this.
+
+**Artifacts as continuously revisable thinking, not one-time output** (per ADR-0012): every Feature's structured view remains fully editable indefinitely — this restates an already-true property of each Feature's existing data model (no field is ever locked or versioned once authored) as permanent, deliberate philosophy. A founder revisiting Canvas after working on Risk Memo, or MVP Scope after Validation Planning, is a manual, user-driven action; it introduces no new cross-Feature read relationship — every existing capability-independence boundary (e.g. [Risk Memo](./features/06_risk_memo.md)'s "No direct relationship" with MVP Planning) is unchanged.
 
 ## Feature Inventory (V1)
 
