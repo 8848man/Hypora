@@ -1,37 +1,133 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Badge,
   Button,
   Card,
   EmptyState,
+  LoadingIndicator,
   PageHeader,
   Stack,
+  SuggestionCard,
   TextField,
 } from "../../design-system";
 import { advanceToValidated, reopenScope } from "../../domain/lifecycle";
 import type { ValidationItem, ValidationStatus } from "../../domain/types";
 import { useLocalization } from "../../localization";
+import { useValidationPlanningAssistant } from "../../ai/useValidationPlanningAssistant";
 import { useProjectContext } from "../useProject";
+import { buildMvpScopeContext, buildRiskMemoContext, buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
 
 export function ValidationPage() {
   const { project, update } = useProjectContext();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const [newAssumption, setNewAssumption] = useState("");
 
-  const canEditChecklist = project.stage === "validating" || project.stage === "validated";
+  const assistant = useValidationPlanningAssistant();
 
-  function addAssumption() {
-    if (!newAssumption.trim()) return;
+  const projectRef = useRef(project);
+  projectRef.current = project;
+  // The draft field's own live value, read the same way projectRef exposes
+  // Project state — needed because this target isn't a Project field itself
+  // (Manual-first stale-response guard, sdd/ai/04_ai_interaction.md).
+  const draftRef = useRef(newAssumption);
+  draftRef.current = newAssumption;
+
+  // Acceptance Confirmation (sdd/ai/04_ai_interaction.md#suggestion-lifecycle):
+  // Feature-local, transient view-state only — identical shape to Business
+  // Structuring's and Risk Memo's own.
+  const [confirmation, setConfirmation] = useState<{ text: string; rationale?: string } | null>(null);
+  const confirmationTimeout = useRef<number | null>(null);
+
+  function clearConfirmation() {
+    if (confirmationTimeout.current !== null) {
+      window.clearTimeout(confirmationTimeout.current);
+      confirmationTimeout.current = null;
+    }
+    setConfirmation(null);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (confirmationTimeout.current !== null) window.clearTimeout(confirmationTimeout.current);
+    };
+  }, []);
+
+  function handleAskAi() {
+    clearConfirmation();
+
+    const buildInput = () => ({
+      canvasContext: buildWorkspaceSnapshot(projectRef.current),
+      riskContext: buildRiskMemoContext(projectRef.current),
+      mvpContext: buildMvpScopeContext(projectRef.current),
+      language,
+      fieldValueAtInvocation: draftRef.current,
+    });
+
+    assistant.invoke(buildInput, () => draftRef.current);
+  }
+
+  // Shared creation logic — both manual entry and an accepted AI suggestion
+  // create a Validation Checklist item through this single path, per
+  // sdd/ai/capabilities/04_validation_planning_assistant.md's Acceptance
+  // Criteria: "reuse the same code path as manual assumption creation, never
+  // a separate AI-only creation flow."
+  function createAssumption(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
     const item: ValidationItem = {
       id: `val_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      assumption: newAssumption.trim(),
+      assumption: trimmed,
       method: "",
       successCriterion: "",
       status: "open",
     };
     update({ ...project, validationItems: [...project.validationItems, item] });
+  }
+
+  // Accept: this capability's real commitment point, consistent with every
+  // other capability's own Accept behavior (Canvas Assistant, Risk Memo
+  // Assistant, MVP Planning Assistant all write directly into Project data
+  // on Accept) — never a separate fill-then-add step, and never a
+  // different code path than manual creation above.
+  function handleRegisterSuggestion() {
+    const text = assistant.suggestionText;
+    const rationale = assistant.rationale;
+
+    if (text) createAssumption(text);
+    assistant.reset();
+
+    if (text) {
+      clearConfirmation();
+      setConfirmation({ text, rationale });
+      confirmationTimeout.current = window.setTimeout(() => {
+        confirmationTimeout.current = null;
+        setConfirmation(null);
+      }, 1600);
+    }
+  }
+
+  const failureMessage = assistant.failureKind
+    ? {
+        timeout: t.aiAssistant.failureTimeout,
+        rate_limited: t.aiAssistant.failureRateLimited,
+        unavailable: t.aiAssistant.failureUnavailable,
+        safety_refusal: t.aiAssistant.failureSafetyRefusal,
+        generic: t.aiAssistant.failureGeneric,
+      }[assistant.failureKind]
+    : undefined;
+
+  const canEditChecklist = project.stage === "validating" || project.stage === "validated";
+
+  function addAssumption() {
+    if (!newAssumption.trim()) return;
+    createAssumption(newAssumption);
     setNewAssumption("");
+    // A pending, unrelated AI suggestion must not linger and resurface after
+    // the user has moved on by adding their own entry manually
+    // (sdd/ai/04_ai_interaction.md#suggestion-lifecycle's End conditions).
+    assistant.reset();
+    clearConfirmation();
   }
 
   function updateItem(id: string, patch: Partial<ValidationItem>) {
@@ -82,17 +178,69 @@ export function ValidationPage() {
       />
 
       {canEditChecklist && (
-        <Stack direction="row" style={{ marginBottom: "var(--space-4)" }}>
-          <TextField
-            label={t.validationPlanning.addAssumptionLabel}
-            value={newAssumption}
-            onChange={(e) => setNewAssumption(e.target.value)}
-            placeholder={t.validationPlanning.addAssumptionPlaceholder}
-          />
-          <Button onClick={addAssumption} disabled={!newAssumption.trim()}>
-            {t.validationPlanning.add}
-          </Button>
-        </Stack>
+        <>
+          <Stack direction="row" style={{ marginBottom: "var(--space-3)" }}>
+            <TextField
+              label={t.validationPlanning.addAssumptionLabel}
+              value={newAssumption}
+              onChange={(e) => setNewAssumption(e.target.value)}
+              placeholder={t.validationPlanning.addAssumptionPlaceholder}
+            />
+            <Button onClick={addAssumption} disabled={!newAssumption.trim()}>
+              {t.validationPlanning.add}
+            </Button>
+          </Stack>
+
+          {/* AI area: the draft field above remains editable in every state
+              below — Manual-first (sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability).
+              The AI's suggestion is never written into the draft field above
+              — it is offered via the Suggestion Card below and only becomes
+              a real Validation Checklist item once the user explicitly
+              accepts it (handleRegisterSuggestion), through the same
+              createAssumption() path manual entry uses. */}
+          <div aria-live="polite" aria-atomic="true" style={{ marginBottom: "var(--space-4)" }}>
+            {confirmation ? (
+              <Alert tone="success">
+                {confirmation.rationale
+                  ? `${t.aiAssistant.appliedLabel} — ${confirmation.rationale}`
+                  : t.aiAssistant.appliedLabel}
+              </Alert>
+            ) : (
+              <>
+                {assistant.status === "idle" && (
+                  <Button variant="secondary" onClick={handleAskAi}>
+                    {t.aiAssistant.askAiLabel}
+                  </Button>
+                )}
+
+                {assistant.status === "loading" && <LoadingIndicator label={t.aiAssistant.loadingLabel} />}
+
+                {assistant.status === "ready" && assistant.suggestionText && (
+                  <SuggestionCard
+                    aiTag={t.aiAssistant.aiTag}
+                    suggestionText={assistant.suggestionText}
+                    rationale={assistant.rationale}
+                    acceptLabel={t.aiAssistant.acceptLabel}
+                    rejectLabel={t.aiAssistant.rejectLabel}
+                    regenerateLabel={t.aiAssistant.regenerateLabel}
+                    onAccept={handleRegisterSuggestion}
+                    onReject={assistant.reject}
+                    onRegenerate={assistant.regenerate}
+                  />
+                )}
+
+                {assistant.status === "failed" && failureMessage && (
+                  <Stack gap="var(--space-2)">
+                    <Alert tone="warning">{failureMessage}</Alert>
+                    <Button variant="secondary" onClick={assistant.retry}>
+                      {t.aiAssistant.retryLabel}
+                    </Button>
+                  </Stack>
+                )}
+              </>
+            )}
+          </div>
+        </>
       )}
 
       {project.validationItems.length === 0 ? (

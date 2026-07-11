@@ -28,8 +28,10 @@ export type RiskMemoAssistantInputBuilder = () => RiskMemoAssistantInvokeInput;
 
 export type UseRiskMemoAssistantResult = Omit<
   UseAiAssistantResult<RiskMemoAssistantRequest, { suggestionText: string; rationale?: string }, RiskMemoAssistantFailureKind>,
-  "invoke"
+  "invoke" | "data"
 > & {
+  suggestionText?: string;
+  rationale?: string;
   invoke: (buildInput: RiskMemoAssistantInputBuilder, getCurrentFieldValue: () => string) => void;
 };
 
@@ -38,6 +40,9 @@ export function useRiskMemoAssistant(): UseRiskMemoAssistantResult {
 
   return {
     ...assistant,
+    // See useCanvasAssistant.ts's identical comment on this re-derivation.
+    suggestionText: assistant.data?.suggestionText,
+    rationale: assistant.data?.rationale,
     invoke: (buildInput: RiskMemoAssistantInputBuilder, getCurrentFieldValue: () => string) =>
       assistant.invoke(() => {
         const { fieldValueAtInvocation, ...rest } = buildInput();
