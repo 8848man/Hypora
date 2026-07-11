@@ -28,11 +28,36 @@ export type CanvasAssistantResponse = {
 };
 
 // UX-facing failure taxonomy, per sdd/ai/05_ai_feedback_and_error_experience.md's
-// Failure Taxonomy table. "generic" deliberately covers validation / malformed
-// response / unknown, matching that document's uniform framing for all three.
-export type CanvasAssistantFailureKind =
-  | "timeout"
-  | "rate_limited"
-  | "unavailable"
-  | "safety_refusal"
-  | "generic";
+// Failure Taxonomy table — capability-agnostic (the taxonomy itself is Platform-wide,
+// not Canvas-Assistant-specific), reused as-is by every capability's own alias below.
+// "generic" deliberately covers validation / malformed response / unknown, matching
+// that document's uniform framing for all three.
+export type AiFailureKind = "timeout" | "rate_limited" | "unavailable" | "safety_refusal" | "generic";
+
+export type CanvasAssistantFailureKind = AiFailureKind;
+
+// Risk Memo Assistant's own outward contract (sdd/ai/capabilities/02_risk_memo_assistant.md,
+// Contract Version 1.0). Deliberately a separate type from Canvas Assistant's — their
+// Request/Response shapes diverge, per that capability spec's Promotion Rules citation.
+
+export type RiskMemoTargetField = "technical_risks" | "business_risks" | "open_questions";
+
+export type RiskMemoSiblingField = {
+  field: RiskMemoTargetField;
+  value: string;
+};
+
+export type RiskMemoAssistantRequest = {
+  operation: "suggestion";
+  canvasContext: CanvasContextField[];
+  targetField: RiskMemoTargetField;
+  siblingFields?: RiskMemoSiblingField[];
+  language: "ko" | "en";
+};
+
+export type RiskMemoAssistantResponse = {
+  suggestionText: string;
+  rationale?: string;
+};
+
+export type RiskMemoAssistantFailureKind = AiFailureKind;

@@ -35,6 +35,7 @@ export const ko: Resources = {
     businessStructuring: "비즈니스 구조화",
     mvpPlanning: "MVP 계획",
     validationPlanning: "검증 계획",
+    riskMemo: "리스크 메모",
     summary: "요약",
   },
   language: {
@@ -105,6 +106,13 @@ export const ko: Resources = {
     confirmAndContinue: "확인하고 MVP 계획으로 이동",
     loadingProject: "프로젝트를 불러오는 중…",
     guardedNotice: "먼저 비즈니스 구조화와 MVP 계획을 완료하세요 — MVP 범위와 기능 계획이 모두 완료되면 검증 계획을 사용할 수 있습니다.",
+  },
+  riskMemo: {
+    title: "리스크 메모",
+    subtitle: "기술적 리스크, 비즈니스 리스크, 그리고 아직 알지 못하는 것들을 기록하세요. 모든 항목은 선택 사항입니다.",
+    technicalRisksLabel: "기술적 리스크",
+    businessRisksLabel: "비즈니스 리스크",
+    openQuestionsLabel: "아직 모르는 것",
   },
   question: {
     businessIdea: {

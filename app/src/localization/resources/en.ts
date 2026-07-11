@@ -35,6 +35,7 @@ export const en: Resources = {
     businessStructuring: "Business Structuring",
     mvpPlanning: "MVP Planning",
     validationPlanning: "Validation Planning",
+    riskMemo: "Risk Memo",
     summary: "Summary",
   },
   language: {
@@ -108,6 +109,13 @@ export const en: Resources = {
     loadingProject: "Loading project…",
     guardedNotice:
       "Complete Business Structuring and MVP Planning first — Validation Planning becomes available once MVP Scope and Feature Planning are both marked complete.",
+  },
+  riskMemo: {
+    title: "Risk Memo",
+    subtitle: "Note technical risks, business risks, and what you don't know yet. Every field is optional.",
+    technicalRisksLabel: "Technical Risks",
+    businessRisksLabel: "Business Risks",
+    openQuestionsLabel: "Open Questions",
   },
   question: {
     businessIdea: {
