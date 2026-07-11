@@ -100,3 +100,35 @@ export type ValidationPlanningAssistantResponse = {
 };
 
 export type ValidationPlanningAssistantFailureKind = AiFailureKind;
+
+// Feature Suggestion Assistant's own outward contract
+// (sdd/ai/capabilities/05_feature_suggestion_assistant.md, Contract Version
+// 1.0). Separate type from every other capability's — its Response is a
+// structured array, not the scalar {suggestionText, rationale?} shape every
+// other capability uses.
+
+export type FeatureSuggestionExistingFeature = {
+  name: string;
+  priority: "must" | "should" | "could";
+  inScope: boolean;
+};
+
+export type FeatureSuggestionAssistantRequest = {
+  operation: "suggestion";
+  canvasContext: CanvasContextField[];
+  mvpScopeContext: CanvasContextField[];
+  existingFeatures: FeatureSuggestionExistingFeature[];
+  riskContext: CanvasContextField[];
+  language: "ko" | "en";
+};
+
+export type FeatureSuggestionItem = {
+  name: string;
+  rationale: string;
+  primaryUserValue: string;
+  priority: "must" | "should" | "could";
+};
+
+export type FeatureSuggestionAssistantResponse = FeatureSuggestionItem[];
+
+export type FeatureSuggestionAssistantFailureKind = AiFailureKind;

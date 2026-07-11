@@ -29,8 +29,10 @@ export type UseValidationPlanningAssistantResult = Omit<
     { suggestionText: string; rationale?: string },
     ValidationPlanningAssistantFailureKind
   >,
-  "invoke"
+  "invoke" | "data"
 > & {
+  suggestionText?: string;
+  rationale?: string;
   invoke: (buildInput: ValidationPlanningAssistantInputBuilder, getCurrentFieldValue: () => string) => void;
 };
 
@@ -39,6 +41,9 @@ export function useValidationPlanningAssistant(): UseValidationPlanningAssistant
 
   return {
     ...assistant,
+    // See useCanvasAssistant.ts's identical comment on this re-derivation.
+    suggestionText: assistant.data?.suggestionText,
+    rationale: assistant.data?.rationale,
     invoke: (buildInput: ValidationPlanningAssistantInputBuilder, getCurrentFieldValue: () => string) =>
       assistant.invoke(() => {
         const { fieldValueAtInvocation, ...rest } = buildInput();

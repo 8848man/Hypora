@@ -17,8 +17,11 @@ import { advanceToValidating } from "../../domain/lifecycle";
 import type { FeaturePriority, PlannedFeature } from "../../domain/types";
 import { useLocalization } from "../../localization";
 import { useMvpPlanningAssistant } from "../../ai/useMvpPlanningAssistant";
+import { useFeatureSuggestionAssistant } from "../../ai/useFeatureSuggestionAssistant";
 import { useProjectContext } from "../useProject";
 import { buildRiskMemoContext, buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
+import { FeatureSuggestionPreview, type AcceptedProposal } from "./FeatureSuggestionPreview";
+import { createHistoryEvent } from "./featureHistory";
 
 const PRIORITIES: FeaturePriority[] = ["must", "should", "could"];
 
@@ -28,6 +31,7 @@ export function MvpPlanningPage() {
   const [newFeatureName, setNewFeatureName] = useState("");
 
   const assistant = useMvpPlanningAssistant();
+  const featureSuggestion = useFeatureSuggestionAssistant();
 
   // Fresh-on-every-render snapshot, read by buildInput at call time (not
   // capture time) — same reasoning as RiskMemoPage's projectRef: Regenerate/
@@ -96,6 +100,108 @@ export function MvpPlanningPage() {
       }[assistant.failureKind]
     : undefined;
 
+  // Feature Suggestion Assistant — its own independent Suggestion Ready cycle,
+  // separate from the Scope-field assistant above (sdd/ai/04_ai_interaction.md
+  // Governing Rule 3: one invocation per capability instance).
+  const [featureSuggestionConfirmation, setFeatureSuggestionConfirmation] = useState<string | null>(null);
+  const featureSuggestionConfirmationTimeout = useRef<number | null>(null);
+
+  function clearFeatureSuggestionConfirmation() {
+    if (featureSuggestionConfirmationTimeout.current !== null) {
+      window.clearTimeout(featureSuggestionConfirmationTimeout.current);
+      featureSuggestionConfirmationTimeout.current = null;
+    }
+    setFeatureSuggestionConfirmation(null);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (featureSuggestionConfirmationTimeout.current !== null) {
+        window.clearTimeout(featureSuggestionConfirmationTimeout.current);
+      }
+    };
+  }, []);
+
+  function handleSuggestFeatures() {
+    clearFeatureSuggestionConfirmation();
+
+    featureSuggestion.invoke(() => ({
+      canvasContext: buildWorkspaceSnapshot(projectRef.current),
+      mvpScopeContext:
+        projectRef.current.mvpScope.trim() === "" ? [] : [{ field: "mvpScope", value: projectRef.current.mvpScope }],
+      // Every existing Feature, unfiltered (including inScope: false), per
+      // sdd/ai/capabilities/05_feature_suggestion_assistant.md's Request Contract.
+      existingFeatures: projectRef.current.features.map((f) => ({
+        name: f.name,
+        priority: f.priority,
+        inScope: f.inScope,
+      })),
+      riskContext: buildRiskMemoContext(projectRef.current),
+      language,
+    }));
+  }
+
+  // Accept mechanics, per sdd/ai/capabilities/05_feature_suggestion_assistant.md#acceptance-criteria:
+  // ids minted here (client-side, at Accept time, same format as manual
+  // addFeature()); checked proposals appended preserving their response
+  // order, existing entries never read/matched/overwritten; one History
+  // Created event per accepted Feature, never one combined "batch" event;
+  // count-based confirmation content, since no single rationale applies to a
+  // batch.
+  function handleAcceptProposals(accepted: AcceptedProposal[]) {
+    const newFeatures: PlannedFeature[] = accepted.map((a) => ({
+      id: `feat_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      name: a.name,
+      priority: a.priority,
+      inScope: a.inScope,
+    }));
+    const newHistoryEvents = newFeatures.map((f) => createHistoryEvent(f.id, f.name, "created"));
+
+    update({
+      ...projectRef.current,
+      features: [...projectRef.current.features, ...newFeatures],
+      featureHistory: [...projectRef.current.featureHistory, ...newHistoryEvents],
+    });
+
+    featureSuggestion.reset();
+
+    if (newFeatures.length > 0) {
+      clearFeatureSuggestionConfirmation();
+      setFeatureSuggestionConfirmation(t.mvpPlanning.featuresAddedLabel(newFeatures.length));
+      featureSuggestionConfirmationTimeout.current = window.setTimeout(() => {
+        featureSuggestionConfirmationTimeout.current = null;
+        setFeatureSuggestionConfirmation(null);
+      }, 1600);
+    }
+  }
+
+  // Empty response handling, per sdd/ai/capabilities/05_feature_suggestion_assistant.md#edge-cases:
+  // an empty array is "nothing to suggest," not an error — this must never
+  // render as an open preview panel with zero rows. Reset to Idle immediately
+  // and show a brief neutral notice instead.
+  useEffect(() => {
+    if (featureSuggestion.status === "ready" && featureSuggestion.proposals?.length === 0) {
+      featureSuggestion.reset();
+      clearFeatureSuggestionConfirmation();
+      setFeatureSuggestionConfirmation(t.mvpPlanning.suggestedFeaturesEmptyNotice);
+      featureSuggestionConfirmationTimeout.current = window.setTimeout(() => {
+        featureSuggestionConfirmationTimeout.current = null;
+        setFeatureSuggestionConfirmation(null);
+      }, 1600);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [featureSuggestion.status, featureSuggestion.proposals]);
+
+  const featureSuggestionFailureMessage = featureSuggestion.failureKind
+    ? {
+        timeout: t.aiAssistant.failureTimeout,
+        rate_limited: t.aiAssistant.failureRateLimited,
+        unavailable: t.aiAssistant.failureUnavailable,
+        safety_refusal: t.aiAssistant.failureSafetyRefusal,
+        generic: t.aiAssistant.failureGeneric,
+      }[featureSuggestion.failureKind]
+    : undefined;
+
   const priorityLabel: Record<FeaturePriority, string> = {
     must: t.mvpPlanning.priorityMust,
     should: t.mvpPlanning.priorityShould,
@@ -110,7 +216,11 @@ export function MvpPlanningPage() {
       priority: "should",
       inScope: true,
     };
-    update({ ...project, features: [...project.features, feature] });
+    update({
+      ...project,
+      features: [...project.features, feature],
+      featureHistory: [...project.featureHistory, createHistoryEvent(feature.id, feature.name, "created")],
+    });
     setNewFeatureName("");
   }
 
@@ -122,8 +232,24 @@ export function MvpPlanningPage() {
   }
 
   function removeFeature(id: string) {
-    update({ ...project, features: project.features.filter((f) => f.id !== id) });
+    const removed = project.features.find((f) => f.id === id);
+    update({
+      ...project,
+      features: project.features.filter((f) => f.id !== id),
+      featureHistory: removed
+        ? [...project.featureHistory, createHistoryEvent(removed.id, removed.name, "removed")]
+        : project.featureHistory,
+    });
   }
+
+  function annotateHistoryEvent(eventId: string, annotation: string) {
+    update({
+      ...project,
+      featureHistory: project.featureHistory.map((e) => (e.id === eventId ? { ...e, annotation } : e)),
+    });
+  }
+
+  const [showHistory, setShowHistory] = useState(false);
 
   function toggleScopeComplete() {
     const next = { ...project, mvpScopeComplete: !project.mvpScopeComplete };
@@ -217,6 +343,44 @@ export function MvpPlanningPage() {
         </Button>
       </Stack>
 
+      {/* Feature Suggestion Assistant — its own Suggestion Ready cycle, distinct
+          from the Scope-field assistant above. The Feature list above and below
+          remains editable in every state here — Manual-first. */}
+      <div aria-live="polite" aria-atomic="true" style={{ marginBottom: "var(--space-4)" }}>
+        {featureSuggestionConfirmation ? (
+          <Alert tone="success">{featureSuggestionConfirmation}</Alert>
+        ) : (
+          <>
+            {featureSuggestion.status === "idle" && (
+              <Button variant="secondary" onClick={handleSuggestFeatures}>
+                {t.mvpPlanning.suggestFeaturesLabel}
+              </Button>
+            )}
+
+            {featureSuggestion.status === "loading" && <LoadingIndicator label={t.aiAssistant.loadingLabel} />}
+
+            {featureSuggestion.status === "ready" && featureSuggestion.proposals && (
+              <FeatureSuggestionPreview
+                proposals={featureSuggestion.proposals}
+                existingFeatureNames={project.features.map((f) => f.name)}
+                onAccept={handleAcceptProposals}
+                onReject={featureSuggestion.reject}
+                onRegenerate={featureSuggestion.regenerate}
+              />
+            )}
+
+            {featureSuggestion.status === "failed" && featureSuggestionFailureMessage && (
+              <Stack gap="var(--space-2)">
+                <Alert tone="warning">{featureSuggestionFailureMessage}</Alert>
+                <Button variant="secondary" onClick={featureSuggestion.retry}>
+                  {t.aiAssistant.retryLabel}
+                </Button>
+              </Stack>
+            )}
+          </>
+        )}
+      </div>
+
       {project.features.length === 0 ? (
         <EmptyState title={t.mvpPlanning.emptyFeaturesTitle} description={t.mvpPlanning.emptyFeaturesDescription} />
       ) : (
@@ -263,6 +427,43 @@ export function MvpPlanningPage() {
           <Badge tone="success">{t.mvpPlanning.readyForValidation}</Badge>
         </div>
       )}
+
+      {/* Feature History — sdd/workspace/features/03_mvp_planning.md#history.
+          Passive record only: automatic Created/Removed events, never a
+          required step of adding or removing a Feature above. Annotation is
+          entered only here, optionally, after the fact. */}
+      <div style={{ marginTop: "var(--space-5)" }}>
+        <Button variant="secondary" onClick={() => setShowHistory((v) => !v)}>
+          {t.mvpPlanning.historyToggleLabel}
+        </Button>
+
+        {showHistory && (
+          <Card style={{ marginTop: "var(--space-3)" }}>
+            <h3 style={{ marginTop: 0 }}>{t.mvpPlanning.historyTitle}</h3>
+            {project.featureHistory.length === 0 ? (
+              <p style={{ color: "var(--color-neutral-text-muted)" }}>{t.mvpPlanning.historyEmptyDescription}</p>
+            ) : (
+              <Stack gap="var(--space-3)">
+                {[...project.featureHistory].reverse().map((event) => (
+                  <div key={event.id}>
+                    <p style={{ margin: 0 }}>
+                      <strong>{event.featureName}</strong> —{" "}
+                      {event.eventType === "created" ? t.mvpPlanning.historyCreatedLabel : t.mvpPlanning.historyRemovedLabel}
+                    </p>
+                    <TextField
+                      id={`history-annotation-${event.id}`}
+                      label={t.mvpPlanning.historyAnnotationPlaceholder}
+                      value={event.annotation ?? ""}
+                      placeholder={t.mvpPlanning.historyAnnotationPlaceholder}
+                      onChange={(e) => annotateHistoryEvent(event.id, e.target.value)}
+                    />
+                  </div>
+                ))}
+              </Stack>
+            )}
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

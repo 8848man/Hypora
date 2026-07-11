@@ -11,7 +11,11 @@ import { SUPPORTED_LANGUAGES } from "../localization/types";
 // rule): a field added after some Projects were already stored (riskMemo) must
 // read back as an empty default, never a read error or an undefined crash.
 function withDefaults(project: Project): Project {
-  return { ...project, riskMemo: project.riskMemo ?? { ...emptyRiskMemo } };
+  return {
+    ...project,
+    riskMemo: project.riskMemo ?? { ...emptyRiskMemo },
+    featureHistory: project.featureHistory ?? [],
+  };
 }
 
 const INDEX_KEY = "hypora:project-ids";

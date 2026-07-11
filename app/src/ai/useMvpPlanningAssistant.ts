@@ -19,8 +19,10 @@ export type MvpPlanningAssistantInputBuilder = () => MvpPlanningAssistantInvokeI
 
 export type UseMvpPlanningAssistantResult = Omit<
   UseAiAssistantResult<MvpPlanningAssistantRequest, { suggestionText: string; rationale?: string }, MvpPlanningAssistantFailureKind>,
-  "invoke"
+  "invoke" | "data"
 > & {
+  suggestionText?: string;
+  rationale?: string;
   invoke: (buildInput: MvpPlanningAssistantInputBuilder, getCurrentFieldValue: () => string) => void;
 };
 
@@ -29,6 +31,9 @@ export function useMvpPlanningAssistant(): UseMvpPlanningAssistantResult {
 
   return {
     ...assistant,
+    // See useCanvasAssistant.ts's identical comment on this re-derivation.
+    suggestionText: assistant.data?.suggestionText,
+    rationale: assistant.data?.rationale,
     invoke: (buildInput: MvpPlanningAssistantInputBuilder, getCurrentFieldValue: () => string) =>
       assistant.invoke(() => {
         const { fieldValueAtInvocation, ...rest } = buildInput();

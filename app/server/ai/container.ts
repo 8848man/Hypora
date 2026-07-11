@@ -14,6 +14,7 @@ import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canv
 import { RiskMemoAssistantCapability, RISK_MEMO_ASSISTANT } from "./capabilities/riskMemoAssistant/RiskMemoAssistantCapability.js";
 import { MvpPlanningAssistantCapability, MVP_PLANNING_ASSISTANT } from "./capabilities/mvpPlanningAssistant/MvpPlanningAssistantCapability.js";
 import { ValidationPlanningAssistantCapability, VALIDATION_PLANNING_ASSISTANT } from "./capabilities/validationPlanningAssistant/ValidationPlanningAssistantCapability.js";
+import { FeatureSuggestionAssistantCapability, FEATURE_SUGGESTION_ASSISTANT } from "./capabilities/featureSuggestionAssistant/FeatureSuggestionAssistantCapability.js";
 import type { Provider } from "./provider/ProviderInterface.js";
 
 // A "-latest" alias rather than a pinned version: Gemini model versions have been
@@ -41,6 +42,7 @@ export type Container = {
   riskMemoAssistant: RiskMemoAssistantCapability;
   mvpPlanningAssistant: MvpPlanningAssistantCapability;
   validationPlanningAssistant: ValidationPlanningAssistantCapability;
+  featureSuggestionAssistant: FeatureSuggestionAssistantCapability;
   providerId: string;
 };
 
@@ -89,6 +91,13 @@ export function createContainer(overrideProvider?: Provider): Container {
       model: "n/a",
       providerParameters: {},
     },
+    {
+      providerId: provider.id,
+      capabilityId: FEATURE_SUGGESTION_ASSISTANT.capabilityId,
+      contractVersion: FEATURE_SUGGESTION_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
   ]);
 
   const aiApplicationService = new AiApplicationService({ provider, config });
@@ -96,6 +105,7 @@ export function createContainer(overrideProvider?: Provider): Container {
   const riskMemoAssistant = new RiskMemoAssistantCapability(aiApplicationService);
   const mvpPlanningAssistant = new MvpPlanningAssistantCapability(aiApplicationService);
   const validationPlanningAssistant = new ValidationPlanningAssistantCapability(aiApplicationService);
+  const featureSuggestionAssistant = new FeatureSuggestionAssistantCapability(aiApplicationService);
 
   return {
     aiApplicationService,
@@ -103,6 +113,7 @@ export function createContainer(overrideProvider?: Provider): Container {
     riskMemoAssistant,
     mvpPlanningAssistant,
     validationPlanningAssistant,
+    featureSuggestionAssistant,
     providerId: provider.id,
   };
 }
