@@ -54,9 +54,10 @@ Per [ADR-0009](../../architecture/decisions/ADR-0009-ai-platform-localization-in
 
 ## Acceptance Criteria
 
-- **This capability's true commitment point is the Feature's existing "Add" action, not a separate Accept step.** Unlike every other capability, its target is the not-yet-created new-assumption draft field, itself gated by a further, unchanged manual action before anything is written to `project.validationItems`. A ready suggestion therefore populates that draft field directly, without an intermediate Accept click — the field remains fully editable and clearable before Add, and Add's own logic is entirely unmodified. This does not weaken "AI may suggest, the user always retains final authorship": authorship is exercised at Add, exactly as before.
-- The auto-population is gated by the same Manual-first stale-response guard every capability already uses: if the draft field's value has changed since invocation, the arriving suggestion is discarded, never applied over live user input.
-- Once populated, the field's content is ordinary, indistinguishable draft text — no different in kind from anything the user typed directly, per ADR-0009's precedent applied to a pre-commit field.
+- A new-assumption suggestion is offered via the standard Suggestion Card review pattern — never auto-inserted into the draft input, and never auto-created as a Validation Checklist item, prior to an explicit Accept.
+- **Accept is this capability's commitment point**, consistent with every other capability's own Accept behavior (Canvas Assistant, Risk Memo Assistant, MVP Planning Assistant all write directly into Project data on Accept): accepting a suggestion creates a new Validation Checklist item immediately, through the exact same creation logic manual entry uses — never a separate AI-only creation path, and never routed through the draft input field as an intermediate step.
+- Reject discards the suggestion without creating anything or touching the draft input. Regenerate requests a new draft, replacing the current one entirely, per the existing Suggestion Lifecycle rule.
+- The manual draft input and its own "Add" action are entirely independent of this capability's suggestion — an AI suggestion is never written into that field, and manually authoring or committing a draft never depends on, or is blocked by, a pending suggestion.
 - If this capability is unavailable or fails, Validation Planning behaves exactly as it does with no AI available.
 - A suggestion is never generated for, or applied to, an already-created Validation Checklist item's fields.
 
