@@ -144,6 +144,17 @@ export interface Resources {
     inScope: string;
     outOfScope: string;
     readyForValidation: string;
+    suggestFeaturesLabel: string;
+    suggestedFeaturesTitle: string;
+    suggestedFeaturesEmptyNotice: string;
+    duplicateIndicator: string;
+    featuresAddedLabel: (count: number) => string;
+    historyToggleLabel: string;
+    historyTitle: string;
+    historyEmptyDescription: string;
+    historyCreatedLabel: string;
+    historyRemovedLabel: string;
+    historyAnnotationPlaceholder: string;
   };
   validationPlanning: {
     title: string;

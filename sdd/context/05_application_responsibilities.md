@@ -64,8 +64,11 @@ Per `10_bootstrap_guide.md` Step 3, no `sdd/<application>/` implementation-layer
 | AI | Not implemented | Backs V2 (AI Canvas Assistant) through V5 (AI Product Builder) |
 | Search | Not implemented | Backs V3 (Market Intelligence) discovery features |
 | Integrations | Not implemented | Backs future external data sources (market data, competitor data) |
+| Analytics | Not implemented | Product event tracking, cross-cutting across every Feature and AI Capability — introduced ahead of V3 per [ADR-0013](../architecture/decisions/ADR-0013-analytics-provider-independence.md); see `sdd/analytics/` for its own architecture, independent of AI and Search |
 
 **Distinguishing current vs. future is mandatory for every fact recorded about Platform API** — a capability listed above as "Not implemented" must never be described elsewhere as if it already exists in V1.
+
+AI and Analytics are each a confirmed **Platform Service** — a named cross-cutting architectural role, not a redefinition of either row above; see [Platform Services](../architecture/01_platform_services.md) for the shared definition and [ADR-0014](../architecture/decisions/ADR-0014-platform-services-architectural-role.md) for why it exists.
 
 ## Cross-Application Boundaries
 

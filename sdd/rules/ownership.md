@@ -11,8 +11,9 @@ Who may modify which files, and the coordination rules for changes spanning area
 | Product / Context | `sdd/context/**` | Any future `sdd/<application>/` implementation-layer document — context describes intent, not implementation; `sdd/domain/**` (context may reference lifecycle stage, never redefine a transition) |
 | Domain | `sdd/domain/**` | Any `sdd/context/**` document's own concerns (vision, scope, IA screen structure) — domain owns entity state/transitions only |
 | Governance | `sdd/rules/**`, `sdd/00_index.md`, `sdd/workflow/**` | `sdd/context/**` or `sdd/domain/**` content itself (may only add/rename index entries referencing it) |
-| Architecture | `sdd/architecture/decisions/**` | Rewriting an `Accepted` ADR's Decision/Consequences (immutable — supersede instead) |
+| Architecture | `sdd/architecture/**` | Rewriting an `Accepted` ADR's Decision/Consequences (immutable — supersede instead); any subsystem's own specification (`sdd/ai/**`, `sdd/analytics/**`, or a future `sdd/search/**`) — `sdd/architecture/01_platform_services.md` describes a shared role, it does not own or supersede any instance's own architecture |
 | Workspace | `sdd/workspace/**` | Landing's or Platform API's owned files; must not redefine a Business Idea Lifecycle transition (reference `sdd/domain/**` instead); must not redefine a Platform API contract it consumes once one exists |
+| Analytics | `sdd/analytics/**` | Any Feature's own Purpose/Responsibilities/Acceptance Criteria, or the AI Platform's own capability contracts — Analytics owns the Event Model, Provider Independence, Event Catalog, and Migration Strategy only, per [ADR-0013](../architecture/decisions/ADR-0013-analytics-provider-independence.md) |
 | Infra | `sdd/infra/**` | Any Application's own responsibilities/IA — infra owns deployment target and pipeline, not what each Application does |
 | Analysis | `sdd/analysis/**` | Any fact owned elsewhere — an analysis document synthesizes and cites; it must not become a second definition of a fact already owned by Context, Domain, Workspace, or Infra |
 | Frontend | `sdd/frontend/**` | Any Feature's own Purpose/Responsibilities/Acceptance Criteria — frontend owns codebase structure (routing, boundaries, state), not what a Feature does |
@@ -33,6 +34,7 @@ Who may modify which files, and the coordination rules for changes spanning area
 | A layer document (e.g., `sdd/workspace/`) needs to describe project state | Reference `sdd/domain/01_business_idea_lifecycle.md` by name; never re-specify a state, transition, or guard locally. |
 | A document needs to describe the V1 release boundary, deployment target, or git/versioning process | Reference `sdd/analysis/01_v1_release_specification.md`, `sdd/infra/01_deployment.md`, or `sdd/workflow/02_git_and_release_strategy.md` respectively by name; never restate them. |
 | A Feature needs a new UI pattern not yet in the Design System | Add it to the Feature-owned tier first (`sdd/frontend/01_architecture.md`'s Component Ownership); promote it to `sdd/design-system/01_design_system.md` only once a second Feature or Landing needs the identical pattern. |
+| A Feature or AI Capability wants to emit an analytics event | Reference an existing `eventName` from `sdd/analytics/04_event_catalog.md`, or add a new row there first if it doesn't yet exist — never invent an event name inline in a Feature or Capability specification. |
 
 ## Sign-Off Requirements
 

@@ -61,6 +61,24 @@ export interface ValidationItem {
   status: ValidationStatus;
 }
 
+// Lightweight, append-only Feature Plan change record — per
+// sdd/workspace/features/03_mvp_planning.md#history. Automatic Created/Removed
+// events only, never a field-level edit log, and never a Feature's origin
+// (manual vs. AI-accepted) -- recording origin would reintroduce the
+// AI-provenance marker this project has already rejected (ADR-0009).
+export type FeatureHistoryEventType = "created" | "removed";
+
+export interface FeatureHistoryEvent {
+  id: string;
+  featureId: string;
+  // A snapshot, not a live reference -- a removed Feature has no live name to
+  // look up afterward.
+  featureName: string;
+  eventType: FeatureHistoryEventType;
+  timestamp: string;
+  annotation?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -75,6 +93,7 @@ export interface Project {
   mvpScopeComplete: boolean;
   features: PlannedFeature[];
   featurePlanningComplete: boolean;
+  featureHistory: FeatureHistoryEvent[];
 
   validationItems: ValidationItem[];
 }
@@ -92,6 +111,7 @@ export function createEmptyProject(id: string, name: string): Project {
     mvpScopeComplete: false,
     features: [],
     featurePlanningComplete: false,
+    featureHistory: [],
     validationItems: [],
   };
 }

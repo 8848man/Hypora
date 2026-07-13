@@ -55,6 +55,14 @@ Specifications in this methodology read like implementation contracts an agent c
 
 **(Explicit, `sdd/rules/spec_authoring_rules.md`)**: "Specifications are implementation-oriented documents written for AI implementation agents... not analysis reports, not essays."
 
+## Principle 8 — The Framework Outlives, and Is Not Subordinate to, Its First Reference Implementation
+
+Specification-Driven Development is the methodology. This document set is its codification. Sentinel is the first project this methodology was observed in and validated against — a reference implementation, not the methodology's origin and not its permanent source of truth. A project built on this framework does not inherit a generalized version of Sentinel; it inherits SDD itself, as currently best understood.
+
+**(Explicit, `00_index.md`)** — the framework is described as an extraction of "the Specification-Driven Development (SDD) methodology observed in the Sentinel project," never as an extraction of Sentinel itself. This principle makes that distinction load-bearing rather than incidental.
+
+Ownership follows directly: a project owns its own implementation of the methodology (its own specification tree, its own ADRs, its own evolution). No project — including Sentinel — owns the methodology itself. The framework does. A practice observed in a second or third project carries the same evidentiary weight as a practice observed in Sentinel, provided it meets the same Evidence discipline (`00_index.md`) — historical origin is not a source of permanent authority; only evidence meeting the same standard is.
+
 ## Why This Matters for a New Project
 
 Without this separation, a project accumulates one of two failure modes over time: either the specification calcifies (nobody updates it because "the code is obviously right") and becomes actively misleading, or the specification balloons into an unmaintainable historical narrative that duplicates git log. The four-way split, plus the mandatory-evaluate/conditional-edit discipline, is the mechanism that avoids both failure modes simultaneously.

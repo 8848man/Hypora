@@ -30,3 +30,21 @@ export function buildWorkspaceSnapshot(project: Project): CanvasContextField[] {
     value: project.canvas[q.relatedCanvasField],
   }));
 }
+
+// Read-only Risk Memo serialization — added as the real, demand-driven second
+// and third consumers (MVP Planning Assistant, Validation Planning Assistant)
+// per sdd/workspace/01_architecture.md#context-eligibility-rules Rule 1;
+// never built speculatively ahead of those. Only non-empty fields are
+// included, mirroring buildWorkspaceSnapshot's own filter.
+export function buildRiskMemoContext(project: Project): CanvasContextField[] {
+  return (Object.entries(project.riskMemo) as [keyof Project["riskMemo"], string][])
+    .filter(([, value]) => value.trim() !== "")
+    .map(([field, value]) => ({ field, value }));
+}
+
+// Read-only MVP Scope serialization — same Context Eligibility Rules
+// discipline as above; a single-field artifact, so this always returns at
+// most one entry.
+export function buildMvpScopeContext(project: Project): CanvasContextField[] {
+  return project.mvpScope.trim() === "" ? [] : [{ field: "mvpScope", value: project.mvpScope }];
+}
