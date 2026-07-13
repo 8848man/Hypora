@@ -24,6 +24,26 @@ One Product, multiple Applications — see [`sdd/context/05_application_responsi
 
 Every project's structuring/validation progress follows one canonical lifecycle — see [`sdd/domain/01_business_idea_lifecycle.md`](./sdd/domain/01_business_idea_lifecycle.md) and [`ADR-0002`](./sdd/architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md).
 
+**Architecture Overview** — the high-level shape a Workspace Feature's request to an external system follows, intentionally simplified for orientation (not every Feature or Provider is shown; see [`sdd/architecture/01_platform_services.md`](./sdd/architecture/01_platform_services.md) for the authoritative, detailed version):
+
+```
+Workspace Feature
+     │  consumes a stable contract
+     ▼
+Platform Service          — AI, Analytics (Search: anticipated, not yet built)
+     │
+     ▼
+Provider Interface        — the unified contract each Provider implements
+     │
+     ▼
+Infrastructure Provider   — a vendor-specific implementation (e.g. Gemini, Firestore)
+     │
+     ▼
+External Service
+```
+
+A Platform Service never depends on a Feature, and never depends on another Platform Service — composition between two Platform Services, if ever needed, happens only at the Feature layer.
+
 ## V1 Release
 
 V1 deploys as one Vercel project (Landing + Workspace bundled; Platform API excluded) — see [`sdd/analysis/01_v1_release_specification.md`](./sdd/analysis/01_v1_release_specification.md), [`sdd/infra/01_deployment.md`](./sdd/infra/01_deployment.md), and [`ADR-0003`](./sdd/architecture/decisions/ADR-0003-single-v1-deployment-target.md). Git workflow (branch model, merge strategy, versioning) is documented in [`sdd/workflow/02_git_and_release_strategy.md`](./sdd/workflow/02_git_and_release_strategy.md).
