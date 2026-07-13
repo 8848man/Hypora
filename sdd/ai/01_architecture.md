@@ -4,7 +4,7 @@
 
 Created ahead of any real AI code, per the SDD Framework's "spec leads implementation" principle — the same allowance already exercised for [Workspace Architecture](../workspace/01_architecture.md). This is the point at which AI has enough decided (ADR-0006 through ADR-0011) to warrant its own cross-cutting specification domain rather than remaining an unwritten implication of `context/05_application_responsibilities.md`'s AI capability row.
 
-This document does not redesign or re-derive any architectural decision — every decision below cites the ADR that made it. It states the current, standing shape of the AI Platform.
+This document does not redesign or re-derive any architectural decision — every decision below cites the ADR that made it. It states the current, standing shape of the AI Platform, which is a confirmed **Platform Service** — see [Platform Services](../architecture/01_platform_services.md) for the shared architectural role this and [Analytics](../analytics/01_architecture.md) both instantiate.
 
 ## Purpose
 

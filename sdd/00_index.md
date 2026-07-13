@@ -45,6 +45,16 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [workspace/features/04_validation_planning.md](./workspace/features/04_validation_planning.md) | Author and resolve testable Assumptions |
 | [workspace/features/05_project_summary.md](./workspace/features/05_project_summary.md) | Aggregate readiness; own the Validated → Build-Ready confirmation |
 
+## Analytics
+
+| Doc | Purpose |
+|---|---|
+| [analytics/01_architecture.md](./analytics/01_architecture.md) | Purpose, Responsibilities, Tracking Model, Responsibility Split — mirrors AI Platform Architecture for a different Platform API capability |
+| [analytics/02_event_model.md](./analytics/02_event_model.md) | The single, stable, provider-independent Event Envelope every event conforms to |
+| [analytics/03_provider_independence.md](./analytics/03_provider_independence.md) | The Analytics Provider Interface's independence guarantee and configuration model |
+| [analytics/04_event_catalog.md](./analytics/04_event_catalog.md) | The single authoritative list of every valid `eventName` |
+| [analytics/05_migration_strategy.md](./analytics/05_migration_strategy.md) | The five-stage procedure for migrating from one Analytics Provider to another |
+
 ## Frontend
 
 | Doc | Purpose |
@@ -69,10 +79,11 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 |---|---|
 | [analysis/01_v1_release_specification.md](./analysis/01_v1_release_specification.md) | Unified V1 Release Specification — synthesizes release goal/scope/boundary/success criteria/risks/limitations/deployment/git strategy from their canonical owners |
 
-## Architecture Decisions
+## Architecture
 
 | Doc | Purpose |
 |---|---|
+| [architecture/01_platform_services.md](./architecture/01_platform_services.md) | The Platform Service architectural role AI and Analytics both instantiate; Candidate Members, Admission Criteria, Dependency Rules |
 | [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | Running index of every ADR, its status, and a one-line summary |
 | [architecture/decisions/ADR-0001-one-product-multiple-applications.md](./architecture/decisions/ADR-0001-one-product-multiple-applications.md) | Why Hypora is one Product with multiple Applications, not three products |
 | [architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md) | Why a canonical Project lifecycle was introduced as the domain model, and the alternatives rejected |
@@ -90,7 +101,7 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 | `release/` (outside `sdd/`) | Once something is actually deployed to real users |
 | `sdd/archive/` | Once a document is first superseded or relocated |
 
-**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract). None of these are listed above as pending anymore.
+**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract); `sdd/ai/` (2026-07-08, AI capability decisions ADR-0006 through ADR-0011 gave it enough shape to warrant its own domain); `sdd/analytics/` (2026-07-13, [ADR-0013](./architecture/decisions/ADR-0013-analytics-provider-independence.md) — created ahead of code, mirroring `sdd/ai/`'s own precedent). None of these are listed above as pending anymore.
 
 ## Key Conventions
 
@@ -115,3 +126,4 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 - **Question/Preset content-identity vs. presentation-content separation and `localizationKey`:** canonically owned by [workspace/features/02_1_question_model.md](./workspace/features/02_1_question_model.md#localization); no other document (including `02_business_structuring.md`) redefines it.
 - **Localization Readiness Gate (release checklist):** canonically owned by [analysis/01_v1_release_specification.md](./analysis/01_v1_release_specification.md#localization-readiness-gate); no other document restates the checklist.
 - **ADR numbering:** `ADR-NNNN`, sequential, never reused — see `sdd-framework/07_adr_process.md` for the full lifecycle rule this project follows.
+- **Analytics Event Catalog:** canonically owned by [analytics/04_event_catalog.md](./analytics/04_event_catalog.md); no Feature or AI Capability specification restates or invents its own `eventName`.
