@@ -28,18 +28,35 @@ function randomVariant(): LandingVariant {
   return VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
 }
 
+// Memoized at module scope, mirroring ../analytics/container.ts's
+// activeTracker singleton pattern — deliberately not left as a per-call
+// resolution. A fresh random assignment writes to storage as a real side
+// effect; calling this from a React state lazy-initializer without caching
+// would let React 18 StrictMode's intentional development-mode double-invoke
+// call it twice, with the second call reading back what the first just
+// wrote and silently reporting "storage" instead of "random" for a true
+// first visit. Module-level caching also more precisely matches "resolved
+// once per page load" than per-component-mount state would, since an ES
+// module only re-evaluates on an actual fresh page load.
+let cachedResolution: LandingVariantResolution | undefined;
+
 export function resolveLandingVariant(): LandingVariantResolution {
+  if (cachedResolution) return cachedResolution;
+
   const override = readUrlOverride();
   if (override) {
-    return { variant: override, assignmentSource: "url_override" };
+    cachedResolution = { variant: override, assignmentSource: "url_override" };
+    return cachedResolution;
   }
 
   const stored = readLandingVariantAssignment();
   if (stored) {
-    return { variant: stored.variant, assignmentSource: "storage" };
+    cachedResolution = { variant: stored.variant, assignmentSource: "storage" };
+    return cachedResolution;
   }
 
   const variant = randomVariant();
   writeLandingVariantAssignment(variant);
-  return { variant, assignmentSource: "random" };
+  cachedResolution = { variant, assignmentSource: "random" };
+  return cachedResolution;
 }
