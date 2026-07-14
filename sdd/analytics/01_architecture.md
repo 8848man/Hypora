@@ -25,8 +25,10 @@ Give Workspace Features, and the AI Platform's own capabilities, a single, stabl
 
 ## Tracking Model
 
+Every emitter shares one Analytics Service and one Event Model. A Workspace Feature or AI Capability emits with `feature`/`screen`; Landing — an Application, not a Workspace Feature, with no Feature/Capability vocabulary of its own — emits with `pagePath` instead, per [Event Model](./02_event_model.md#event-envelope). Neither is a second tracking pipeline; both pass through the same Analytics Service, Event Model, and Provider Interface below.
+
 ```
-Workspace Feature / AI Capability
+Workspace Feature / AI Capability / Landing Page
      │  (emits a named Event, per the Event Catalog)
      ▼
 Analytics Service              — the shared runtime behind every event (mirrors AI Application Service)

@@ -1,0 +1,24 @@
+rules_version = '2';
+
+// Analytics Platform Service — Firestore rules.
+//
+// Write path (unauthenticated, per sdd/context/05_application_responsibilities.md
+// — V1 has no product-facing Authentication): clients may append an event
+// document, never modify or delete one.
+//
+// Read path (per ADR-0015, sdd/architecture/decisions/ADR-0015-analytics-dashboard-access-boundary.md):
+// restricted to a small, fixed allowlist of internal operators, authenticated
+// via Firebase Authentication. This is a narrow, internal-operator-only gate —
+// never `allow read: if true`, and never conditioned on anything other than
+// the authenticated identity. Not the general, still-deferred, multi-user
+// Authentication Platform API capability.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /events/{eventId} {
+      allow create: if true;
+      allow read: if request.auth != null
+                   && request.auth.token.email in ["klof8848@gmail.com"];
+      allow update, delete: if false;
+    }
+  }
+}

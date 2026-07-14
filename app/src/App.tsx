@@ -10,6 +10,7 @@ import { MvpPlanningPage } from "./features/mvp-planning/MvpPlanningPage";
 import { ValidationPage } from "./features/validation-planning/ValidationPage";
 import { RiskMemoPage } from "./features/risk-memo/RiskMemoPage";
 import { SummaryPage } from "./features/project-summary/SummaryPage";
+import { AdminAnalyticsPage } from "./pages/admin/analytics/AdminAnalyticsPage";
 
 function App() {
   return (
@@ -31,6 +32,9 @@ function App() {
         <Route path="risks" element={<RiskMemoPage />} />
         <Route path="summary" element={<SummaryPage />} />
       </Route>
+
+      {/* Internal-only, not part of Landing/Workspace IA — see sdd/analytics/06_query_and_reporting.md */}
+      <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
