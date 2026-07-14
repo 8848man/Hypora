@@ -42,6 +42,72 @@ export const en: Resources = {
     korean: "한국어",
     english: "English",
   },
+  landingVariants: {
+    a: {
+      // Problem Empathy — per sdd/context/07_landing_experiment_strategy.md
+      heroTitle: "You have the idea. You just don't know where to start.",
+      heroSubtitle:
+        "Hypora turns a vague idea into a concrete first step — a structured workspace built for exactly this moment.",
+      ctaLabel: "Take the first step",
+      valueCard1Title: "From overwhelm to structure",
+      valueCard1Body: "Turn a scattered idea into five clear questions you can actually answer, one at a time.",
+      valueCard2Title: "See the next step clearly",
+      valueCard2Body: "If you've been stalling on what to build first, draw the boundary and prioritize.",
+      valueCard3Title: "Don't build on guesses",
+      valueCard3Body: "Replace uncertainty with a testable plan before you write a line of code.",
+      featuresTitle: "Tools to help you start",
+      featuresSubtitle: "From a daunting idea to an actionable plan.",
+      featureProjectManagementDesc:
+        "Not sure which idea to start with? Keep every one organized in a single dashboard and work through them one at a time.",
+      featureBusinessStructuringDesc:
+        "If you don't know what to define first, five guided questions walk you through it in order.",
+      featureMvpPlanningDesc:
+        "If trying to build everything at once has you stuck, draw the boundary of a real first version.",
+      featureValidationPlanningDesc: "If doubt is holding you back, turn it into a testable question and find the answer.",
+      featureProjectSummaryDesc: "If you've lost track of where you are, see your readiness at a glance.",
+    },
+    b: {
+      // Loss Aversion — per sdd/context/07_landing_experiment_strategy.md
+      heroTitle: "An idea that never becomes execution disappears.",
+      heroSubtitle:
+        "An idea that stays in your head gets forgotten — or someone else builds it first. Structure it with Hypora now.",
+      ctaLabel: "Save your idea",
+      valueCard1Title: "Capture it before it's gone",
+      valueCard1Body: "The moment you answer five questions, your idea stops being something you might forget.",
+      valueCard2Title: "Every delay shrinks the window",
+      valueCard2Body: "Without a defined scope, every decision gets postponed — prioritize now.",
+      valueCard3Title: "An unvalidated assumption is a risk",
+      valueCard3Body: "Before you spend time on the wrong thing, validate the assumption first.",
+      featuresTitle: "Tools that turn ideas into execution",
+      featuresSubtitle: "Before it disappears, turn it into structure.",
+      featureProjectManagementDesc: "Don't let ideas sit forgotten — manage every one in a single dashboard.",
+      featureBusinessStructuringDesc:
+        "The moment you answer five questions, your idea stops living only in your head.",
+      featureMvpPlanningDesc: "Without a defined scope, execution keeps slipping — draw the boundary now.",
+      featureValidationPlanningDesc: "Before you spend time on an unverified assumption, check it first.",
+      featureProjectSummaryDesc: "Don't lose track of progress — check your readiness at any time.",
+    },
+    c: {
+      // Execution Confidence — per sdd/context/07_landing_experiment_strategy.md
+      heroTitle: "Good execution beats a good idea.",
+      heroSubtitle:
+        "Hypora is a structured workspace that turns an idea into an executable plan — start executing now.",
+      ctaLabel: "Start executing",
+      valueCard1Title: "Turn thinking into structure",
+      valueCard1Body: "Five questions turn your idea into something you can actually execute.",
+      valueCard2Title: "Define scope, then move",
+      valueCard2Body: "Don't wait for the perfect plan — define your first version and execute by priority.",
+      valueCard3Title: "Execute while you validate",
+      valueCard3Body: "Turn assumptions into testable checks, and move forward with confirmation, not guesswork.",
+      featuresTitle: "Tools built for execution",
+      featuresSubtitle: "Everything you need to go from idea to execution.",
+      featureProjectManagementDesc: "Manage every idea you're executing on, in one dashboard.",
+      featureBusinessStructuringDesc: "Structure your idea into something executable with five guided questions.",
+      featureMvpPlanningDesc: "Define your scope, then execute by priority.",
+      featureValidationPlanningDesc: "Turn assumptions into testable checks and execute with confirmation.",
+      featureProjectSummaryDesc: "See your execution readiness at a glance.",
+    },
+  },
   landing: {
     heroTitle: "Turn a business idea into a validated MVP plan.",
     heroSubtitle:

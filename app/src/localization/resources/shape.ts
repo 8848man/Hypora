@@ -8,6 +8,35 @@ export interface QuestionResource {
   presets: string[];
 }
 
+// Landing Experiment variant content — per
+// sdd/context/07_landing_experiment_strategy.md#content-model. Variant is a
+// second dimension of content resolution alongside language: `t` is already
+// resolved for the current language, so `t.landingVariants[variant]` gives
+// that variant's copy in the current language with no separate resolution
+// mechanism. Every field here is exactly what
+// sdd/context/07_landing_experiment_strategy.md's Experiment Definition
+// lists as variant-eligible (headlines, subheadlines, storytelling/section
+// copy, CTA copy, Feature descriptions) — Feature *names* and Roadmap
+// content are unchanged across variants and stay in `landing` below.
+export interface LandingVariantResource {
+  heroTitle: string;
+  heroSubtitle: string;
+  ctaLabel: string;
+  valueCard1Title: string;
+  valueCard1Body: string;
+  valueCard2Title: string;
+  valueCard2Body: string;
+  valueCard3Title: string;
+  valueCard3Body: string;
+  featuresTitle: string;
+  featuresSubtitle: string;
+  featureProjectManagementDesc: string;
+  featureBusinessStructuringDesc: string;
+  featureMvpPlanningDesc: string;
+  featureValidationPlanningDesc: string;
+  featureProjectSummaryDesc: string;
+}
+
 export interface Resources {
   lifecycleStage: {
     captured: string;
@@ -45,6 +74,11 @@ export interface Resources {
   language: {
     korean: string;
     english: string;
+  };
+  landingVariants: {
+    a: LandingVariantResource;
+    b: LandingVariantResource;
+    c: LandingVariantResource;
   };
   landing: {
     heroTitle: string;
