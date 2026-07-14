@@ -55,6 +55,12 @@ Static, configuration-driven provider selection is sufficient until a real produ
 
 A Mock Provider — recording events in-process without any real backend — is expected, mirroring the AI Platform's own `FakeProvider` precedent (used today for its verification scripts). Its role is proving the Analytics Service's own wiring and enabling tests/verification without a live backend dependency, never a production storage option.
 
+## Firebase Analytics (GA4) — A Non-Portable Reporting Sink, Not a Provider
+
+Firebase Analytics (Google Analytics for Firebase, "GA4") is explicitly **not** one of the interchangeable Analytics Providers this document governs. Unlike Firestore, PostgreSQL, ClickHouse, BigQuery, Mixpanel, or Segment, GA4 has no realistic migration path to a self-hosted or provider-swappable backend — it is a terminal, vendor-owned reporting product, not a data store this project owns. It is therefore never expected to become the sole active Provider, and the five-stage Migration Strategy ([Migration Strategy](./05_migration_strategy.md)) never applies to it.
+
+GA4 may additionally, optionally be enabled as a second, permanent forwarding target — alongside whichever real Provider is currently active — purely for its out-of-the-box marketing/funnel dashboards. This is a deliberate, narrowly-scoped exception to the Minimum Abstraction rule above ("simultaneous multi-provider writes as a permanent steady state" is not required by this architecture): the exception is bounded to GA4 specifically, for reporting convenience only, and never substitutes for a real Provider being the Event Model's source of truth. The Analytics Service forwards to GA4 through a distinct, explicitly-named path — never through the Provider Interface, and never causing any Feature/Capability/Landing call site to know GA4 exists.
+
 ## What This Document Does Not Cover
 
 - The Event Model's own shape — owned by [Event Model](./02_event_model.md).

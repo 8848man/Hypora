@@ -73,6 +73,16 @@ The single authoritative list of every valid `eventName`. A Feature or AI Capabi
 |---|---|
 | `screen_view` | A Workspace screen/section is opened |
 
+**Landing** *(per [Application Responsibilities](../context/05_application_responsibilities.md#landing) — Landing has no Feature/Capability vocabulary of its own, so these events carry `pagePath` instead of `feature`/`screen`, per [Event Model](./02_event_model.md))*
+
+| `eventName` | Fires when |
+|---|---|
+| `landing_page_view` | Any Landing page (Home, Features, Roadmap) is viewed |
+| `cta_clicked` | A Landing call-to-action is clicked — `properties.cta` names which one |
+| `workspace_started` | A visitor follows a Landing call-to-action into Workspace (the Landing → Workspace conversion point) — distinct from `cta_clicked`: every `workspace_started` is preceded by a `cta_clicked`, but not every `cta_clicked` is a `workspace_started` |
+| `template_selected` | *(Anticipated, not yet wired — no template-selection UI exists yet; catalogued ahead of the capability existing, mirroring the Authentication precedent above)* A visitor selects a starter template before entering Workspace |
+| `signup_started` | *(Anticipated, not yet wired — V1 has no Authentication, per [Application Responsibilities](../context/05_application_responsibilities.md#platform-api))* A visitor begins a signup flow |
+
 **Deferred, not yet catalogued:** a tab-changed-style event is not defined — Workspace's current Navigation Model ([Workspace Architecture](../workspace/01_architecture.md#navigation-model-workspace-internal)) has no tabbed UI; adding this event ahead of a real tabbed surface would be speculative.
 
 ## Extending This Catalog
