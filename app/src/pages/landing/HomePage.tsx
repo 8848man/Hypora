@@ -6,14 +6,14 @@ import { trackEvent } from "../../platform/analytics";
 
 export function HomePage() {
   const { t } = useLocalization();
-  const { variant } = useLandingContext();
+  const { variant, assignmentSource } = useLandingContext();
   const content = t.landingVariants[variant];
 
   const handleHeroCtaClick = () => {
     trackEvent({
       eventName: "cta_clicked",
       pagePath: "/",
-      properties: { cta: "open_workspace", placement: "hero" },
+      properties: { cta: "open_workspace", placement: "hero", variant, assignmentSource },
     });
     trackEvent({
       eventName: "workspace_started",

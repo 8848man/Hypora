@@ -4,7 +4,7 @@ import { Button } from "../design-system";
 import { useLocalization } from "../localization";
 import { trackEvent } from "../platform/analytics";
 import { useLandingVariant } from "../platform/experiments";
-import type { LandingVariant } from "../platform/experiments";
+import type { AssignmentSource, LandingVariant } from "../platform/experiments";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import "./LandingLayout.css";
 
@@ -12,7 +12,7 @@ import "./LandingLayout.css";
 // mounted across Home/Features/Roadmap navigation), then threaded to nested
 // pages via Outlet context — mirrors WorkspaceProjectLayout's own
 // ProjectContextValue pattern, not a new mechanism.
-export type LandingOutletContext = { variant: LandingVariant };
+export type LandingOutletContext = { variant: LandingVariant; assignmentSource: AssignmentSource };
 
 export function useLandingContext(): LandingOutletContext {
   return useOutletContext<LandingOutletContext>();
@@ -21,20 +21,28 @@ export function useLandingContext(): LandingOutletContext {
 export function LandingLayout() {
   const { t } = useLocalization();
   const location = useLocation();
-  const { variant } = useLandingVariant();
+  const { variant, assignmentSource } = useLandingVariant();
   const variantContent = t.landingVariants[variant];
 
   // One place for all Landing page views, rather than duplicating this call into
   // each of Home/Features/Roadmap — LandingLayout wraps every Landing route.
+  // variant/assignmentSource extend the existing landing_page_view event
+  // (additive properties, per sdd/context/07_landing_experiment_strategy.md#analytics)
+  // rather than introducing a new event.
   useEffect(() => {
-    trackEvent({ eventName: "landing_page_view", pagePath: location.pathname });
+    trackEvent({
+      eventName: "landing_page_view",
+      pagePath: location.pathname,
+      properties: { variant, assignmentSource },
+    });
+    // eslint-disable-next-line
   }, [location.pathname]);
 
   const handleOpenWorkspaceClick = () => {
     trackEvent({
       eventName: "cta_clicked",
       pagePath: location.pathname,
-      properties: { cta: "open_workspace", placement: "header" },
+      properties: { cta: "open_workspace", placement: "header", variant, assignmentSource },
     });
     trackEvent({
       eventName: "workspace_started",
@@ -68,7 +76,7 @@ export function LandingLayout() {
       </header>
 
       <main className="landing__main">
-        <Outlet context={{ variant } satisfies LandingOutletContext} />
+        <Outlet context={{ variant, assignmentSource } satisfies LandingOutletContext} />
       </main>
 
       <footer className="landing__footer">
