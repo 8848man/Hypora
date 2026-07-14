@@ -1,14 +1,28 @@
 import { useEffect } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useOutletContext } from "react-router-dom";
 import { Button } from "../design-system";
 import { useLocalization } from "../localization";
 import { trackEvent } from "../platform/analytics";
+import { useLandingVariant } from "../platform/experiments";
+import type { LandingVariant } from "../platform/experiments";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import "./LandingLayout.css";
+
+// Resolved once here (LandingLayout wraps every Landing route and stays
+// mounted across Home/Features/Roadmap navigation), then threaded to nested
+// pages via Outlet context — mirrors WorkspaceProjectLayout's own
+// ProjectContextValue pattern, not a new mechanism.
+export type LandingOutletContext = { variant: LandingVariant };
+
+export function useLandingContext(): LandingOutletContext {
+  return useOutletContext<LandingOutletContext>();
+}
 
 export function LandingLayout() {
   const { t } = useLocalization();
   const location = useLocation();
+  const { variant } = useLandingVariant();
+  const variantContent = t.landingVariants[variant];
 
   // One place for all Landing page views, rather than duplicating this call into
   // each of Home/Features/Roadmap — LandingLayout wraps every Landing route.
@@ -48,13 +62,13 @@ export function LandingLayout() {
         <div className="landing__header-actions">
           <LanguageSwitcher />
           <Link to="/app" onClick={handleOpenWorkspaceClick}>
-            <Button>{t.nav.openWorkspace}</Button>
+            <Button>{variantContent.ctaLabel}</Button>
           </Link>
         </div>
       </header>
 
       <main className="landing__main">
-        <Outlet />
+        <Outlet context={{ variant } satisfies LandingOutletContext} />
       </main>
 
       <footer className="landing__footer">

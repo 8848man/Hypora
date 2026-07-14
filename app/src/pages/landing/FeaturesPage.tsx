@@ -1,20 +1,26 @@
 import { Card, PageHeader, Stack } from "../../design-system";
+import { useLandingContext } from "../../layout/LandingLayout";
 import { useLocalization } from "../../localization";
 
 export function FeaturesPage() {
   const { t } = useLocalization();
+  const { variant } = useLandingContext();
+  const content = t.landingVariants[variant];
 
+  // Feature *names* are identity, shared across every variant — only the
+  // description (storytelling) varies, per
+  // sdd/context/07_landing_experiment_strategy.md's Experiment Definition.
   const features = [
-    { name: t.landing.featureProjectManagementName, description: t.landing.featureProjectManagementDesc },
-    { name: t.landing.featureBusinessStructuringName, description: t.landing.featureBusinessStructuringDesc },
-    { name: t.landing.featureMvpPlanningName, description: t.landing.featureMvpPlanningDesc },
-    { name: t.landing.featureValidationPlanningName, description: t.landing.featureValidationPlanningDesc },
-    { name: t.landing.featureProjectSummaryName, description: t.landing.featureProjectSummaryDesc },
+    { name: t.landing.featureProjectManagementName, description: content.featureProjectManagementDesc },
+    { name: t.landing.featureBusinessStructuringName, description: content.featureBusinessStructuringDesc },
+    { name: t.landing.featureMvpPlanningName, description: content.featureMvpPlanningDesc },
+    { name: t.landing.featureValidationPlanningName, description: content.featureValidationPlanningDesc },
+    { name: t.landing.featureProjectSummaryName, description: content.featureProjectSummaryDesc },
   ];
 
   return (
     <div>
-      <PageHeader title={t.landing.featuresTitle} subtitle={t.landing.featuresSubtitle} />
+      <PageHeader title={content.featuresTitle} subtitle={content.featuresSubtitle} />
       <Stack gap="var(--space-3)">
         {features.map((f) => (
           <Card key={f.name}>
