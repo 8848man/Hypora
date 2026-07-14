@@ -24,6 +24,7 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [context/04_information_architecture.md](./context/04_information_architecture.md) | Product-level IA: Landing's screens, cross-Application navigation rule (Workspace's own IA relocated to `workspace/01_architecture.md`) |
 | [context/05_application_responsibilities.md](./context/05_application_responsibilities.md) | Product Architecture (one Product, multiple Applications); Landing / Workspace / Platform API responsibilities (Workspace's detailed scope relocated to `workspace/`) |
 | [context/06_future_expansion_strategy.md](./context/06_future_expansion_strategy.md) | How V1's architecture stays compatible with V2–V5 without redesign |
+| [context/07_landing_experiment_strategy.md](./context/07_landing_experiment_strategy.md) | Landing's A/B/C storytelling experiment — variant assignment, URL override, Local Storage ownership, composition with the Localization Layer, Analytics extension, Design System boundary |
 
 ## Domain
 
