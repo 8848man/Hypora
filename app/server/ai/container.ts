@@ -12,6 +12,9 @@ import { createInMemoryProviderConfig } from "./config/providerConfig.js";
 import { AiApplicationService } from "./AiApplicationService.js";
 import { CanvasAssistantCapability, CANVAS_ASSISTANT } from "./capabilities/canvasAssistant/CanvasAssistantCapability.js";
 import { RiskMemoAssistantCapability, RISK_MEMO_ASSISTANT } from "./capabilities/riskMemoAssistant/RiskMemoAssistantCapability.js";
+import { MvpPlanningAssistantCapability, MVP_PLANNING_ASSISTANT } from "./capabilities/mvpPlanningAssistant/MvpPlanningAssistantCapability.js";
+import { ValidationPlanningAssistantCapability, VALIDATION_PLANNING_ASSISTANT } from "./capabilities/validationPlanningAssistant/ValidationPlanningAssistantCapability.js";
+import { FeatureSuggestionAssistantCapability, FEATURE_SUGGESTION_ASSISTANT } from "./capabilities/featureSuggestionAssistant/FeatureSuggestionAssistantCapability.js";
 import type { Provider } from "./provider/ProviderInterface.js";
 
 // A "-latest" alias rather than a pinned version: Gemini model versions have been
@@ -37,6 +40,9 @@ export type Container = {
   aiApplicationService: AiApplicationService;
   canvasAssistant: CanvasAssistantCapability;
   riskMemoAssistant: RiskMemoAssistantCapability;
+  mvpPlanningAssistant: MvpPlanningAssistantCapability;
+  validationPlanningAssistant: ValidationPlanningAssistantCapability;
+  featureSuggestionAssistant: FeatureSuggestionAssistantCapability;
   providerId: string;
 };
 
@@ -71,13 +77,45 @@ export function createContainer(overrideProvider?: Provider): Container {
       model: "n/a",
       providerParameters: {},
     },
+    {
+      providerId: provider.id,
+      capabilityId: MVP_PLANNING_ASSISTANT.capabilityId,
+      contractVersion: MVP_PLANNING_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
+    {
+      providerId: provider.id,
+      capabilityId: VALIDATION_PLANNING_ASSISTANT.capabilityId,
+      contractVersion: VALIDATION_PLANNING_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
+    {
+      providerId: provider.id,
+      capabilityId: FEATURE_SUGGESTION_ASSISTANT.capabilityId,
+      contractVersion: FEATURE_SUGGESTION_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
   ]);
 
   const aiApplicationService = new AiApplicationService({ provider, config });
   const canvasAssistant = new CanvasAssistantCapability(aiApplicationService);
   const riskMemoAssistant = new RiskMemoAssistantCapability(aiApplicationService);
+  const mvpPlanningAssistant = new MvpPlanningAssistantCapability(aiApplicationService);
+  const validationPlanningAssistant = new ValidationPlanningAssistantCapability(aiApplicationService);
+  const featureSuggestionAssistant = new FeatureSuggestionAssistantCapability(aiApplicationService);
 
-  return { aiApplicationService, canvasAssistant, riskMemoAssistant, providerId: provider.id };
+  return {
+    aiApplicationService,
+    canvasAssistant,
+    riskMemoAssistant,
+    mvpPlanningAssistant,
+    validationPlanningAssistant,
+    featureSuggestionAssistant,
+    providerId: provider.id,
+  };
 }
 
 export const HEALTH_CHECK = {

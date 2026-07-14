@@ -1,9 +1,23 @@
 import { Link } from "react-router-dom";
 import { Button, Card, Stack } from "../../design-system";
 import { useLocalization } from "../../localization";
+import { trackEvent } from "../../platform/analytics";
 
 export function HomePage() {
   const { t } = useLocalization();
+
+  const handleHeroCtaClick = () => {
+    trackEvent({
+      eventName: "cta_clicked",
+      pagePath: "/",
+      properties: { cta: "open_workspace", placement: "hero" },
+    });
+    trackEvent({
+      eventName: "workspace_started",
+      pagePath: "/",
+      properties: { source: "hero" },
+    });
+  };
 
   return (
     <div>
@@ -21,7 +35,7 @@ export function HomePage() {
         >
           {t.landing.heroSubtitle}
         </p>
-        <Link to="/app">
+        <Link to="/app" onClick={handleHeroCtaClick}>
           <Button>{t.nav.openWorkspace}</Button>
         </Link>
       </section>

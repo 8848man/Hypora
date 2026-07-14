@@ -85,3 +85,19 @@ No stage above reassigns an existing row's owner. "Normalized Workspace Context"
 ## How a New Capability Uses This Table
 
 Every AI Capability specification under [`capabilities/`](./capabilities/000_index.md) is written against this same ownership split — a capability spec does not reassign any row above, and does not restate the split inline; it references this document.
+
+When a new Capability's Context Selection step needs an artifact not yet part of Normalized Workspace Context, see [Workspace Context Builder](../workspace/01_architecture.md#context-eligibility-rules)'s Context Eligibility Rules for the promotion discipline that governs adding it — demand-driven, not automatic, and never a change to this document's ownership rows.
+
+## Capability Matrix
+
+*(Permanent reference — every AI Capability's Read Context and Write Target, in one place, so a future Capability's design is checked against this table rather than re-derived. Grows by one row per capability; this document's own ownership rows above are never restated or overridden by it.)*
+
+| Capability | Read Context | Write Target |
+|---|---|---|
+| [Canvas Assistant](./capabilities/01_canvas_assistant.md) | Project name (seed only, when Canvas is empty), Canvas (own field + prior answers) | Canvas (one field) |
+| [Risk Memo Assistant](./capabilities/02_risk_memo_assistant.md) | Canvas | Risk Memo (one of three fields) |
+| [MVP Planning Assistant](./capabilities/03_mvp_planning_assistant.md) | Canvas, Risk Memo | MVP Scope (statement field) |
+| [Validation Planning Assistant](./capabilities/04_validation_planning_assistant.md) | Canvas, Risk Memo, MVP Scope | New-assumption draft field |
+| [Feature Suggestion Assistant](./capabilities/05_feature_suggestion_assistant.md) | Canvas, MVP Scope, existing Feature Plan, Risk Memo (optional) | Feature Plan (new entries only, via user-checked subset; name and priority only — no other permanent field) |
+
+Every row's Read Context beyond Canvas exists only because a real Capability's own Context Selection step needed it, per [Context Eligibility Rules](../workspace/01_architecture.md#context-eligibility-rules) — never added speculatively ahead of an implemented Capability. A future structured Feature (GTM Planning, Pricing, Launch, Growth Experiments, Analytics, Customer Interview Planning) adds its own row here the same way, following [Future Expansion Strategy](../context/06_future_expansion_strategy.md#future-ready-architecture-principle)'s 4th and 5th principles — no new architecture decision is required per row.

@@ -19,7 +19,7 @@ Let a user decide the smallest valuable version of their idea worth building —
 **Out of Scope:**
 - Task/ticket management (assignees, due dates, sprints) — explicitly rejected by [Product Positioning](../../context/01_product_vision.md#product-positioning); MVP Planning stops at "what and in what order," not "who and by when."
 - Validating whether a Feature or the Scope itself is actually correct — that is Validation Planning's responsibility, operating on the Validating stage this Feature transitions the Project into.
-- Any AI-generated feature suggestion or prioritization — out of scope until V2+.
+- Any AI generation the user did not explicitly request or has not explicitly accepted — see AI Integration Points below.
 
 ## User Stories
 
@@ -48,7 +48,20 @@ Owns the **Scoped** stage's MVP Scope/Feature Planning authoring and the **Scope
 
 ## Dependencies on Workspace
 
-Depends on the MVP Scope and Feature Planning screens owned by [Workspace Architecture](../01_architecture.md); depends on the MVP Scope and Feature data ownership (including the Feature priority attribute) defined in [Workspace Data & State](../02_data_and_state.md). Does not redefine either.
+Depends on the MVP Scope and Feature Planning screens owned by [Workspace Architecture](../01_architecture.md); depends on the MVP Scope and Feature data ownership (including the Feature priority attribute, and Feature History — see below) defined in [Workspace Data & State](../02_data_and_state.md). Does not redefine either.
+
+## AI Integration Points
+
+- [MVP Planning Assistant](../../ai/capabilities/03_mvp_planning_assistant.md) — suggests content for the MVP Scope statement field only, reading Canvas and Risk Memo.
+- [Feature Suggestion Assistant](../../ai/capabilities/05_feature_suggestion_assistant.md) — proposes a batch of Feature names for the Feature Plan, reading Canvas, MVP Scope, the existing Feature Plan, and Risk Memo (optional). Every proposed Feature is editable before Accept; Accept commits only the user-checked subset as ordinary, indistinguishable Feature entries — no dependency, description, or provenance data is ever persisted. See that capability's own specification for the full contract and its Acceptance Criteria.
+
+## History
+
+Feature Plan changes are recorded automatically, without ever requiring the user to justify an action: a Feature's creation and its removal each produce a lightweight, Feature-local history event (name snapshot, timestamp), never a field-level edit log. A user may optionally attach a free-text annotation to any event, but only from a dedicated History view, after the fact — never as a required step of creating or removing a Feature. This is Workspace/MVP-Planning-owned data, unrelated to any AI capability's own interaction state.
+
+**A History event never records a Feature's origin.** Whether a Feature was typed manually or accepted from [Feature Suggestion Assistant](../../ai/capabilities/05_feature_suggestion_assistant.md), its Created event carries exactly the same fields — no `source`, no `origin`, no AI-provenance flag of any kind. Recording origin would reintroduce the persistent AI-provenance marker this project has already rejected (ADR-0009; [04_ai_interaction.md](../../ai/04_ai_interaction.md)'s Suggestion Lifecycle Non-goals) through a different door. A batch Accept producing several new Features records one Created event per Feature, not one combined "batch" event, and each Feature's Removed event (if it ever occurs) is entirely independent of any other event's annotation — annotations are never merged or carried forward between a Feature's own events.
+
+See [Workspace Data & State](../02_data_and_state.md) for the data ownership fact.
 
 ## Future Expansion (V2–V5)
 

@@ -30,8 +30,10 @@ export type CanvasAssistantInputBuilder = () => CanvasAssistantInvokeInput;
 
 export type UseCanvasAssistantResult = Omit<
   UseAiAssistantResult<CanvasAssistantRequest, { suggestionText: string; rationale?: string }, CanvasAssistantFailureKind>,
-  "invoke"
+  "invoke" | "data"
 > & {
+  suggestionText?: string;
+  rationale?: string;
   invoke: (buildInput: CanvasAssistantInputBuilder, getCurrentFieldValue: () => string) => void;
 };
 
@@ -40,6 +42,11 @@ export function useCanvasAssistant(): UseCanvasAssistantResult {
 
   return {
     ...assistant,
+    // useAiAssistant now exposes the raw response as `data` (widened per
+    // sdd/ai/capabilities/05_feature_suggestion_assistant.md's Implementation
+    // note) — re-derived here so this hook's own consumers see no change.
+    suggestionText: assistant.data?.suggestionText,
+    rationale: assistant.data?.rationale,
     invoke: (buildInput: CanvasAssistantInputBuilder, getCurrentFieldValue: () => string) =>
       assistant.invoke(() => {
         const { fieldValueAtInvocation, ...request } = buildInput();

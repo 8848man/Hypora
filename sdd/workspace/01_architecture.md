@@ -166,6 +166,16 @@ A single, Workspace-owned mechanism that serializes Project data — starting wi
 
 **Explicitly not owned here:** what a Feature does with the data once received — a Feature's own Context Selection (business priority over what's included) remains Feature-owned, unchanged, per [AI Ownership Model](../ai/03_ownership_model.md#context-ownership); nor anything AI-specific (token budgets, provider-specific formatting) — that remains the AI Application Service's own responsibility, referenced there, not restated here.
 
+### Context Eligibility Rules
+
+*(Governs which Workspace artifacts may become part of Normalized Workspace Context, and under what condition, so every future AI Capability follows one rule set rather than inventing its own. Extends this section's existing Promotion rule above; introduces no new architecture.)*
+
+1. **Demand-driven promotion, not automatic inclusion.** An artifact (Canvas, MVP Scope, Validation Checklist, Risk Memo, Project metadata, or any future Feature's own structured data) is added to the Workspace Context Builder only when a real Capability's own Context Selection step needs it — the same "promote on second need" discipline already governing this Builder's own existence above. Existing in the domain model is not sufficient reason to serialize an artifact into context.
+2. **Read-only, always.** Inclusion in Normalized Workspace Context never grants write access and never changes data ownership — see [AI Ownership Model](../ai/03_ownership_model.md#context-representation-pipeline)'s Context Ownership table, unaffected by this section.
+3. **Context Selection remains Feature-owned.** The Builder makes an artifact available; which subset of it a given Capability's Request actually includes is decided entirely by that Feature's own Context Selection step, never by the Builder itself.
+4. **Committed data only.** Only an artifact's saved, current value is eligible — never another Feature's in-progress/unsaved draft state, and never another AI Capability's raw suggestion or rationale text prior to acceptance. Once accepted, a suggestion is ordinary Feature data (per ADR-0009) and becomes eligible under these same rules like any other committed value.
+5. **No cross-capability internal state.** An artifact becomes context only as a Feature's committed data — never as another Capability's Request/Response internals, preserving Capability Independence exactly as already established.
+
 ## User Flow (Workspace View)
 
 *(Extends, does not duplicate, the canonical [Core User Journey](../context/03_personas_and_journey.md) — that document owns the step sequence itself; this section only maps those steps onto Workspace's own screens.)*

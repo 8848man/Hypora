@@ -1,11 +1,33 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Button } from "../design-system";
 import { useLocalization } from "../localization";
+import { trackEvent } from "../platform/analytics";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import "./LandingLayout.css";
 
 export function LandingLayout() {
   const { t } = useLocalization();
+  const location = useLocation();
+
+  // One place for all Landing page views, rather than duplicating this call into
+  // each of Home/Features/Roadmap — LandingLayout wraps every Landing route.
+  useEffect(() => {
+    trackEvent({ eventName: "landing_page_view", pagePath: location.pathname });
+  }, [location.pathname]);
+
+  const handleOpenWorkspaceClick = () => {
+    trackEvent({
+      eventName: "cta_clicked",
+      pagePath: location.pathname,
+      properties: { cta: "open_workspace", placement: "header" },
+    });
+    trackEvent({
+      eventName: "workspace_started",
+      pagePath: location.pathname,
+      properties: { source: "header" },
+    });
+  };
 
   return (
     <div className="landing">
@@ -25,7 +47,7 @@ export function LandingLayout() {
         </nav>
         <div className="landing__header-actions">
           <LanguageSwitcher />
-          <Link to="/app">
+          <Link to="/app" onClick={handleOpenWorkspaceClick}>
             <Button>{t.nav.openWorkspace}</Button>
           </Link>
         </div>

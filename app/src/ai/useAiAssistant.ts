@@ -40,16 +40,21 @@ export type AiAssistantInvokeInput<TRequest> = {
 // snapshot frozen at the first click.
 export type AiAssistantInputBuilder<TRequest> = () => AiAssistantInvokeInput<TRequest>;
 
-type SuggestionShape = { suggestionText: string; rationale?: string };
-
-// TResponse is not part of this result's own shape (suggestionText/rationale
-// are already flattened below) — it exists only so callers can express which
-// response shape produced this result, matching useAiAssistant's own generic
-// signature below.
-export type UseAiAssistantResult<TRequest, _TResponse extends SuggestionShape, TFailureKind> = {
+// Widened per sdd/ai/capabilities/05_feature_suggestion_assistant.md's own
+// Implementation note: 04_ai_interaction.md's Suggestion Lifecycle never
+// constrained a Suggestion's content to scalar text — only this hook's prior
+// generic bound did, because every capability built before Feature Suggestion
+// Assistant happened to share that shape. TResponse is now unconstrained; the
+// hook exposes whatever shape a capability's Response Contract defines via
+// `data`, rather than assuming and pre-destructuring `suggestionText`/
+// `rationale`. Every existing capability-specific wrapper hook
+// (useCanvasAssistant, useRiskMemoAssistant, useMvpPlanningAssistant,
+// useValidationPlanningAssistant) re-derives `suggestionText`/`rationale`
+// from `data` itself, so their own consumers see no change at all — this is
+// a backward-compatible widening, not a breaking change.
+export type UseAiAssistantResult<TRequest, TResponse, TFailureKind> = {
   status: AiAssistantStatus;
-  suggestionText?: string;
-  rationale?: string;
+  data?: TResponse;
   failureKind?: TFailureKind;
   // The only entry point into Requesting — nothing else in this hook can start a
   // request (Governing Rule 1, sdd/ai/04_ai_interaction.md).
@@ -60,7 +65,7 @@ export type UseAiAssistantResult<TRequest, _TResponse extends SuggestionShape, T
   reset: () => void;
 };
 
-export function useAiAssistant<TRequest, TResponse extends SuggestionShape, TFailureKind>(
+export function useAiAssistant<TRequest, TResponse, TFailureKind>(
   requestFn: AiAssistantRequestFn<TRequest, TResponse, TFailureKind>,
   // Per sdd/ai/05_ai_feedback_and_error_experience.md's Failure Taxonomy,
   // "generic" is the capability-agnostic bucket every capability's own
@@ -70,8 +75,7 @@ export function useAiAssistant<TRequest, TResponse extends SuggestionShape, TFai
   genericFailureKind: TFailureKind,
 ): UseAiAssistantResult<TRequest, TResponse, TFailureKind> {
   const [status, setStatus] = useState<AiAssistantStatus>("idle");
-  const [suggestionText, setSuggestionText] = useState<string | undefined>(undefined);
-  const [rationale, setRationale] = useState<string | undefined>(undefined);
+  const [data, setData] = useState<TResponse | undefined>(undefined);
   const [failureKind, setFailureKind] = useState<TFailureKind | undefined>(undefined);
 
   const lastBuildInputRef = useRef<AiAssistantInputBuilder<TRequest> | null>(null);
@@ -111,8 +115,7 @@ export function useAiAssistant<TRequest, TResponse extends SuggestionShape, TFai
           }
 
           if (result.ok) {
-            setSuggestionText(result.data.suggestionText);
-            setRationale(result.data.rationale);
+            setData(result.data);
             setStatus("ready");
           } else {
             setFailureKind(result.failureKind);
@@ -146,18 +149,16 @@ export function useAiAssistant<TRequest, TResponse extends SuggestionShape, TFai
 
   const reject = useCallback(() => {
     setStatus("idle");
-    setSuggestionText(undefined);
-    setRationale(undefined);
+    setData(undefined);
   }, []);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
     setStatus("idle");
-    setSuggestionText(undefined);
-    setRationale(undefined);
+    setData(undefined);
     setFailureKind(undefined);
     lastBuildInputRef.current = null;
   }, []);
 
-  return { status, suggestionText, rationale, failureKind, invoke, regenerate, retry, reject, reset };
+  return { status, data, failureKind, invoke, regenerate, retry, reject, reset };
 }
