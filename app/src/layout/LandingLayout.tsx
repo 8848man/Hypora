@@ -35,6 +35,9 @@ export function LandingLayout() {
       pagePath: location.pathname,
       properties: { variant, assignmentSource },
     });
+    // variant/assignmentSource are resolved once per LandingLayout mount and
+    // never change during it — intentionally excluded from the dependency
+    // array so this effect still only reruns on an actual route change.
     // eslint-disable-next-line
   }, [location.pathname]);
 
