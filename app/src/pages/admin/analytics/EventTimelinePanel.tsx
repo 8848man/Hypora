@@ -4,7 +4,7 @@
 // sdd/analytics/06_query_and_reporting.md's Dashboard Scope).
 
 import { useEffect, useState } from "react";
-import { Card, EmptyState, LoadingIndicator } from "../../../design-system";
+import { Alert, Card, EmptyState, LoadingIndicator } from "../../../design-system";
 import { getTimeline } from "../../../platform/analytics/query/analyticsQueryService";
 import type { AnalyticsEvent } from "../../../platform/analytics/eventTracker";
 
@@ -25,7 +25,7 @@ export function EventTimelinePanel({ onSelectEvent }: { onSelectEvent: (event: A
   }, []);
 
   if (loading) return <LoadingIndicator label="Loading events…" />;
-  if (error) return <Card><p style={{ color: "var(--color-danger-text, crimson)" }}>{error}</p></Card>;
+  if (error) return <Alert tone="danger">{error}</Alert>;
   if (!events || events.length === 0) {
     return <EmptyState title="No events yet" description="Events will appear here once Landing/Workspace traffic is recorded." />;
   }

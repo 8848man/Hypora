@@ -1,6 +1,6 @@
 /* Design tokens — conceptual categories per sdd/design-system/01_design_system.md:
-   color roles, spacing scale, typography scale. Every component below references
-   these custom properties; none hardcode a raw value. */
+   color roles, spacing scale, typography scale, motion. Every component below
+   references these custom properties; none hardcode a raw value. */
 
 :root {
   /* Color roles */
@@ -38,6 +38,14 @@
   /* Layout */
   --radius: 8px;
   --max-content-width: 1080px;
+
+  /* Motion — durations/easings every animated primitive references; none
+     hardcodes a raw duration or easing value (mirrors Color/Spacing/Typography). */
+  --motion-duration-fast: 0.25s;
+  --motion-duration-base: 0.3s;
+  --motion-duration-slow: 0.7s;
+  --motion-easing-standard: ease;
+  --motion-easing-linear: linear;
 }
 
 @media (prefers-color-scheme: dark) {

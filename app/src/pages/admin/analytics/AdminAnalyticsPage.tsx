@@ -6,7 +6,7 @@
 // component's own gate is UX only, not the real security boundary.
 
 import { useState } from "react";
-import { LoadingIndicator, PageHeader, Stack } from "../../../design-system";
+import { Button, LoadingIndicator, PageHeader, Stack } from "../../../design-system";
 import { useAdminAuth } from "../../../platform/auth/useAdminAuth";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { OverviewPanel } from "./OverviewPanel";
@@ -33,9 +33,9 @@ export function AdminAnalyticsPage() {
         title="Analytics Dashboard"
         subtitle={user?.email ?? undefined}
       />
-      <button onClick={() => void signOut()} style={{ marginBottom: "var(--space-4)" }}>
+      <Button variant="secondary" onClick={() => void signOut()} style={{ marginBottom: "var(--space-4)" }}>
         Sign Out
-      </button>
+      </Button>
 
       <Stack gap="var(--space-5)">
         <section>
