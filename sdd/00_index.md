@@ -54,6 +54,7 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [analytics/03_provider_independence.md](./analytics/03_provider_independence.md) | The Analytics Provider Interface's independence guarantee and configuration model |
 | [analytics/04_event_catalog.md](./analytics/04_event_catalog.md) | The single authoritative list of every valid `eventName` |
 | [analytics/05_migration_strategy.md](./analytics/05_migration_strategy.md) | The five-stage procedure for migrating from one Analytics Provider to another |
+| [analytics/06_query_and_reporting.md](./analytics/06_query_and_reporting.md) | The read path (Analytics Query Service, Analytics Repository Interface) behind an internal Analytics Dashboard; Authentication Boundary flagged as needing an ADR before implementation |
 
 ## Frontend
 

@@ -20,6 +20,8 @@ Let every emitting call site (a Workspace Feature, an AI Capability) describe an
 | `projectId` | Optional | The current Project's id, when the event occurred in the context of one — absent for Project-list-level or pre-Project events |
 | `feature` | Optional | Which Workspace Feature the event belongs to — values drawn from the existing Feature Inventory ([Workspace Architecture](../workspace/01_architecture.md#feature-inventory-v1)), never a new, separately-invented vocabulary |
 | `screen` | Optional | Which screen/section the event occurred on, within `feature` |
+| `anonymousUserId` | Optional | A pre-authentication identity, distinct from `userId` — present for events emitted before Authentication exists (e.g., Landing), stable for one browser/device via local persistence; never merged with `userId` once Authentication exists, only carried alongside it |
+| `pagePath` | Optional | The URL path an event occurred on, for an emitting call site with no Workspace `feature`/`screen` vocabulary of its own (e.g., Landing, per [Application Responsibilities](../context/05_application_responsibilities.md#landing)) — a Workspace Feature emits `feature`/`screen`; a Landing page emits `pagePath`; an event never needs both |
 | `properties` | Optional | An open, event-specific key-value map — the only part of the envelope whose shape varies per `eventName`; see Extensibility below |
 
 ## Extensibility of `properties`
@@ -28,9 +30,17 @@ Let every emitting call site (a Workspace Feature, an AI Capability) describe an
 - `properties` values must be primitive (string, number, boolean) or a flat structure of primitives — never a nested object requiring provider-specific serialization knowledge to interpret, which would leak a provider's own format expectations back into the domain model this document exists to keep stable.
 - `properties` never carries a secret, credential, or full free-text user content (e.g., a whole Canvas answer) — an event records that something happened and light supporting detail, never a copy of the underlying product data itself, which remains owned exactly where it already is ([Workspace Data & State](../workspace/02_data_and_state.md)).
 
+## Event Storage Ownership
+
+**Firestore is the canonical product event store.** All product behavior events are persisted according to this Event Model, through the Firestore Provider — never written to, or read back from, any other destination as a system of record. GA4 ([Provider Independence](./03_provider_independence.md#firebase-analytics-ga4--a-non-portable-reporting-sink-not-a-provider)) is an optional *external reporting sink* used only for marketing/product dashboards — it receives a copy of the same event, forwarded independently, but is never where an event's canonical record lives.
+
+Business logic, AI Capabilities, and any future product-intelligence feature that needs to read events back **must** consume them from the canonical event store (Firestore, via the Analytics Provider Interface), never from GA4. GA4's own API/export surface is a dead end for this project's own code: nothing outside the GA4 Reporter is permitted to depend on it, exactly as nothing outside the Firestore Provider is permitted to depend on Firestore's SDK ([Provider Independence](./03_provider_independence.md#the-zero-provider-conditional-rule)). This is what keeps GA4 a bounded reporting convenience rather than a second, competing source of truth.
+
 ## Future: Contract Versioning
 
 Not needed yet — no real Feature is implemented against any event's shape, so nothing here is "Stable" in the sense [AI Capability Contract Versioning](../ai/capabilities/000_index.md#contract-versioning) already defines. Once a real consumer exists, a breaking change to an event's `properties` shape is expected to follow that same Draft → Stable → Superseded discipline, not a new, separately-invented Analytics versioning scheme.
+
+This Event Model envelope itself carries no version field yet, for that reason. A stored Firestore *document* is a distinct, narrower concern: it may carry its own Provider-owned `schemaVersion`, stamping which shape of this envelope was in effect at write time so a future replay/migration can interpret older documents correctly. That stamp belongs to the Firestore Provider's persistence mapping ([Provider Independence](./03_provider_independence.md#provider-responsibilities)), not to this Event Model — it is not a substitute for, and does not start, the contract-versioning discipline described above.
 
 ## What This Document Does Not Cover
 
