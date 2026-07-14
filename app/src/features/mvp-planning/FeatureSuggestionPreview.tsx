@@ -6,7 +6,7 @@
 // AI Interaction Lifecycle state, and trigger no additional AI invocation.
 
 import { useEffect, useState } from "react";
-import { Badge, Button, Card, Chip, Stack, TextField } from "../../design-system";
+import { Badge, Button, Card, Checkbox, Chip, Stack, TextField } from "../../design-system";
 import { useLocalization } from "../../localization";
 import type { FeaturePriority } from "../../domain/types";
 import type { FeatureSuggestionItem } from "../../ai/types";
@@ -113,8 +113,7 @@ export function FeatureSuggestionPreview({
           const duplicate = isDuplicate(index);
           return (
             <Stack key={index} direction="row" style={{ alignItems: "flex-start" }}>
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={row.checked}
                 onChange={(e) => updateRow(index, { checked: e.target.checked })}
                 aria-label={row.name || t.mvpPlanning.addFeatureLabel}

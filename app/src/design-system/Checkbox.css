@@ -1,0 +1,11 @@
+.ds-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.ds-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

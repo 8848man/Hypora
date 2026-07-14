@@ -11,6 +11,7 @@ import { ValidationPage } from "./features/validation-planning/ValidationPage";
 import { RiskMemoPage } from "./features/risk-memo/RiskMemoPage";
 import { SummaryPage } from "./features/project-summary/SummaryPage";
 import { AdminAnalyticsPage } from "./pages/admin/analytics/AdminAnalyticsPage";
+import { DesignSystemCatalogPage } from "./pages/design-system-catalog/DesignSystemCatalogPage";
 
 function App() {
   return (
@@ -35,6 +36,9 @@ function App() {
 
       {/* Internal-only, not part of Landing/Workspace IA — see sdd/analytics/06_query_and_reporting.md */}
       <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+
+      {/* Internal-only living documentation — see sdd/design-system/01_design_system.md#html-catalog */}
+      <Route path="/design-system" element={<DesignSystemCatalogPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

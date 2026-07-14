@@ -23,3 +23,12 @@
   color: var(--color-neutral-text);
   border-color: var(--color-neutral-border);
 }
+
+.ds-button--text {
+  background: none;
+  border: none;
+  color: var(--color-neutral-text-muted);
+  text-decoration: underline;
+  min-height: auto;
+  padding: 0;
+}

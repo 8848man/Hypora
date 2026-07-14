@@ -119,20 +119,9 @@ export function ProjectListPage() {
       )}
 
       {archivedCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setShowArchived((v) => !v)}
-          style={{
-            marginTop: "var(--space-4)",
-            background: "none",
-            border: "none",
-            color: "var(--color-neutral-text-muted)",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-        >
+        <Button variant="text" onClick={() => setShowArchived((v) => !v)} style={{ marginTop: "var(--space-4)" }}>
           {showArchived ? t.dashboard.hideArchived : t.dashboard.showArchived} ({archivedCount})
-        </button>
+        </Button>
       )}
 
       {pendingArchiveId && (

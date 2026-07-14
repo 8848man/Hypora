@@ -66,7 +66,7 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 
 | Doc | Purpose |
 |---|---|
-| [design-system/01_design_system.md](./design-system/01_design_system.md) | Shared design tokens (conceptual), component inventory, composition rules, coverage check against V1 UI needs |
+| [design-system/01_design_system.md](./design-system/01_design_system.md) | Shared design tokens, component inventory, composition rules, coverage check against V1 UI needs; the Design System as a replaceable architectural boundary, Theme vs. Design Token vs. alternate-Design-System distinction, and the HTML Catalog (`/design-system` route) |
 
 ## Infra
 

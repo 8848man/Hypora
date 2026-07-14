@@ -1,5 +1,5 @@
 .ds-transition {
-  animation: ds-transition-enter 0.25s ease;
+  animation: ds-transition-enter var(--motion-duration-fast) var(--motion-easing-standard);
 }
 
 @keyframes ds-transition-enter {
