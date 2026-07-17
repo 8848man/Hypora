@@ -29,7 +29,7 @@ Per the SDD Framework's `06_naming_and_versioning.md`: each independently-deploy
 
 ## Relationship to `release/`
 
-No `release/` directory or entries exist yet — per `10_bootstrap_guide.md` Step 8, that area is created "the first time something is actually deployed to real users." This document governs the *process* that will lead to that first deployment; the moment `develop` is first merged into `main` and actually deployed, create `release/` and cut the first tag (`v0.1.0`) at that commit, per the framework's Release Flow.
+Per `10_bootstrap_guide.md` Step 8, `release/` is created "the first time something is actually deployed to real users." This document governs the *process* the framework's Release Flow describes for that event — the exact tag/entry mechanics live in `sdd-framework/08_release_process.md`, not here, and this document does not track whether `release/` currently exists or what it currently contains, per the framework's own rule that specifications stay unaware of release status.
 
 ## Open Item — Existing `v1` Branch
 
