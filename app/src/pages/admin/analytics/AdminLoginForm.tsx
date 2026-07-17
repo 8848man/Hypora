@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Button, Card, TextField } from "../../../design-system";
+import { Alert, Button, Card, TextField } from "../../../design-system";
 
 export function AdminLoginForm({
   onSubmit,
@@ -42,7 +42,7 @@ export function AdminLoginForm({
           onChange={(event) => setPassword(event.target.value)}
           required
         />
-        {error && <p style={{ color: "var(--color-danger-text, crimson)" }}>{error}</p>}
+        {error && <Alert tone="danger">{error}</Alert>}
         <Button type="submit" disabled={submitting} style={{ marginTop: "var(--space-3)" }}>
           {submitting ? "Signing in…" : "Sign In"}
         </Button>

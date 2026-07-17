@@ -24,6 +24,7 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [context/04_information_architecture.md](./context/04_information_architecture.md) | Product-level IA: Landing's screens, cross-Application navigation rule (Workspace's own IA relocated to `workspace/01_architecture.md`) |
 | [context/05_application_responsibilities.md](./context/05_application_responsibilities.md) | Product Architecture (one Product, multiple Applications); Landing / Workspace / Platform API responsibilities (Workspace's detailed scope relocated to `workspace/`) |
 | [context/06_future_expansion_strategy.md](./context/06_future_expansion_strategy.md) | How V1's architecture stays compatible with V2–V5 without redesign |
+| [context/07_landing_experiment_strategy.md](./context/07_landing_experiment_strategy.md) | Landing's A/B/C storytelling experiment — variant assignment, URL override, Local Storage ownership, composition with the Localization Layer, Analytics extension, Design System boundary |
 
 ## Domain
 
@@ -66,7 +67,7 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 
 | Doc | Purpose |
 |---|---|
-| [design-system/01_design_system.md](./design-system/01_design_system.md) | Shared design tokens (conceptual), component inventory, composition rules, coverage check against V1 UI needs |
+| [design-system/01_design_system.md](./design-system/01_design_system.md) | Shared design tokens, component inventory, composition rules, coverage check against V1 UI needs; the Design System as a replaceable architectural boundary, Theme vs. Design Token vs. alternate-Design-System distinction, and the HTML Catalog (`/design-system` route) |
 
 ## Infra
 
@@ -79,6 +80,22 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | Doc | Purpose |
 |---|---|
 | [analysis/01_v1_release_specification.md](./analysis/01_v1_release_specification.md) | Unified V1 Release Specification — synthesizes release goal/scope/boundary/success criteria/risks/limitations/deployment/git strategy from their canonical owners |
+
+## Landing
+
+Landing's own dedicated specification directory, promoted 2026-07-17 — real Landing code already existed before promotion (see [landing/00_index.md](./landing/00_index.md)'s Provenance section for why this was spec catching up to code and a validated redesign, not "spec leads implementation"). Landing's Purpose/Responsibilities summary remains owned by [context/05_application_responsibilities.md](./context/05_application_responsibilities.md); only detailed architecture relocated here, mirroring Workspace's own precedent.
+
+| Doc | Purpose |
+|---|---|
+| [landing/00_index.md](./landing/00_index.md) | Local index for this directory; Provenance; the permanent rule governing `planning/`/`improvement/` as frozen historical evidence |
+| [landing/01_architecture.md](./landing/01_architecture.md) | Purpose, Responsibilities (by reference), Final Design Direction (why there is no single "winning" A/B/C concept), CTA strategy, design constraints |
+| [landing/02_information_architecture.md](./landing/02_information_architecture.md) | The finalized 7-section visitor journey, route model, navigation strategy — relocated from `context/04_information_architecture.md` |
+| [landing/03_component_model.md](./landing/03_component_model.md) | Every prototype-phase component reviewed and classified (Promote / Merge / Remove / Replace); the resulting production component inventory |
+| [landing/04_component_contracts.md](./landing/04_component_contracts.md) | Conceptual contract (purpose, content, states, non-goals) for each Landing-owned component |
+| [landing/05_design_system.md](./landing/05_design_system.md) | How Landing consumes the shared [design-system/01_design_system.md](./design-system/01_design_system.md) — never a duplicate of its token catalog or inventory |
+| [landing/06_motion_system.md](./landing/06_motion_system.md) | The production Motion System — one configuration used identically across every A/B/C variant, resolving a real conflict this promotion found between the prototype phase's per-concept motion tuning and [Landing Experiment Strategy](./context/07_landing_experiment_strategy.md)'s Non-Goal that animations must be identical across variants |
+| [landing/07_implementation_plan.md](./landing/07_implementation_plan.md) | Production gap analysis (prototype → production) and a 7-phase implementation roadmap with dependencies and completion criteria per phase |
+| [landing/improvement/](./landing/improvement/), [landing/planning/](./landing/planning/) | **Historical evidence, frozen — not specification.** The reference-analysis, improvement-planning, target-IA, concept-prototype, and motion-refactor work that produced the documents above. See `landing/00_index.md` for the permanent rule governing them. |
 
 ## Architecture
 
@@ -98,11 +115,10 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 
 | Would-be area | Trigger to create it |
 |---|---|
-| `sdd/landing/`, `sdd/platform-api/` | Once each Application has real code (architecture doc + contract doc) — Workspace was promoted early under the "spec leads implementation" principle; see `workspace/01_architecture.md` |
-| `release/` (outside `sdd/`) | Once something is actually deployed to real users |
+| `sdd/platform-api/` | Once Platform API has real code (a real backend — V1 still uses LocalStorage) |
 | `sdd/archive/` | Once a document is first superseded or relocated |
 
-**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract); `sdd/ai/` (2026-07-08, AI capability decisions ADR-0006 through ADR-0011 gave it enough shape to warrant its own domain); `sdd/analytics/` (2026-07-13, [ADR-0013](./architecture/decisions/ADR-0013-analytics-provider-independence.md) — created ahead of code, mirroring `sdd/ai/`'s own precedent). None of these are listed above as pending anymore.
+**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract); `sdd/ai/` (2026-07-08, AI capability decisions ADR-0006 through ADR-0011 gave it enough shape to warrant its own domain); `sdd/analytics/` (2026-07-13, [ADR-0013](./architecture/decisions/ADR-0013-analytics-provider-independence.md) — created ahead of code, mirroring `sdd/ai/`'s own precedent); `sdd/landing/` (2026-07-17, real Landing code already existed and a validated redesign direction was reached — see `landing/00_index.md`'s Provenance section; unlike Workspace, this was spec catching up to code, not leading it); `release/` (outside `sdd/`, 2026-07-17, first actual production deployment — bookkeeping only, per the framework's own rule that specifications otherwise stay unaware of release status; see `release/000_index.md`, never this document, for what's actually released). None of these are listed above as pending anymore.
 
 ## Key Conventions
 
@@ -113,6 +129,7 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 - **Success Metrics:** canonically owned by [context/02_product_scope.md](./context/02_product_scope.md); no other document defines its own success measurement.
 - **Project lifecycle (states, transitions, guards):** canonically owned by [domain/01_business_idea_lifecycle.md](./domain/01_business_idea_lifecycle.md); [workspace/01_architecture.md](./workspace/01_architecture.md) may reference lifecycle stage as a display concern only, never redefine a transition.
 - **Workspace's own IA, feature inventory (categorization), data ownership, state model, persistence, and error states:** canonically owned by [workspace/01_architecture.md](./workspace/01_architecture.md) and [workspace/02_data_and_state.md](./workspace/02_data_and_state.md); no other document restates them.
+- **Landing's own section/route inventory, component model, component contracts, Design System consumption, and Motion System:** canonically owned by [landing/02_information_architecture.md](./landing/02_information_architecture.md) through [landing/06_motion_system.md](./landing/06_motion_system.md); `landing/improvement/` and `landing/planning/` are frozen historical evidence, never updated to track these documents' future changes, and never a source to copy from without re-deriving against Hypora's own philosophy (see [landing/00_index.md](./landing/00_index.md)).
 - **Each Feature's Purpose, Responsibilities, User Stories, Acceptance Criteria, and cross-Feature boundaries:** canonically owned by its own document under [workspace/features/](./workspace/features/000_index.md); no other document (including `workspace/01_architecture.md`'s Feature Inventory) restates this detail — the inventory only categorizes, the Feature Specification defines.
 - **Deployment target and Application deployment inclusion:** canonically owned by [infra/01_deployment.md](./infra/01_deployment.md); [analysis/01_v1_release_specification.md](./analysis/01_v1_release_specification.md) summarizes it for release-boundary orientation but does not redefine it.
 - **Git branch/merge/versioning strategy:** canonically owned by [workflow/02_git_and_release_strategy.md](./workflow/02_git_and_release_strategy.md).

@@ -1,5 +1,6 @@
 export { Button } from "./Button";
 export { TextField, TextArea } from "./Field";
+export { Checkbox } from "./Checkbox";
 export { Card } from "./Card";
 export { Badge } from "./Badge";
 export { Chip } from "./Chip";

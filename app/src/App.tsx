@@ -3,7 +3,6 @@ import { LandingLayout } from "./layout/LandingLayout";
 import { WorkspaceProjectLayout } from "./layout/WorkspaceProjectLayout";
 import { HomePage } from "./pages/landing/HomePage";
 import { FeaturesPage } from "./pages/landing/FeaturesPage";
-import { RoadmapPage } from "./pages/landing/RoadmapPage";
 import { ProjectListPage } from "./features/project-management/ProjectListPage";
 import { BusinessStructuringPage } from "./features/business-structuring/BusinessStructuringPage";
 import { MvpPlanningPage } from "./features/mvp-planning/MvpPlanningPage";
@@ -11,6 +10,7 @@ import { ValidationPage } from "./features/validation-planning/ValidationPage";
 import { RiskMemoPage } from "./features/risk-memo/RiskMemoPage";
 import { SummaryPage } from "./features/project-summary/SummaryPage";
 import { AdminAnalyticsPage } from "./pages/admin/analytics/AdminAnalyticsPage";
+import { DesignSystemCatalogPage } from "./pages/design-system-catalog/DesignSystemCatalogPage";
 
 function App() {
   return (
@@ -19,7 +19,6 @@ function App() {
       <Route element={<LandingLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/features" element={<FeaturesPage />} />
-        <Route path="/roadmap" element={<RoadmapPage />} />
       </Route>
 
       {/* Workspace route group */}
@@ -35,6 +34,9 @@ function App() {
 
       {/* Internal-only, not part of Landing/Workspace IA — see sdd/analytics/06_query_and_reporting.md */}
       <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+
+      {/* Internal-only living documentation — see sdd/design-system/01_design_system.md#html-catalog */}
+      <Route path="/design-system" element={<DesignSystemCatalogPage />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

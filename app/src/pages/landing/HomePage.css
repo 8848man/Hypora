@@ -1,0 +1,204 @@
+/* Section rhythm — per sdd/landing/02_information_architecture.md's 7-section
+   sequence and sdd/landing/06_motion_system.md's Motion Principles ("one
+   animated beat per section"). Breakpoint (640px) matches the app's single
+   existing convention (app/src/index.css) — no new breakpoint introduced.
+
+   Container discipline — per sdd/landing/05_design_system.md#shared-layout-
+   container: every section fills its parent (.landing__main, already
+   max-width + centered) at full width, exactly like the header's own inner
+   container. No section applies its own outer max-width — only specific
+   prose elements (lede/support text, the Hero title, the Closing card) may
+   narrow for reading measure, and always via margin:auto centering, never
+   left-aligned by omission. */
+
+.landing-home {
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-section {
+  padding: var(--space-7) 0;
+}
+
+.landing-section__title {
+  font-size: var(--font-size-heading-2);
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.landing-section__support {
+  color: var(--color-neutral-text-muted);
+  max-width: 620px;
+}
+
+.landing-section__note {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-caption);
+  color: var(--color-neutral-text-muted);
+}
+
+.landing-section__note--center {
+  text-align: center;
+}
+
+.landing-divider {
+  border: none;
+  border-top: 1px solid var(--color-neutral-border);
+  margin: 0;
+}
+
+/* Section 1 — Hero — the outer section fills the shared container (like
+   every other section); only the title/lede text narrow for reading
+   measure, each independently centered. */
+.landing-hero {
+  text-align: center;
+}
+
+.landing-hero__title {
+  font-size: var(--font-size-heading-1);
+  max-width: 640px;
+  margin: var(--space-3) auto var(--space-3);
+}
+
+.landing-hero__lede {
+  font-size: var(--font-size-heading-3);
+  color: var(--color-neutral-text-muted);
+  max-width: 640px;
+  margin: 0 auto var(--space-2);
+}
+
+.landing-hero__actions {
+  margin-top: var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.landing-secondary-link {
+  color: var(--color-neutral-text-muted);
+  text-decoration: none;
+  font-size: var(--font-size-caption);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+/* .hover-fade (motion.css) supplies the transition timing; this rule
+   supplies the visual endpoint it transitions toward. */
+.landing-secondary-link:hover,
+.landing-secondary-link:focus-visible {
+  background: var(--color-neutral-surface);
+  border-color: var(--color-neutral-border);
+  color: var(--color-neutral-text);
+}
+
+.landing-secondary-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Section 3 — How Hypora Thinks */
+.landing-mechanism {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: center;
+  margin-top: var(--space-4);
+}
+
+.landing-mechanism__points {
+  padding-left: 1.1em;
+  color: var(--color-neutral-text-muted);
+  margin: var(--space-3) 0 0;
+}
+
+.landing-mechanism__points li {
+  margin-bottom: var(--space-2);
+}
+
+/* Section 4 — Structuring vs. Validating */
+.landing-sv-checks {
+  margin-top: var(--space-3);
+}
+
+.landing-sv-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-caption);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-neutral-border);
+  background: var(--color-neutral-bg);
+}
+
+.landing-sv-check--open {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+  border-color: transparent;
+}
+
+.landing-sv-check--done {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border-color: transparent;
+}
+
+/* Section 6 — Vision — a simple centered text block, the same composition
+   pattern as Hero, per sdd/landing/03_component_model.md's Vision row (no
+   new component; deliberately not Contrast Panel, since the themes below
+   aren't a comparison). */
+.landing-vision {
+  text-align: center;
+}
+
+.landing-vision__title,
+.landing-vision__support {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-vision__themes {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  color: var(--color-neutral-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+/* Section 7 — Closing — the outer section fills the shared container like
+   every other section (no width override needed anymore); only the rounded
+   card itself narrows, centered, for the same reading-measure reason as
+   Hero's title/lede above. */
+.landing-closing-wrap.landing-section {
+  padding: var(--space-6) 0;
+}
+
+.landing-closing {
+  text-align: center;
+  background: var(--color-neutral-surface);
+  border-radius: calc(var(--radius) * 2);
+  padding: var(--space-7) var(--space-5);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.landing-closing__micro-copy {
+  font-size: var(--font-size-caption);
+  color: var(--color-neutral-text-muted);
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .landing-mechanism {
+    grid-template-columns: 1fr;
+  }
+}

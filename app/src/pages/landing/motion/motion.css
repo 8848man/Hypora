@@ -1,0 +1,141 @@
+/* Landing Motion Utilities — per sdd/landing/06_motion_system.md#motion-utilities.
+   Every duration/delay/easing/distance is read from motion-tokens.css; no rule
+   below hardcodes a motion value of its own (sdd/landing/06_motion_system.md's
+   "no component defines its own animation values" rule). Applied via class
+   name only — components carry no animation logic themselves, per
+   sdd/landing/04_component_contracts.md's states sections. */
+
+@import "./motion-tokens.css";
+
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--m-distance));
+  transition:
+    opacity var(--m-dur) var(--m-ease),
+    transform var(--m-dur) var(--m-ease);
+}
+
+.reveal-sm {
+  opacity: 0;
+  transform: translateY(calc(var(--m-distance) * 0.5));
+  transition:
+    opacity var(--m-dur) var(--m-ease),
+    transform var(--m-dur) var(--m-ease);
+}
+
+.reveal-section.in-view .reveal,
+.reveal-section.in-view .reveal-sm {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.d0 {
+  transition-delay: 0ms;
+}
+.d1 {
+  transition-delay: var(--m-stagger);
+}
+.d2 {
+  transition-delay: calc(var(--m-stagger) * 2);
+}
+.d3 {
+  transition-delay: calc(var(--m-stagger) * 3);
+}
+.d-lg {
+  transition-delay: var(--m-stagger-lg);
+}
+.f0 {
+  transition-delay: 0ms;
+}
+.f1 {
+  transition-delay: var(--m-stagger-fast);
+}
+.f2 {
+  transition-delay: calc(var(--m-stagger-fast) * 2);
+}
+.f3 {
+  transition-delay: calc(var(--m-stagger-fast) * 3);
+}
+
+/* One-shot emphasis pulse — sdd/landing/06_motion_system.md's Contrast
+   Panel's emphasized item. Default delay assumes the emphasized item is the
+   3rd of a .d0/.d1/.d2 stagger group, the only current usage. */
+@keyframes landingPulseEmphasis {
+  0% {
+    box-shadow: 0 0 0 0 var(--pulse-color, rgba(52, 84, 209, 0.35));
+  }
+  100% {
+    box-shadow: 0 0 0 var(--m-pulse-spread) var(--pulse-color-end, rgba(52, 84, 209, 0));
+  }
+}
+.reveal-section.in-view .pulse-emphasis {
+  animation: landingPulseEmphasis var(--m-dur-fast) var(--m-ease)
+    calc(var(--m-stagger) * 2 + var(--m-sequence-gap)) 1;
+}
+
+/* Delayed highlight — component declares only its "highlighted" endpoint
+   colors via --highlight-*-to; this file owns all timing. */
+.reveal-highlight {
+  transition:
+    border-color var(--m-dur-fast) var(--m-ease),
+    background-color var(--m-dur-fast) var(--m-ease),
+    color var(--m-dur-fast) var(--m-ease);
+  transition-delay: calc(var(--m-dur) + var(--m-highlight-delay-offset));
+}
+.reveal-section.in-view .reveal-highlight {
+  border-color: var(--highlight-border-to, currentColor);
+  background-color: var(--highlight-bg-to, transparent);
+  color: var(--highlight-color-to, currentColor);
+}
+
+/* Chained second-beat entrance — starts only after a .reveal-highlight
+   sibling's transition has had time to register. */
+.reveal-after-highlight {
+  transition-delay: calc(var(--m-dur) + var(--m-dur-fast) + var(--m-sequence-gap));
+}
+
+.hover-lift {
+  transition:
+    transform var(--m-hover-duration) ease,
+    box-shadow var(--m-hover-duration) ease;
+}
+.hover-lift:hover,
+.hover-lift:focus-visible {
+  transform: translateY(calc(-1 * var(--m-hover-lift)));
+  box-shadow: var(--hover-shadow, 0 10px 24px rgba(52, 84, 209, 0.28));
+}
+
+.hover-fade {
+  transition:
+    background-color var(--m-hover-duration) ease,
+    border-color var(--m-hover-duration) ease;
+}
+
+.scroll-chrome {
+  transition:
+    background-color var(--m-header-duration) var(--m-ease),
+    border-color var(--m-header-duration) var(--m-ease),
+    backdrop-filter var(--m-header-duration) var(--m-ease);
+}
+
+/* Reduced motion — CSS-level, not JS-gated, so it applies even before
+   JavaScript runs (sdd/landing/06_motion_system.md#reduced-motion-strategy:
+   "a core motion-language decision, not accessibility polish bolted on
+   afterward"). The reveal hook (useRevealSection.ts) additionally skips its
+   IntersectionObserver entirely under this same media query, so `.in-view`
+   is applied immediately rather than remaining permanently unset. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-sm,
+  .pulse-emphasis,
+  .reveal-highlight,
+  .reveal-after-highlight,
+  .hover-lift,
+  .hover-fade,
+  .scroll-chrome {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

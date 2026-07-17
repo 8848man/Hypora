@@ -77,8 +77,8 @@ The single authoritative list of every valid `eventName`. A Feature or AI Capabi
 
 | `eventName` | Fires when |
 |---|---|
-| `landing_page_view` | Any Landing page (Home, Features, Roadmap) is viewed |
-| `cta_clicked` | A Landing call-to-action is clicked — `properties.cta` names which one |
+| `landing_page_view` | Any Landing page (Home, Features, Roadmap) is viewed — `properties.variant`/`properties.assignmentSource` record the active Landing storytelling experiment variant, per [Landing Experiment Strategy](../context/07_landing_experiment_strategy.md#analytics) |
+| `cta_clicked` | A Landing call-to-action is clicked — `properties.cta` names which one; `properties.variant`/`properties.assignmentSource` as above |
 | `workspace_started` | A visitor follows a Landing call-to-action into Workspace (the Landing → Workspace conversion point) — distinct from `cta_clicked`: every `workspace_started` is preceded by a `cta_clicked`, but not every `cta_clicked` is a `workspace_started` |
 | `template_selected` | *(Anticipated, not yet wired — no template-selection UI exists yet; catalogued ahead of the capability existing, mirroring the Authentication precedent above)* A visitor selects a starter template before entering Workspace |
 | `signup_started` | *(Anticipated, not yet wired — V1 has no Authentication, per [Application Responsibilities](../context/05_application_responsibilities.md#platform-api))* A visitor begins a signup flow |

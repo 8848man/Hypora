@@ -12,7 +12,7 @@
   border: 2px solid var(--color-neutral-border);
   border-top-color: var(--color-primary);
   border-radius: 50%;
-  animation: ds-spin 0.7s linear infinite;
+  animation: ds-spin var(--motion-duration-slow) var(--motion-easing-linear) infinite;
 }
 
 @keyframes ds-spin {

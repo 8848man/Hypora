@@ -41,6 +41,7 @@ a {
 /* Responsive floor: no capability should become inaccessible on a small viewport
    (per sdd/frontend/01_architecture.md's Responsive Behavior). */
 @media (max-width: 640px) {
+  .landing__header-inner,
   .landing__main,
   .workspace-shell {
     padding: var(--space-3);

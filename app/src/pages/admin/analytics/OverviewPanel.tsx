@@ -4,7 +4,7 @@
 // exists.
 
 import { useEffect, useState } from "react";
-import { Card, LoadingIndicator, Stack } from "../../../design-system";
+import { Alert, Card, LoadingIndicator, Stack } from "../../../design-system";
 import { getFunnel } from "../../../platform/analytics/query/analyticsQueryService";
 import type { FunnelResult } from "../../../platform/analytics/query/analyticsQueryService";
 
@@ -31,7 +31,7 @@ export function OverviewPanel() {
   }, []);
 
   if (loading) return <LoadingIndicator label="Loading overview…" />;
-  if (error) return <Card><p style={{ color: "var(--color-danger-text, crimson)" }}>{error}</p></Card>;
+  if (error) return <Alert tone="danger">{error}</Alert>;
   if (!funnel) return null;
 
   const firstCount = funnel.steps[0]?.sessionCount ?? 0;
