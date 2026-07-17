@@ -1,6 +1,6 @@
 # Hypora
 
-A web-based workspace that helps users transform business ideas into structured, validated MVP plans. The long-term vision is an AI Co-founder platform; the current stage is a manual MVP with no AI or backend dependency, built so future AI capability can be added without a major redesign.
+A web-based workspace that helps users transform business ideas into structured, validated MVP plans. The long-term vision is an AI Co-founder platform. Workspace's own project data (Canvas, MVP Scope, Feature Planning, Validation Checklist) remains manual, LocalStorage-only, per V1's original design; the AI Platform capability (5 Workspace-feature assistants, backed by real Vercel serverless functions) is now implemented — see [`sdd/ai/`](./sdd/ai/) and [`sdd/context/05_application_responsibilities.md`](./sdd/context/05_application_responsibilities.md#platform-api).
 
 ## Documentation Map
 
@@ -46,4 +46,4 @@ A Platform Service never depends on a Feature, and never depends on another Plat
 
 ## V1 Release
 
-V1 deploys as one Vercel project (Landing + Workspace bundled; Platform API excluded) — see [`sdd/analysis/01_v1_release_specification.md`](./sdd/analysis/01_v1_release_specification.md), [`sdd/infra/01_deployment.md`](./sdd/infra/01_deployment.md), and [`ADR-0003`](./sdd/architecture/decisions/ADR-0003-single-v1-deployment-target.md). Git workflow (branch model, merge strategy, versioning) is documented in [`sdd/workflow/02_git_and_release_strategy.md`](./sdd/workflow/02_git_and_release_strategy.md).
+V1 deploys as one Vercel project (Landing + Workspace bundled, plus the AI capability's own serverless functions co-located in the same project — see [`sdd/context/05_application_responsibilities.md`](./sdd/context/05_application_responsibilities.md#platform-api) for why this doesn't reopen [`ADR-0003`](./sdd/architecture/decisions/ADR-0003-single-v1-deployment-target.md)'s accepted decision) — see [`sdd/analysis/01_v1_release_specification.md`](./sdd/analysis/01_v1_release_specification.md) and [`sdd/infra/01_deployment.md`](./sdd/infra/01_deployment.md). Git workflow (branch model, merge strategy, versioning) is documented in [`sdd/workflow/02_git_and_release_strategy.md`](./sdd/workflow/02_git_and_release_strategy.md). First tagged production release, deployment history, and release process: [`release/000_index.md`](./release/000_index.md).
