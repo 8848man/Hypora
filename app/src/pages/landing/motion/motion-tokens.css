@@ -1,0 +1,28 @@
+/* Landing Motion Tokens — production configuration, per
+   sdd/landing/06_motion_system.md#motion-tokens-production-configuration.
+
+   Scoped to `.landing` (never :root) — this is a deliberate Application-level
+   exception to the shared Design System's Motion category
+   (app/src/design-system/tokens.css: --motion-duration-fast/base/slow), not a
+   second/independent motion system. See
+   sdd/landing/06_motion_system.md#why-this-is-an-application-level-exception-not-an-independent-motion-system
+   for why Landing's narrative pacing intentionally exceeds
+   --motion-duration-slow (0.7s), and why these values stay Landing-scoped
+   rather than being added to the shared token file until a second real
+   consumer needs the same slower, narrative-paced entrance behavior. */
+
+.landing {
+  --m-dur: 880ms;
+  --m-dur-fast: 460ms;
+  --m-stagger: 200ms;
+  --m-stagger-fast: 150ms;
+  --m-stagger-lg: 520ms;
+  --m-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --m-distance: 28px;
+  --m-pulse-spread: 16px;
+  --m-highlight-delay-offset: 200ms;
+  --m-sequence-gap: 260ms;
+  --m-hover-duration: 260ms;
+  --m-hover-lift: 3px;
+  --m-header-duration: 260ms;
+}

@@ -1,14 +1,58 @@
 .landing__header {
-  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+}
+
+/* Scroll-chrome variant — timing owned by the shared .scroll-chrome utility
+   (sdd/landing/06_motion_system.md#motion-utilities); this rule only states
+   the visual endpoint. The outer .landing__header stays full-bleed (the
+   background/blur should span the viewport) — only .landing__header-inner
+   is width-constrained, so its content resolves to the exact same
+   horizontal edges as .landing__main below it, per
+   sdd/landing/05_design_system.md#shared-layout-container. */
+.landing__header--scrolled {
+  background: var(--color-neutral-bg);
+  backdrop-filter: blur(8px);
+  border-bottom-color: var(--color-neutral-border);
+}
+
+/* Three-region grid — logo left, nav true-centered across the full row,
+   actions right — per sdd/landing/05_design_system.md#header-navigation-
+   centering. A simple two-sided flex split would center the nav only within
+   the leftover space between logo and actions, which visually skews it
+   whenever those two groups aren't the same width (they aren't: the actions
+   group — language switcher + CTA — is wider than the logo). Equal 1fr side
+   columns guarantee the nav's own cell is centered on the row regardless of
+   how wide either side actually is. */
+.landing__header-inner {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-4);
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-neutral-border);
-  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .landing__header-inner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    row-gap: var(--space-3);
+  }
+
+  .landing__logo,
+  .landing__nav,
+  .landing__header-actions {
+    justify-self: center;
+  }
 }
 
 .landing__logo {
+  justify-self: start;
   font-weight: 700;
   font-size: var(--font-size-heading-3);
   color: var(--color-neutral-text);
@@ -16,6 +60,7 @@
 }
 
 .landing__nav {
+  justify-self: center;
   display: flex;
   gap: var(--space-4);
   flex-wrap: wrap;
@@ -31,7 +76,15 @@
   font-weight: 600;
 }
 
+.landing__nav a:focus-visible,
+.landing__logo:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .landing__header-actions {
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: var(--space-3);

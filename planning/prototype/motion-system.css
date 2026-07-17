@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Hypora Landing — Shared Motion Design System (DISPOSABLE PLANNING ARTIFACT)
+
+   Not production CSS. See sdd/landing/planning/08_motion_design_system.md
+   for the full token contract and utility catalog this file implements.
+
+   RULE THIS FILE ENFORCES: no component selector anywhere (in this file or
+   in any concept_*.html) declares its own transition/animation duration,
+   delay, easing, or distance. Every animated behavior below is a utility
+   class, and every utility class reads its timing from --m-* tokens that
+   the consuming page defines in its own small "Motion Configuration" block.
+   This file supplies safe fallbacks only so a missing token degrades
+   gracefully — a real Motion Configuration should define all of them.
+
+   Linked identically by concept_a.html / concept_b.html / concept_c.html.
+   Editing this file changes the Landing's motion MECHANICS everywhere at
+   once. Editing a page's own Motion Configuration block changes only that
+   page's PACING — see the architecture note in 08_motion_design_system.md.
+   ========================================================================== */
+
+/* ---------- Entrance primitives ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--m-distance, 20px));
+  transition:
+    opacity var(--m-dur, 500ms) var(--m-ease, ease-out),
+    transform var(--m-dur, 500ms) var(--m-ease, ease-out);
+}
+
+.reveal-sm {
+  opacity: 0;
+  transform: translateY(calc(var(--m-distance, 20px) * 0.5));
+  transition:
+    opacity var(--m-dur, 500ms) var(--m-ease, ease-out),
+    transform var(--m-dur, 500ms) var(--m-ease, ease-out);
+}
+
+.reveal-section.in-view .reveal,
+.reveal-section.in-view .reveal-sm {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Stagger delay steps ---------- */
+
+.d0 { transition-delay: 0ms; }
+.d1 { transition-delay: var(--m-stagger, 100ms); }
+.d2 { transition-delay: calc(var(--m-stagger, 100ms) * 2); }
+.d3 { transition-delay: calc(var(--m-stagger, 100ms) * 3); }
+.d-lg { transition-delay: var(--m-stagger-lg, 300ms); }
+
+.f0 { transition-delay: 0ms; }
+.f1 { transition-delay: var(--m-stagger-fast, 70ms); }
+.f2 { transition-delay: calc(var(--m-stagger-fast, 70ms) * 2); }
+.f3 { transition-delay: calc(var(--m-stagger-fast, 70ms) * 3); }
+
+/* ---------- One-shot emphasis pulse (e.g. The Gap's callout card) ----------
+   Delay defaults to "after the third staggered entrance completes" since
+   every current usage is the 3rd item in a .d0/.d1/.d2 group — still fully
+   derived from shared tokens, never a standalone hardcoded number. */
+
+@keyframes m-pulse-emphasis {
+  0%   { box-shadow: 0 0 0 0 var(--pulse-color, rgba(52, 84, 209, .35)); }
+  100% { box-shadow: 0 0 0 var(--m-pulse-spread, 14px) var(--pulse-color-end, rgba(52, 84, 209, 0)); }
+}
+
+.reveal-section.in-view .pulse-emphasis {
+  animation: m-pulse-emphasis var(--m-dur-fast, 300ms) var(--m-ease, ease-out)
+    var(--pulse-delay, calc(var(--m-stagger, 100ms) * 2 + var(--m-dur, 500ms))) 1;
+}
+
+/* ---------- Delayed highlight (e.g. the mechanism's selected chip) ----------
+   Base state declares only the transition + delay. The "highlighted" look
+   itself is a component concern (colors, not motion) — the component sets
+   --highlight-*-to locally; this file never assumes what "highlighted"
+   looks like. */
+
+.reveal-highlight {
+  transition:
+    border-color var(--m-dur-fast, 300ms) var(--m-ease, ease-out),
+    background-color var(--m-dur-fast, 300ms) var(--m-ease, ease-out),
+    color var(--m-dur-fast, 300ms) var(--m-ease, ease-out);
+  transition-delay: calc(var(--m-dur, 500ms) + var(--m-highlight-delay-offset, 150ms));
+}
+
+.reveal-section.in-view .reveal-highlight {
+  border-color: var(--highlight-border-to, currentColor);
+  background-color: var(--highlight-bg-to, transparent);
+  color: var(--highlight-color-to, currentColor);
+}
+
+/* ---------- Second-beat entrance, chained after a highlight ----------
+   (e.g. the mechanism's "saved" confirmation, which should only appear
+   once the chip highlight above has had time to register). */
+
+.reveal-after-highlight {
+  transition-delay: calc(var(--m-dur, 500ms) + var(--m-dur-fast, 300ms) + var(--m-sequence-gap, 200ms));
+}
+
+/* ---------- Hover / focus utilities ---------- */
+
+.hover-lift {
+  transition:
+    transform var(--m-hover-duration, 180ms) ease,
+    box-shadow var(--m-hover-duration, 180ms) ease;
+}
+.hover-lift:hover,
+.hover-lift:focus-visible {
+  transform: translateY(calc(-1 * var(--m-hover-lift, 2px)));
+  box-shadow: var(--hover-shadow, 0 10px 24px rgba(52, 84, 209, .28));
+}
+
+.hover-fade {
+  transition:
+    background-color var(--m-hover-duration, 180ms) ease,
+    border-color var(--m-hover-duration, 180ms) ease;
+}
+
+/* ---------- Sticky chrome (header) scroll transition ---------- */
+
+.scroll-chrome {
+  transition:
+    background-color var(--m-header-duration, 200ms) var(--m-ease, ease-out),
+    border-color var(--m-header-duration, 200ms) var(--m-ease, ease-out),
+    backdrop-filter var(--m-header-duration, 200ms) var(--m-ease, ease-out);
+}
+
+/* ---------- Reduced motion ----------
+   html.reduced-motion is set once by motion-system.js. Every utility class
+   above is neutralized here, in one place, rather than per component. */
+
+html.reduced-motion .reveal,
+html.reduced-motion .reveal-sm,
+html.reduced-motion .pulse-emphasis,
+html.reduced-motion .reveal-highlight,
+html.reduced-motion .reveal-after-highlight,
+html.reduced-motion .hover-lift,
+html.reduced-motion .hover-fade,
+html.reduced-motion .scroll-chrome {
+  transition: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}

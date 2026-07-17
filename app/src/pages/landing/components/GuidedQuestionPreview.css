@@ -1,0 +1,61 @@
+.guided-preview {
+  background: var(--color-neutral-surface);
+  border: 1px solid var(--color-neutral-border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}
+
+.guided-preview__step {
+  background: var(--color-neutral-bg);
+  border: 1px solid var(--color-neutral-border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.guided-preview__question-label {
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.guided-preview__question-text {
+  font-weight: 600;
+  margin: var(--space-1) 0 var(--space-3);
+}
+
+.guided-preview__chip-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.guided-preview__chip {
+  border: 1px solid var(--color-neutral-border);
+  border-radius: 999px;
+  padding: 6px var(--space-3);
+  font-size: var(--font-size-caption);
+  background: var(--color-neutral-bg);
+  font-weight: 400;
+  /* Endpoint colors only — motion.css's .reveal-highlight utility owns the
+     transition/delay that animates toward these. */
+  --highlight-border-to: var(--color-primary);
+  --highlight-bg-to: var(--color-neutral-surface);
+  --highlight-color-to: var(--color-primary);
+}
+
+.guided-preview__chip--selected {
+  font-weight: 600;
+}
+
+.guided-preview__result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px var(--space-3);
+  background: var(--color-success-bg);
+  border-radius: var(--radius);
+  font-size: var(--font-size-caption);
+  color: var(--color-success);
+  font-weight: 600;
+}

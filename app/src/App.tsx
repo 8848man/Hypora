@@ -3,7 +3,6 @@ import { LandingLayout } from "./layout/LandingLayout";
 import { WorkspaceProjectLayout } from "./layout/WorkspaceProjectLayout";
 import { HomePage } from "./pages/landing/HomePage";
 import { FeaturesPage } from "./pages/landing/FeaturesPage";
-import { RoadmapPage } from "./pages/landing/RoadmapPage";
 import { ProjectListPage } from "./features/project-management/ProjectListPage";
 import { BusinessStructuringPage } from "./features/business-structuring/BusinessStructuringPage";
 import { MvpPlanningPage } from "./features/mvp-planning/MvpPlanningPage";
@@ -20,7 +19,6 @@ function App() {
       <Route element={<LandingLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/features" element={<FeaturesPage />} />
-        <Route path="/roadmap" element={<RoadmapPage />} />
       </Route>
 
       {/* Workspace route group */}

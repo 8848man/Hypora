@@ -13,6 +13,11 @@
   opacity: 0.5;
 }
 
+.ds-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .ds-button--primary {
   background: var(--color-primary);
   color: var(--color-primary-contrast);

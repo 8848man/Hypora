@@ -1,0 +1,387 @@
+<!--
+  DISPOSABLE DESIGN-VALIDATION PROTOTYPE — NOT PRODUCTION CODE.
+
+  Purpose: validate the Target Information Architecture at
+  sdd/landing/planning/04_target_information_architecture.md before that
+  document is promoted into a real sdd/landing/ architecture spec.
+
+  This file exists to evaluate narrative flow, information hierarchy, visual
+  rhythm, reading rhythm, CTA placement, and cognitive load — nothing else.
+  It intentionally has:
+    - no build process, no framework, no external dependencies
+    - no responsiveness beyond a single basic breakpoint
+    - no accessibility polish, no SEO, no real routing, no real data
+    - copy in English only (a disposable artifact; the Korean-first
+      localization principle governs shipped product copy, not this)
+    - a color palette loosely borrowed from app/src/design-system/tokens.css
+      for a plausible feel — not a claim about final visual identity
+
+  Do not reuse this markup/CSS in the real Landing implementation. Discard
+  after design review, per sdd/landing/planning/04_target_information_architecture.md.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hypora — Landing Prototype (disposable, not production)</title>
+<style>
+  :root {
+    --color-primary: #3454d1;
+    --color-primary-contrast: #ffffff;
+    --color-bg: #ffffff;
+    --color-surface: #f4f5f7;
+    --color-surface-2: #eceef3;
+    --color-border: #d9dce1;
+    --color-text: #1c1f26;
+    --color-text-muted: #5b6270;
+    --color-success: #1a7f4b;
+    --color-success-bg: #e7f6ee;
+    --color-warning-bg: #fdf1e0;
+    --color-warning-text: #a85d00;
+
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 72px; --space-9: 104px;
+
+    --font: -apple-system, "Segoe UI", system-ui, sans-serif;
+    --radius: 10px;
+    --max-w: 1080px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .prototype-ribbon {
+    position: fixed;
+    top: 10px;
+    right: -46px;
+    transform: rotate(45deg);
+    background: #b3261e;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 4px 52px;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+    pointer-events: none;
+  }
+
+  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  header.site {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  header.site .wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .logo { font-weight: 700; font-size: 1.05rem; color: var(--color-text); text-decoration: none; }
+  .header-cta {
+    background: var(--color-primary); color: var(--color-primary-contrast);
+    border: none; border-radius: 6px; padding: 8px 16px; font-size: .875rem;
+    font-weight: 600; cursor: default;
+  }
+
+  section { padding: var(--space-9) 0; }
+  section.tight { padding: var(--space-8) 0; }
+  .section-divider { border: none; border-top: 1px solid var(--color-border); margin: 0; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    color: var(--color-text-muted); font-size: .75rem; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 999px; margin-bottom: var(--space-4);
+  }
+
+  h1 { font-size: clamp(2rem, 4vw, 2.9rem); line-height: 1.15; margin: 0 0 var(--space-4); letter-spacing: -0.01em; }
+  h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.2; margin: 0 0 var(--space-3); letter-spacing: -0.01em; }
+  h3 { font-size: 1.05rem; margin: 0 0 var(--space-2); }
+  p.lede { font-size: 1.15rem; color: var(--color-text-muted); max-width: 640px; }
+  p.support { color: var(--color-text-muted); max-width: 620px; }
+
+  .center { text-align: center; margin-left: auto; margin-right: auto; }
+
+  .btn-primary {
+    display: inline-block; background: var(--color-primary); color: var(--color-primary-contrast);
+    border: none; border-radius: 8px; padding: 13px 26px; font-size: 1rem; font-weight: 600;
+    text-decoration: none; cursor: default;
+  }
+  .btn-secondary {
+    display: inline-block; background: transparent; color: var(--color-text);
+    border: 1px solid var(--color-border); border-radius: 8px; padding: 12px 24px;
+    font-size: .95rem; font-weight: 600; text-decoration: none; cursor: default;
+  }
+  .micro-copy { font-size: .8rem; color: var(--color-text-muted); margin-top: var(--space-3); }
+
+  /* ---------- Hero ---------- */
+  .hero { text-align: center; padding-top: var(--space-9); }
+  .hero-actions { margin-top: var(--space-6); }
+  .hero-actions .btn-secondary { margin-left: var(--space-3); }
+
+  /* ---------- Gap ---------- */
+  .gap-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin-top: var(--space-6); }
+  .gap-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-5); }
+  .gap-card .tag { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-muted); font-weight: 700; margin-bottom: var(--space-2); }
+  .gap-card.callout { background: var(--color-surface-2); border: 1px dashed var(--color-primary); }
+  .gap-card p { color: var(--color-text-muted); font-size: .92rem; margin: 0; }
+
+  /* ---------- Mechanism ---------- */
+  .mech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); align-items: center; margin-top: var(--space-6); }
+  .mech-copy ul { padding-left: 1.1em; color: var(--color-text-muted); margin: var(--space-4) 0 0; }
+  .mech-copy li { margin-bottom: var(--space-2); }
+  .mech-visual { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; padding: var(--space-5); }
+  .mech-step { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-3); }
+  .mech-step .qlabel { font-size: .7rem; text-transform: uppercase; color: var(--color-primary); font-weight: 700; letter-spacing: .04em; }
+  .mech-step .qtext { font-weight: 600; margin: var(--space-1) 0 var(--space-3); }
+  .mech-chip-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .mech-chip { border: 1px solid var(--color-border); border-radius: 999px; padding: 6px 12px; font-size: .8rem; background: var(--color-bg); }
+  .mech-chip.selected { border-color: var(--color-primary); background: #eef1fd; color: var(--color-primary); font-weight: 600; }
+  .mech-result { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--color-success-bg); border-radius: 8px; font-size: .85rem; color: var(--color-success); font-weight: 600; }
+
+  /* ---------- Structuring vs Validating ---------- */
+  .sv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-6); }
+  .sv-panel { border-radius: var(--radius); padding: var(--space-6); border: 1px solid var(--color-border); }
+  .sv-panel.structuring { background: var(--color-surface); }
+  .sv-panel.validating { background: var(--color-surface-2); }
+  .sv-panel h3 { font-size: 1.15rem; }
+  .sv-panel p { color: var(--color-text-muted); font-size: .92rem; }
+  .sv-check { display: flex; align-items: center; gap: 8px; font-size: .85rem; margin-top: var(--space-3); padding: 8px 10px; background: var(--color-bg); border-radius: 6px; border: 1px solid var(--color-border); }
+  .sv-check.open { color: var(--color-warning-text); background: var(--color-warning-bg); border-color: transparent; }
+  .sv-check.done { color: var(--color-success); background: var(--color-success-bg); border-color: transparent; }
+  .sv-note { text-align: center; margin-top: var(--space-5); color: var(--color-text-muted); font-size: .9rem; }
+
+  /* ---------- What Hypora Is Not ---------- */
+  .not-table { margin-top: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+  .not-row { display: grid; grid-template-columns: 200px 1fr; border-top: 1px solid var(--color-border); }
+  .not-row:first-child { border-top: none; }
+  .not-row .label { padding: var(--space-4) var(--space-5); font-weight: 700; background: var(--color-surface); font-size: .9rem; }
+  .not-row .desc { padding: var(--space-4) var(--space-5); color: var(--color-text-muted); font-size: .92rem; }
+  .not-scope { margin-top: var(--space-4); font-size: .85rem; color: var(--color-text-muted); }
+
+  /* ---------- Today vs Tomorrow ---------- */
+  .roadmap-track { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-6); position: relative; }
+  .roadmap-card { border-radius: var(--radius); padding: var(--space-6); border: 1px solid var(--color-border); }
+  .roadmap-card.today { background: var(--color-success-bg); border-color: transparent; }
+  .roadmap-card.tomorrow { background: var(--color-surface); }
+  .roadmap-card .stage-tag { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-muted); }
+  .roadmap-card ul { padding-left: 1.1em; color: var(--color-text-muted); font-size: .9rem; margin: var(--space-3) 0 0; }
+  .assurance { text-align: center; margin-top: var(--space-5); font-size: .9rem; color: var(--color-text-muted); }
+
+  /* ---------- Closing ---------- */
+  .closing { text-align: center; background: var(--color-surface); border-radius: 18px; padding: var(--space-8) var(--space-6); margin: 0 24px; }
+  .closing .wrap { padding: 0; }
+
+  footer.site { padding: var(--space-6) 0; }
+  footer.site .wrap { display: flex; justify-content: space-between; color: var(--color-text-muted); font-size: .85rem; }
+
+  @media (max-width: 800px) {
+    .gap-grid, .mech-grid, .sv-grid, .roadmap-track { grid-template-columns: 1fr; }
+    .not-row { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-primary: #7d95ff; --color-primary-contrast: #0d1120;
+      --color-bg: #14161c; --color-surface: #1d2029; --color-surface-2: #262b38;
+      --color-border: #333846; --color-text: #e7e9ee; --color-text-muted: #a4abba;
+      --color-success: #4fd393; --color-success-bg: #10281d;
+      --color-warning-bg: #2c210e; --color-warning-text: #f2b25c;
+    }
+    header.site { background: rgba(20,22,28,.85); }
+    .mech-chip.selected { background: #232a4a; }
+  }
+</style>
+</head>
+<body>
+
+<div class="prototype-ribbon">PROTOTYPE</div>
+
+<header class="site">
+  <div class="wrap">
+    <span class="logo">Hypora</span>
+    <button class="header-cta" type="button">Start structuring</button>
+  </div>
+</header>
+
+<!-- ============ SECTION 1 — HERO ============ -->
+<section class="hero">
+  <div class="wrap center">
+    <span class="eyebrow">● Manual workspace — no AI in V1</span>
+    <h1>A vague idea becomes a plan by<br />being structured, one question at a time.</h1>
+    <p class="lede center">Hypora guides you through turning a raw business idea into a scoped, honestly-validated MVP plan — no framework knowledge required, no blank page.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#">Start structuring your idea</a>
+      <a class="btn-secondary" href="#today-vs-tomorrow">See the roadmap</a>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ============ SECTION 2 — THE GAP ============ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">The Gap</span>
+    <h2>Nothing sits between a note and a build plan.<br />Until now.</h2>
+    <p class="support">Generic tools force you to invent structure, or assume you've already decided your scope. Hypora exists for the space in between.</p>
+    <div class="gap-grid">
+      <div class="gap-card">
+        <div class="tag">Note tools</div>
+        <p>Capture unstructured thought. No forced shape, no forced follow-through — the idea stays exactly as vague as when you wrote it.</p>
+      </div>
+      <div class="gap-card">
+        <div class="tag">Project tools</div>
+        <p>Manage execution once scope is already decided. They assume the hard thinking already happened somewhere else.</p>
+      </div>
+      <div class="gap-card callout">
+        <div class="tag">Hypora</div>
+        <p>Structures and honestly validates the idea <em>before</em> it becomes a build plan — the step every other tool skips.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ============ SECTION 3 — HOW HYPORA THINKS ============ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">How Hypora Thinks</span>
+    <h2>One guided question at a time.<br />Not a form. Not a chat.</h2>
+    <div class="mech-grid">
+      <div class="mech-copy">
+        <p class="support">No business vocabulary required to begin — the framework behind each question reveals itself only once you're ready for it.</p>
+        <ul>
+          <li>One focused question, never a page of blank fields</li>
+          <li>Pick a curated option, or write your own answer</li>
+          <li>Progress is always visible — go back anytime, nothing is lost</li>
+        </ul>
+      </div>
+      <div class="mech-visual">
+        <div class="mech-step">
+          <div class="qlabel">Question 3 of 5</div>
+          <div class="qtext">Who is this actually for?</div>
+          <div class="mech-chip-row">
+            <span class="mech-chip">Busy professionals</span>
+            <span class="mech-chip selected">Early-stage founders</span>
+            <span class="mech-chip">Small teams</span>
+            <span class="mech-chip">Write my own…</span>
+          </div>
+        </div>
+        <div class="mech-result">Saved to your Canvas → Target Customer ✓</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ============ SECTION 4 — STRUCTURING VS VALIDATING ============ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">Structuring vs. Validating</span>
+    <h2>Yours to author. Yours to judge.</h2>
+    <p class="support">Two distinct steps — never blurred into one, and never done for you.</p>
+    <div class="sv-grid">
+      <div class="sv-panel structuring">
+        <h3>Structuring</h3>
+        <p>You author the plan — Business Idea, Problem, Target Customer, Solution, Value Proposition — one guided question at a time.</p>
+      </div>
+      <div class="sv-panel validating">
+        <h3>Validating</h3>
+        <p>You mark each assumption yourself — honestly, one at a time. Nothing is auto-confirmed.</p>
+        <div class="sv-check open">○ "Customers will pay for this" — still assumption</div>
+        <div class="sv-check done">✓ "The problem is real" — validated by you</div>
+      </div>
+    </div>
+    <p class="sv-note">"Validated" here always means <em>you</em> explicitly marked it — never an automated or third-party check.</p>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ============ SECTION 5 — WHAT HYPORA IS NOT ============ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow">What Hypora Is</span>
+    <h2>A workspace for one idea at a time —<br />not the tools you might be picturing.</h2>
+    <div class="not-table">
+      <div class="not-row"><div class="label">Not a note app</div><div class="desc">Structure is enforced, not optional — the shape of the plan is the product's value.</div></div>
+      <div class="not-row"><div class="label">Not a project tracker</div><div class="desc">Hypora stops before execution. No sprints, no tickets, no assignees.</div></div>
+      <div class="not-row"><div class="label">Not an AI plan generator</div><div class="desc">Zero AI in V1. Later AI only ever suggests — you always decide.</div></div>
+      <div class="not-row"><div class="label">Not a team tool (yet)</div><div class="desc">Built for one founder, one idea, deep focus — today.</div></div>
+    </div>
+    <p class="not-scope">If you're looking for a hands-off AI that writes your plan for you, or a shared team workspace — Hypora isn't that, on purpose, today.</p>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- ============ SECTION 6 — TODAY VS TOMORROW ============ -->
+<section id="today-vs-tomorrow">
+  <div class="wrap">
+    <span class="eyebrow">Today vs. Tomorrow</span>
+    <h2>Manual today. Assisted later. Never blurred.</h2>
+    <div class="roadmap-track">
+      <div class="roadmap-card today">
+        <div class="stage-tag">Today — V1</div>
+        <h3>Manual Workspace</h3>
+        <ul>
+          <li>Structure your idea, question by question</li>
+          <li>Scope your MVP, plan your features</li>
+          <li>Validate your assumptions, honestly</li>
+          <li>Zero AI involved — by design</li>
+        </ul>
+      </div>
+      <div class="roadmap-card tomorrow">
+        <div class="stage-tag">Tomorrow — V2 → V5</div>
+        <h3>AI Co-founder</h3>
+        <ul>
+          <li>AI-assisted structuring suggestions</li>
+          <li>Market and competitor intelligence</li>
+          <li>Go-to-market planning support</li>
+          <li>AI never decides — you always do</li>
+        </ul>
+      </div>
+    </div>
+    <p class="assurance">At every future stage, AI suggests. You accept, reject, or rewrite. The plan stays yours.</p>
+  </div>
+</section>
+
+<!-- ============ SECTION 7 — CLOSING / ENTRY POINT ============ -->
+<section class="tight">
+  <div class="closing">
+    <div class="wrap center">
+      <h2>Structure your idea. See what's actually there.</h2>
+      <p class="lede center">Start your first project — one guided question at a time.</p>
+      <a class="btn-primary" href="#">Start structuring your idea</a>
+      <div class="micro-copy">No account needed. No signup. Your project stays in this browser, yours alone.</div>
+      <div style="margin-top: var(--space-4);">
+        <a class="btn-secondary" href="#today-vs-tomorrow">Not ready yet? See where this is headed →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <span>© 2026 Hypora</span>
+    <span>Prototype for design review only — not a real page</span>
+  </div>
+</footer>
+
+</body>
+</html>
