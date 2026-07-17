@@ -16,18 +16,30 @@ export interface QuestionResource {
 // mechanism. Every field here is exactly what
 // sdd/context/07_landing_experiment_strategy.md's Experiment Definition
 // lists as variant-eligible (headlines, subheadlines, storytelling/section
-// copy, CTA copy, Feature descriptions) — Feature *names* and Roadmap
-// content are unchanged across variants and stay in `landing` below.
+// copy, CTA copy, Feature descriptions) — Feature *names*, Roadmap content,
+// and the few structural example strings shared byte-for-byte across every
+// variant (per sdd/landing/02_information_architecture.md's 7-section
+// sequence) stay in `landing` below, mirroring how Feature names already
+// stay there while Feature descriptions vary here.
+//
+// Section mapping (sdd/landing/02_information_architecture.md):
+// 1 Hero -> hero*/ctaLabel (pre-existing)
+// 2 The Gap -> gap*
+// 3 How Hypora Thinks -> mechanism* (title/support/points only — the example
+//   question/chips/confirmation are identical across variants, see `landing`)
+// 4 Structuring vs. Validating -> sv* (the two example checklist rows are
+//   identical across variants, see `landing`)
+// 5 What Hypora Is Not -> notRow1-4* / notScope
+// 6 Vision -> vision* (eyebrow is identical across variants, see `landing`) —
+//   Section 6 was Today vs. Tomorrow (a roadmap-style split); Landing no
+//   longer presents a product roadmap in any form, per
+//   sdd/landing/02_information_architecture.md#vision-section-specification
+// 7 Closing -> closing*/microCopy/secondaryLinkLabel (reuses ctaLabel)
 export interface LandingVariantResource {
+  heroEyebrow: string;
   heroTitle: string;
   heroSubtitle: string;
   ctaLabel: string;
-  valueCard1Title: string;
-  valueCard1Body: string;
-  valueCard2Title: string;
-  valueCard2Body: string;
-  valueCard3Title: string;
-  valueCard3Body: string;
   featuresTitle: string;
   featuresSubtitle: string;
   featureProjectManagementDesc: string;
@@ -35,6 +47,48 @@ export interface LandingVariantResource {
   featureMvpPlanningDesc: string;
   featureValidationPlanningDesc: string;
   featureProjectSummaryDesc: string;
+
+  gapEyebrow: string;
+  gapTitle: string;
+  gapSupport: string;
+  gapNoteToolBody: string;
+  gapExecToolBody: string;
+  gapHyporaBody: string;
+
+  mechanismTitle: string;
+  mechanismSupport: string;
+  mechanismPoint1: string;
+  mechanismPoint2: string;
+  mechanismPoint3: string;
+
+  svEyebrow: string;
+  svTitle: string;
+  svSupport: string;
+  svStructuringLabel: string;
+  svStructuringBody: string;
+  svValidatingLabel: string;
+  svValidatingBody: string;
+  svNote: string;
+
+  notTitle: string;
+  notRow1Label: string;
+  notRow1Desc: string;
+  notRow2Label: string;
+  notRow2Desc: string;
+  notRow3Label: string;
+  notRow3Desc: string;
+  notRow4Label: string;
+  notRow4Desc: string;
+  notScope: string;
+
+  visionTitle: string;
+  visionSupport: string;
+  visionThemes: string[];
+
+  closingTitle: string;
+  closingLede: string;
+  microCopy: string;
+  secondaryLinkLabel: string;
 }
 
 export interface Resources {
@@ -63,7 +117,6 @@ export interface Resources {
   nav: {
     home: string;
     features: string;
-    roadmap: string;
     openWorkspace: string;
     businessStructuring: string;
     mvpPlanning: string;
@@ -81,14 +134,6 @@ export interface Resources {
     c: LandingVariantResource;
   };
   landing: {
-    heroTitle: string;
-    heroSubtitle: string;
-    valueCard1Title: string;
-    valueCard1Body: string;
-    valueCard2Title: string;
-    valueCard2Body: string;
-    valueCard3Title: string;
-    valueCard3Body: string;
     footer: string;
     featuresTitle: string;
     featuresSubtitle: string;
@@ -102,18 +147,24 @@ export interface Resources {
     featureValidationPlanningDesc: string;
     featureProjectSummaryName: string;
     featureProjectSummaryDesc: string;
-    roadmapTitle: string;
-    roadmapSubtitle: string;
-    roadmapV1Name: string;
-    roadmapV1Desc: string;
-    roadmapV2Name: string;
-    roadmapV2Desc: string;
-    roadmapV3Name: string;
-    roadmapV3Desc: string;
-    roadmapV4Name: string;
-    roadmapV4Desc: string;
-    roadmapV5Name: string;
-    roadmapV5Desc: string;
+    // Structural example content shared byte-for-byte across every landing
+    // variant (per sdd/landing/02_information_architecture.md) — never
+    // narrative copy, so it stays here rather than in landingVariants.
+    gapNoteToolTag: string;
+    gapExecToolTag: string;
+    gapHyporaTag: string;
+    mechanismQuestionLabel: string;
+    mechanismQuestionText: string;
+    mechanismChip1: string;
+    mechanismChip2: string;
+    mechanismChip3: string;
+    mechanismChip4: string;
+    mechanismResultLabel: string;
+    svCheckOpenLabel: string;
+    svCheckDoneLabel: string;
+    mechanismEyebrow: string;
+    notEyebrow: string;
+    visionEyebrow: string;
   };
   dashboard: {
     title: string;

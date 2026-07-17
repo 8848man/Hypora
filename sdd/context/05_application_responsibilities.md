@@ -13,26 +13,24 @@ Product: Hypora
 └── Platform API    — backend platform (V1: LocalStorage; future: real backend)
 ```
 
-Per `10_bootstrap_guide.md` Step 3, no `sdd/<application>/` implementation-layer directory is created for any of the three yet — none has real code. Each Application's responsibilities and V1 functional scope are recorded here, once, owned by the Product/Context area, until a dedicated directory becomes warranted.
+Per `10_bootstrap_guide.md` Step 3, a dedicated `sdd/<application>/` implementation-layer directory is created once that Application has real code. Landing and Workspace each have their own directory as of 2026-07-17; Platform API does not yet (no real backend exists — V1 uses LocalStorage). Each Application's responsibilities and V1 functional scope are recorded here, once, owned by the Product/Context area, until a dedicated directory becomes warranted — see [Landing Architecture](../landing/01_architecture.md) and [Workspace Architecture](../workspace/01_architecture.md) for the two that have been.
 
 ## Landing
 
 **Purpose:** Marketing website. *(Explicit.)*
 
-**Responsible for:** *(Explicit)*
+**Responsible for:** *(Explicit, as revised)*
 - Product introduction
 - Core value proposition
 - Feature showcase
-- Roadmap
 - Future AI vision
 - Call-to-action
 
+**"Roadmap" was removed from this list** — Landing no longer presents a product roadmap in any form (no dedicated route, no version/stage table within Home); see [Landing Information Architecture](../landing/02_information_architecture.md#route-model) for the removal and [Vision Section Specification](../landing/02_information_architecture.md#vision-section-specification) for what now occupies that narrative role instead. "Future AI vision" (already listed) is the responsibility Landing's Vision section now actually realizes.
+
 **Hard boundary:** Landing never contains workspace logic. *(Explicit.)* It has no concept of a "project," no persistence, and makes no calls to Platform API beyond what a static marketing site needs.
 
-**V1 Functional Scope:**
-- Static/near-static pages: Home, Features, Roadmap, Call-to-Action (see [Information Architecture](./04_information_architecture.md)).
-- Roadmap content reproduces the stage table from [Product Vision](./01_product_vision.md) by reference — Landing does not maintain its own independent copy of roadmap wording.
-- Call-to-action links into the Workspace's Dashboard/Project List (see [Workspace Architecture](../workspace/01_architecture.md)); Landing does not embed, preview, or describe in detail any Workspace screen — its Features page may name what the Workspace does (per its "feature showcase" responsibility) without reproducing Workspace's own Information Architecture, Feature Inventory, or data model, all of which are owned by [Workspace Architecture](../workspace/01_architecture.md) and [Workspace Data & State](../workspace/02_data_and_state.md).
+**V1 Functional Scope:** now canonically owned by [Landing Architecture](../landing/01_architecture.md) and [Landing Information Architecture](../landing/02_information_architecture.md) — Landing has its own dedicated specification directory as of 2026-07-17; this document no longer restates its section/route inventory or component model. In summary only: Landing's Home is a single-page narrative (not a flat feature list); Features remains a separate, directly-linkable deep page; the call-to-action still links into the Workspace's entry point only, never embedding or previewing any Workspace screen in detail.
 
 ## Workspace
 

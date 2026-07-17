@@ -1,0 +1,417 @@
+<!--
+  DISPOSABLE DESIGN-VALIDATION PROTOTYPE — NOT PRODUCTION CODE.
+  Concept C — Execution Confidence (실행자신감형), per
+  sdd/landing/planning/05_landing_concept_comparison.md.
+
+  Motion now runs on the shared Motion Design System — see
+  sdd/landing/planning/08_motion_design_system.md and the linked
+  motion-system.css / motion-system.js (same directory). This page defines
+  NO animation values itself beyond its own small "Motion Configuration"
+  token block below.
+
+  This pass changes ONLY motion (system + pacing); no copy, section, or
+  layout change. Pacing is ~45% slower than the prior pass — even this
+  concept's "immediate, decisive" identity now reads as confident rather
+  than rushed, consistent with Hypora's structured-thinking philosophy.
+
+  Discard after stakeholder review. Do not reuse in production.
+-->
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>하이포라 — Landing 프로토타입 (Concept C · 실행자신감형)</title>
+<link rel="stylesheet" href="motion-system.css" />
+<style>
+  :root {
+    --color-primary: #3454d1;
+    --color-primary-contrast: #ffffff;
+    --color-bg: #ffffff;
+    --color-surface: #f4f5f7;
+    --color-surface-2: #eceef3;
+    --color-border: #d9dce1;
+    --color-text: #1c1f26;
+    --color-text-muted: #5b6270;
+    --color-success: #1a7f4b;
+    --color-success-bg: #e7f6ee;
+    --color-warning-bg: #fdf1e0;
+    --color-warning-text: #a85d00;
+
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 72px; --space-9: 104px;
+
+    --font: "Pretendard", "Apple SD Gothic Neo", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --radius: 10px;
+    --max-w: 1080px;
+  }
+
+  /* =========================================================
+     MOTION CONFIGURATION — Concept C (immediate, decisive,
+     but not rushed — see 08_motion_design_system.md pacing table)
+     ========================================================= */
+  :root {
+    --m-dur: 490ms;
+    --m-dur-fast: 320ms;
+    --m-stagger: 75ms;
+    --m-stagger-fast: 60ms;
+    --m-stagger-lg: 380ms;
+    --m-ease: cubic-bezier(.19, 1, .22, 1);
+    --m-distance: 14px;
+    --m-pulse-spread: 12px;
+    --m-highlight-delay-offset: 140ms;
+    --m-sequence-gap: 190ms;
+    --m-hover-duration: 160ms;
+    --m-hover-lift: 2px;
+    --m-header-duration: 190ms;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+  }
+
+  .prototype-ribbon {
+    position: fixed; top: 10px; right: -46px; transform: rotate(45deg);
+    background: #b3261e; color: #fff; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; padding: 4px 52px; z-index: 999;
+    box-shadow: 0 2px 6px rgba(0,0,0,.25); pointer-events: none;
+  }
+  .concept-tag {
+    position: fixed; bottom: 14px; left: 14px; z-index: 999;
+    background: #1c1f26; color: #fff; font-size: 12px; font-weight: 600;
+    padding: 8px 14px; border-radius: 8px; opacity: .85;
+  }
+
+  .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+  header.site {
+    position: sticky; top: 0; z-index: 50;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+  }
+  header.site.scrolled {
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(8px);
+    border-bottom-color: var(--color-border);
+  }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-weight: 700; font-size: 1.05rem; color: var(--color-text); text-decoration: none; }
+  .header-cta {
+    background: var(--color-primary); color: var(--color-primary-contrast);
+    border: none; border-radius: 6px; padding: 8px 16px; font-size: .875rem;
+    font-weight: 600; cursor: default;
+  }
+
+  section { padding: var(--space-9) 0; }
+  section.tight { padding: var(--space-8) 0; }
+  .section-divider { border: none; border-top: 1px solid var(--color-border); margin: 0; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    color: var(--color-text-muted); font-size: .75rem; font-weight: 600;
+    letter-spacing: .02em; padding: 5px 12px; border-radius: 999px; margin-bottom: var(--space-4);
+  }
+
+  h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); line-height: 1.3; margin: 0 0 var(--space-4); letter-spacing: -0.01em; }
+  h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); line-height: 1.35; margin: 0 0 var(--space-3); letter-spacing: -0.01em; }
+  h3 { font-size: 1.05rem; margin: 0 0 var(--space-2); }
+  p.lede { font-size: 1.1rem; color: var(--color-text-muted); max-width: 640px; }
+  p.support { color: var(--color-text-muted); max-width: 620px; }
+
+  .center { text-align: center; margin-left: auto; margin-right: auto; }
+
+  .btn-primary {
+    display: inline-block; background: var(--color-primary); color: var(--color-primary-contrast);
+    border: none; border-radius: 8px; padding: 13px 26px; font-size: 1rem; font-weight: 600;
+    text-decoration: none; cursor: default;
+    --hover-shadow: 0 10px 24px rgba(52, 84, 209, .28);
+  }
+  .btn-secondary {
+    display: inline-block; background: transparent; color: var(--color-text);
+    border: 1px solid var(--color-border); border-radius: 8px; padding: 12px 24px;
+    font-size: .95rem; font-weight: 600; text-decoration: none; cursor: default;
+  }
+  .btn-secondary:hover, .btn-secondary:focus-visible { background: var(--color-surface); border-color: var(--color-text-muted); }
+  .micro-copy { font-size: .8rem; color: var(--color-text-muted); margin-top: var(--space-3); }
+
+  .hero { text-align: center; padding-top: var(--space-9); }
+  .hero-actions { margin-top: var(--space-6); }
+  .hero-actions .btn-secondary { margin-left: var(--space-3); }
+
+  .gap-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin-top: var(--space-6); }
+  .gap-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-5); }
+  .gap-card .tag { font-size: .75rem; color: var(--color-text-muted); font-weight: 700; margin-bottom: var(--space-2); }
+  .gap-card.callout {
+    background: var(--color-surface-2); border: 1px dashed var(--color-primary);
+    --pulse-color: rgba(52, 84, 209, .35);
+    --pulse-color-end: rgba(52, 84, 209, 0);
+  }
+  .gap-card p { color: var(--color-text-muted); font-size: .92rem; margin: 0; }
+
+  .mech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); align-items: center; margin-top: var(--space-6); }
+  .mech-copy ul { padding-left: 1.1em; color: var(--color-text-muted); margin: var(--space-4) 0 0; }
+  .mech-copy li { margin-bottom: var(--space-2); }
+  .mech-visual { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; padding: var(--space-5); }
+  .mech-step { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-3); }
+  .mech-step .qlabel { font-size: .7rem; color: var(--color-primary); font-weight: 700; letter-spacing: .02em; }
+  .mech-step .qtext { font-weight: 600; margin: var(--space-1) 0 var(--space-3); }
+  .mech-chip-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .mech-chip { border: 1px solid var(--color-border); border-radius: 999px; padding: 6px 12px; font-size: .8rem; background: var(--color-bg); }
+  .mech-chip.selected {
+    --highlight-border-to: var(--color-primary);
+    --highlight-bg-to: #eef1fd;
+    --highlight-color-to: var(--color-primary);
+  }
+  .reveal-section.in-view .mech-chip.selected { font-weight: 600; }
+  .mech-result {
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 14px;
+    background: var(--color-success-bg); border-radius: 8px; font-size: .85rem; color: var(--color-success); font-weight: 600;
+  }
+
+  .sv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-6); }
+  .sv-panel { border-radius: var(--radius); padding: var(--space-6); border: 1px solid var(--color-border); }
+  .sv-panel.structuring { background: var(--color-surface); }
+  .sv-panel.validating { background: var(--color-surface-2); }
+  .sv-panel h3 { font-size: 1.1rem; }
+  .sv-panel p { color: var(--color-text-muted); font-size: .92rem; }
+  .sv-check {
+    display: flex; align-items: center; gap: 8px; font-size: .85rem; margin-top: var(--space-3); padding: 8px 10px;
+    background: var(--color-bg); border-radius: 6px; border: 1px solid var(--color-border);
+  }
+  .sv-check.open { color: var(--color-warning-text); background: var(--color-warning-bg); border-color: transparent; }
+  .sv-check.done { color: var(--color-success); background: var(--color-success-bg); border-color: transparent; }
+  .sv-note { text-align: center; margin-top: var(--space-5); color: var(--color-text-muted); font-size: .9rem; }
+
+  .not-table { margin-top: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; }
+  .not-row { display: grid; grid-template-columns: 200px 1fr; border-top: 1px solid var(--color-border); }
+  .not-row:first-child { border-top: none; }
+  .not-row .label { padding: var(--space-4) var(--space-5); font-weight: 700; background: var(--color-surface); font-size: .9rem; }
+  .not-row .desc { padding: var(--space-4) var(--space-5); color: var(--color-text-muted); font-size: .92rem; }
+  .not-scope { margin-top: var(--space-4); font-size: .85rem; color: var(--color-text-muted); }
+
+  .roadmap-track { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-top: var(--space-6); }
+  .roadmap-card { border-radius: var(--radius); padding: var(--space-6); border: 1px solid var(--color-border); }
+  .roadmap-card.today { background: var(--color-success-bg); border-color: transparent; }
+  .roadmap-card.tomorrow { background: var(--color-surface); }
+  .roadmap-card .stage-tag { font-size: .72rem; font-weight: 700; color: var(--color-text-muted); }
+  .roadmap-card ul { padding-left: 1.1em; color: var(--color-text-muted); font-size: .9rem; margin: var(--space-3) 0 0; }
+  .assurance { text-align: center; margin-top: var(--space-5); font-size: .9rem; color: var(--color-text-muted); }
+
+  .closing { text-align: center; background: var(--color-surface); border-radius: 18px; padding: var(--space-8) var(--space-6); margin: 0 24px; }
+  .closing .wrap { padding: 0; }
+
+  footer.site { padding: var(--space-6) 0; }
+  footer.site .wrap { display: flex; justify-content: space-between; color: var(--color-text-muted); font-size: .85rem; }
+
+  @media (max-width: 800px) {
+    .gap-grid, .mech-grid, .sv-grid, .roadmap-track { grid-template-columns: 1fr; }
+    .not-row { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-primary: #7d95ff; --color-primary-contrast: #0d1120;
+      --color-bg: #14161c; --color-surface: #1d2029; --color-surface-2: #262b38;
+      --color-border: #333846; --color-text: #e7e9ee; --color-text-muted: #a4abba;
+      --color-success: #4fd393; --color-success-bg: #10281d;
+      --color-warning-bg: #2c210e; --color-warning-text: #f2b25c;
+    }
+    header.site.scrolled { background: rgba(20,22,28,.85); }
+    .mech-chip.selected { --highlight-bg-to: #232a4a; }
+  }
+</style>
+</head>
+<body>
+
+<div class="prototype-ribbon">PROTOTYPE</div>
+<div class="concept-tag">Concept C · 실행자신감형 (Execution Confidence) · motion: decisive (not rushed)</div>
+
+<header class="site scroll-chrome">
+  <div class="wrap">
+    <span class="logo">하이포라</span>
+    <button class="header-cta" type="button">실행 시작하기</button>
+  </div>
+</header>
+
+<!-- SECTION 1 — Hero -->
+<section class="hero reveal-section">
+  <div class="wrap center">
+    <span class="eyebrow reveal d0">● 지금 실행을 시작하세요</span>
+    <h1 class="reveal d1">좋은 실행이<br />좋은 아이디어를 이깁니다.</h1>
+    <p class="lede center reveal d2">하이포라는 아이디어를 구조로, 구조를 실행 가능한 계획으로 바꿔요. 지금 시작하세요.</p>
+    <div class="hero-actions reveal d3">
+      <a class="btn-primary hover-lift" href="#">지금 실행 시작하기</a>
+      <a class="btn-secondary hover-fade" href="#today-vs-tomorrow">로드맵 보기</a>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- SECTION 2 — The Gap -->
+<section class="reveal-section">
+  <div class="wrap">
+    <span class="eyebrow">그 차이</span>
+    <h2>생각만 하는 사람과 실행하는 사람의<br />차이는, 구조뿐입니다.</h2>
+    <p class="support">메모 도구는 정리해주지 않고, 실행 도구는 이미 정해진 범위를 관리할 뿐이에요. 그 사이를 채우는 것이 실행의 시작이에요.</p>
+    <div class="gap-grid">
+      <div class="gap-card reveal d0">
+        <div class="tag">메모 도구</div>
+        <p>자유롭게 적을 수 있지만, 실행으로 이어지진 않아요.</p>
+      </div>
+      <div class="gap-card reveal d1">
+        <div class="tag">실행 도구</div>
+        <p>이미 범위가 정해졌다고 가정해요.</p>
+      </div>
+      <div class="gap-card callout reveal d2 pulse-emphasis">
+        <div class="tag">하이포라</div>
+        <p>구조를 실행 가능한 계획으로 바꿔요 — 지금 시작할 수 있게.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- SECTION 3 — How Hypora Thinks -->
+<section class="reveal-section">
+  <div class="wrap">
+    <span class="eyebrow">하이포라가 생각하는 방식</span>
+    <h2>질문에 답하는 순간,<br />계획은 실행 가능한 형태로 바뀝니다.</h2>
+    <div class="mech-grid">
+      <div class="mech-copy">
+        <p class="support">프레임워크를 몰라도 됩니다. 답하는 만큼 곧바로 구조가 됩니다.</p>
+        <ul>
+          <li>하나의 질문에 집중 — 바로 다음 걸음으로 이어져요</li>
+          <li>선택하거나 직접 입력 — 속도를 늦추지 않아요</li>
+          <li>진행 상황이 쌓여요 — 멈췄던 지점부터 다시 실행해요</li>
+        </ul>
+      </div>
+      <div class="mech-visual">
+        <div class="mech-step reveal d0">
+          <div class="qlabel">질문 3 / 5</div>
+          <div class="qtext">이 아이디어는 누구를 위한 건가요?</div>
+          <div class="mech-chip-row">
+            <span class="mech-chip">바쁜 직장인</span>
+            <span class="mech-chip selected reveal-highlight">초기 창업가</span>
+            <span class="mech-chip">소규모 팀</span>
+            <span class="mech-chip">직접 입력하기</span>
+          </div>
+        </div>
+        <div class="mech-result reveal reveal-after-highlight">캔버스에 저장됨 → 타겟 고객 ✓ 다음 질문으로</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- SECTION 4 — Structuring vs Validating -->
+<section class="reveal-section">
+  <div class="wrap">
+    <span class="eyebrow">구조화 vs. 검증</span>
+    <h2>구조화는 출발선,<br />검증은 실행으로 가는 다음 걸음입니다.</h2>
+    <p class="support">둘 다 당신이 직접 하지만, 각각의 역할은 분명해요.</p>
+    <div class="sv-grid">
+      <div class="sv-panel structuring reveal d0">
+        <h3>구조화</h3>
+        <p>질문에 답하며 계획을 세워요 — 실행을 위한 첫 걸음이에요.</p>
+      </div>
+      <div class="sv-panel validating reveal d0">
+        <h3>검증</h3>
+        <p>가정을 하나씩 직접 확인하며, 실행할 준비가 됐는지 판단해요.</p>
+        <div class="sv-check open reveal-sm d1">○ "고객이 이 문제에 돈을 지불할 것이다" — 아직 가정</div>
+        <div class="sv-check done reveal-sm d2">✓ "이 문제는 실제로 존재한다" — 직접 검증함</div>
+      </div>
+    </div>
+    <p class="sv-note">'검증됨'은 당신이 실행해도 좋다고 직접 판단했다는 뜻이에요.</p>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- SECTION 5 — What Hypora Is Not -->
+<section class="reveal-section">
+  <div class="wrap">
+    <span class="eyebrow">하이포라는</span>
+    <h2>진짜 실행을 원한다면,<br />이 도구들과는 다른 선택이 필요합니다.</h2>
+    <div class="not-table">
+      <div class="not-row reveal-sm f0"><div class="label">메모 앱이 아닙니다</div><div class="desc">적기만 해서는 실행으로 이어지지 않아요.</div></div>
+      <div class="not-row reveal-sm f1"><div class="label">프로젝트 관리 도구가 아닙니다</div><div class="desc">범위가 정해지기 전 단계에서 멈춰요 — 실행 관리는 그다음이에요.</div></div>
+      <div class="not-row reveal-sm f2"><div class="label">AI가 대신 써주는 도구가 아닙니다</div><div class="desc">V1은 AI 없이 동작해요. AI는 나중에도 제안만 해요 — 실행의 주도권은 당신에게 있어요.</div></div>
+      <div class="not-row reveal-sm f3"><div class="label">아직 팀 도구는 아닙니다</div><div class="desc">지금은 한 사람이 빠르게 실행 가능한 계획을 세우는 데 집중해요.</div></div>
+    </div>
+    <p class="not-scope">생각만 하고 멈춰있는 도구가 아니라, 실행으로 이어지는 구조를 원한다면 여기서 시작하세요.</p>
+  </div>
+</section>
+
+<hr class="section-divider" />
+
+<!-- SECTION 6 — Today vs Tomorrow -->
+<section id="today-vs-tomorrow" class="reveal-section">
+  <div class="wrap">
+    <span class="eyebrow">오늘과 내일</span>
+    <h2>지금부터 실행하세요.<br />AI는 나중에 속도를 더할 뿐입니다.</h2>
+    <div class="roadmap-track">
+      <div class="roadmap-card today reveal d0">
+        <div class="stage-tag">오늘 — V1 / 수동 워크스페이스</div>
+        <h3>지금 바로 실행할 수 있어요</h3>
+        <ul>
+          <li>질문에 답하며 지금 구조 세우기</li>
+          <li>MVP 범위 지금 정하기</li>
+          <li>우선순위 지금 계획하기</li>
+          <li>AI 없이도 지금 바로 실행 가능해요</li>
+        </ul>
+      </div>
+      <div class="roadmap-card tomorrow reveal d-lg">
+        <div class="stage-tag">내일 — V2 → V5 / AI 코파운더</div>
+        <h3>AI가 속도를 더해줘요</h3>
+        <ul>
+          <li>AI가 구조화 속도를 높여줘요</li>
+          <li>시장 정보로 실행을 더 빠르게</li>
+          <li>go-to-market 실행 지원</li>
+          <li>그때도 실행의 주도권은 당신에게 있어요</li>
+        </ul>
+      </div>
+    </div>
+    <p class="assurance">AI가 더해지는 건 속도뿐, 실행의 방향은 언제나 당신이 정해요.</p>
+  </div>
+</section>
+
+<!-- SECTION 7 — Closing -->
+<section class="tight reveal-section">
+  <div class="closing">
+    <div class="wrap center reveal d0">
+      <h2>지금, 실행을 시작하세요.</h2>
+      <p class="lede center">질문에 답하는 순간부터 계획은 움직이기 시작합니다.</p>
+      <a class="btn-primary hover-lift" href="#">지금 실행 시작하기</a>
+      <div class="micro-copy">계정도 가입도 필요 없어요. 지금 바로 첫 질문에 답해보세요.</div>
+      <div style="margin-top: var(--space-4);">
+        <a class="btn-secondary hover-fade" href="#today-vs-tomorrow">먼저 방향을 보고 싶다면? 로드맵 확인하기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <span>© 2026 하이포라</span>
+    <span>디자인 검토용 프로토타입 — 실제 페이지가 아닙니다</span>
+  </div>
+</footer>
+
+<script src="motion-system.js"></script>
+
+</body>
+</html>
