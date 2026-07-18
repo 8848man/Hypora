@@ -12,7 +12,9 @@
     "verify:stage1": "tsx server/scripts/verifyStage1.ts",
     "verify:stage2": "tsx server/scripts/verifyStage2.ts",
     "verify:stage3": "tsx server/scripts/verifyStage3.ts",
-    "verify:stage5": "node --env-file=.env ./node_modules/tsx/dist/cli.mjs server/scripts/verifyStage5.ts"
+    "verify:stage5": "node --env-file=.env ./node_modules/tsx/dist/cli.mjs server/scripts/verifyStage5.ts",
+    "verify:stage6": "tsx server/scripts/verifyStage6.ts",
+    "verify:domain-summary": "tsx src/domain/verifySummaryLifecycle.ts"
   },
   "dependencies": {
     "@types/node": "^24.13.2",

@@ -286,6 +286,18 @@ export interface Resources {
     goToCanvas: string;
     goToMvpPlanning: string;
     goToValidationPlanning: string;
+    summaryCardTitle: string;
+    summaryNotGenerated: string;
+    summaryGenerating: string;
+    summaryOutOfSyncBadge: string;
+    summaryOutOfSyncNotice: string;
+    syncSummaryButton: string;
+    syncDialogTitle: string;
+    syncDialogAsIsLabel: string;
+    syncDialogToBeLabel: string;
+    syncDialogToBeEmptyHint: string;
+    aiSummaryUpdateButton: string;
+    applyButton: string;
   };
   aiAssistant: {
     askAiLabel: string;

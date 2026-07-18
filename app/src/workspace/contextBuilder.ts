@@ -49,6 +49,18 @@ export function buildMvpScopeContext(project: Project): CanvasContextField[] {
   return project.mvpScope.trim() === "" ? [] : [{ field: "mvpScope", value: project.mvpScope }];
 }
 
+// Read-only Feature Plan serialization — the Project Summary Synthesis
+// Assistant's "MVP context" per
+// sdd/ai/capabilities/06_project_summary_synthesis_assistant.md covers both
+// the MVP Scope statement (buildMvpScopeContext above) and the planned
+// Feature list; callers combine both, per that capability's Request Contract.
+export function buildFeaturePlanContext(project: Project): CanvasContextField[] {
+  return project.features.map((feature) => ({
+    field: `feature:${feature.id}`,
+    value: `${feature.name} (priority: ${feature.priority}, ${feature.inScope ? "in scope" : "out of scope"})`,
+  }));
+}
+
 // Read-only Validation Checklist serialization — the real, demand-driven
 // consumer is the Project Summary Synthesis Assistant
 // (sdd/ai/capabilities/06_project_summary_synthesis_assistant.md), per
