@@ -2,7 +2,7 @@
 
 **Refs:** → [00_index](../00_index.md) · [Application Responsibilities](../context/05_application_responsibilities.md) · [V1 Release Specification](../analysis/01_v1_release_specification.md) · [ADR-0003](../architecture/decisions/ADR-0003-single-v1-deployment-target.md)
 
-Created now because the trigger condition for `sdd/infra/` has fired — per `10_bootstrap_guide.md` Step 6, "as soon as there's a real deployment target (even a single manual deploy script counts)." A concrete deployment target has now been decided for V1, even though no deploy has actually happened yet (see [V1 Release Specification](../analysis/01_v1_release_specification.md) for release-readiness status).
+Created because the trigger condition for `sdd/infra/` fired — per `10_bootstrap_guide.md` Step 6, "as soon as there's a real deployment target (even a single manual deploy script counts)." This document records the *intended* deployment target; see [V1 Release Specification](../analysis/01_v1_release_specification.md) for release-readiness status and `release/000_index.md` (outside `sdd/`) for actual deployment history, per the framework's rule that specifications stay unaware of release status.
 
 ## Deployment Target
 
@@ -14,7 +14,7 @@ Created now because the trigger condition for `sdd/infra/` has fired — per `10
 |---|---|---|
 | Landing | Yes | Bundled with Workspace into the single Vercel project |
 | Workspace | Yes | Bundled with Landing into the single Vercel project |
-| Platform API | **No** | Remains future work; V1 has no real backend to deploy — it uses LocalStorage inside the Workspace bundle itself (see [Application Responsibilities](../context/05_application_responsibilities.md)) |
+| Platform API | Partially — see note | Workspace's own project persistence remains LocalStorage-only, no separate deployment; the AI capability, however, **is** deployed — as serverless functions co-located inside this same single Vercel project, not a second deployment (see [Application Responsibilities](../context/05_application_responsibilities.md#platform-api)). This does not reopen [ADR-0003](../architecture/decisions/ADR-0003-single-v1-deployment-target.md)'s accepted "one Vercel project" decision — it's still exactly one project — but its literal "Platform API is not deployed in V1" sentence is narrower than current reality; see that ADR's own immutable Decision text for what was actually decided, and treat this row as the corrected status, not a silent rewrite of the ADR. |
 
 ## Reasoning
 
@@ -28,7 +28,7 @@ This is recorded as an architectural decision, not merely a configuration note �
 
 ## What This Document Does Not Cover
 
-- Environment variables / secrets: none are required for V1 — no backend, no auth, no third-party API keys. This section is deliberately empty rather than omitted, so a future Platform API deployment doesn't silently need to guess whether this was considered.
+- Environment variables / secrets: real ones now exist for the AI capability (`GEMINI_API_KEY`) and Analytics/admin-auth (Firebase config), per `app/.env.example` — owned and enumerated by [AI Platform Architecture](../ai/01_architecture.md) / [Provider Independence & Configuration](../ai/02_provider_independence_and_configuration.md) and [Analytics Architecture](../analytics/01_architecture.md) respectively, not restated here; this document only confirms they exist, since it previously (and incorrectly, once the AI capability shipped) claimed none did.
 - CI/CD pipeline shape: not yet defined: no pipeline configuration exists in this specification pass. Add it here, in this same document, the moment one is introduced — do not create a competing document.
 - Testing strategy: not yet defined for the same reason; mark as a gap here rather than silently absent, per the framework's convention for a testing spec that runs ahead of actual coverage.
 
