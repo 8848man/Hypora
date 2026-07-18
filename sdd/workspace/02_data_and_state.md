@@ -16,7 +16,7 @@
 | **Feature History** | A lightweight, append-only record of a Feature's creation and removal (name snapshot, timestamp, optional user-attached annotation) — no field-level edit history | Project (via its Features) | Many per Project; Feature-local to MVP Planning, per [MVP Planning](./features/03_mvp_planning.md#history) — never an AI concept, never a general audit log |
 | **Validation** | A Validation Checklist item — an assumption statement, an intended validation method, a success criterion, and a resolution status (validated / invalidated / open) | Project | Many per Project |
 | **Risk Memo** | Three independently-addressable, optional freeform fields: Technical Risks, Business Risks, Open Questions | Project | 1:1 (optional) with Project; distinct from Validation's testable assumptions and from Risk Notes above — see [Feature: Risk Memo](./features/06_risk_memo.md) for the boundary between all three |
-| **Summary** | The aggregate read view of Canvas + MVP Scope + Features + Validation | Project (derived) | **Not independently stored** — computed from the other four at render time, never persisted as its own record |
+| **Summary** | An AI-synthesized narrative of the project (what it is, who it's for, what problem it solves, how it intends to validate), derived from Canvas + MVP Scope + Features + Validation, plus a Summary Lifecycle state | Project (persisted) | **Persisted as its own record, per [ADR-0016](../architecture/decisions/ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md)** — supersedes this row's prior "never persisted, always derived" definition; see [Summary Lifecycle](#summary-lifecycle) below and [Project Summary](./features/05_project_summary.md) |
 | **Status / Lifecycle** | A Project's current lifecycle stage | [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) | Derived from the completion state of Canvas/Scope/Features/Validation per that document's guards — this document does not maintain an independent status field; it reads the domain model's derivation rules, never redefines them |
 
 **Ownership boundary:** this table is the canonical source for *what conceptually belongs to what* within Workspace's data. It must never be restated by a future `sdd/platform-api/` document — that document, once created, defines the persisted schema *implementing* this ownership, and should reference this table rather than re-deriving it. The Risk Notes, Feature priority, and Validation attributes above were added during Feature Specification (`sdd/workspace/features/`) — each is referenced, not redefined, by its owning Feature Specification. **Project Name** was added during UX Specification (a gap surfaced while defining [Project Management](./features/01_project_management.md)'s User Interaction — a Dashboard/Project List cannot meaningfully distinguish Projects without one); owned by [Project Management](./features/01_project_management.md).
@@ -52,12 +52,25 @@
 
 **Archived is intentionally excluded from this table** — archiving only ever applies at the whole-Project level, and is fully owned by the [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md); no section-level "archived" state exists.
 
+## Summary Lifecycle
+
+*(Owned by [Project Summary](./features/05_project_summary.md); introduced by [ADR-0016](../architecture/decisions/ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md). Distinct from both the State Model above — which governs individual fields/sections, not the synthesized Summary artifact — and the Business Idea Lifecycle, exactly as Section-Complete is already distinct from it.)*
+
+| State | Meaning |
+|---|---|
+| **NotGenerated** | Default state; no synthesized summary exists yet for this Project |
+| **Generating** | An Initial Generation or a Sync's AI Summary Update is in flight; any previously Generated text remains visible and unchanged |
+| **Generated** | A synthesized summary is persisted and currently reflects the Canvas/MVP Plan/Validation Plan it was generated from |
+| **OutOfSync** | A synthesized summary is persisted, but Canvas, MVP Plan, or Validation Plan has changed since generation; the existing summary text remains visible and unchanged; regeneration never happens automatically from this state |
+
+Transitions, triggers, and the Initial Generation vs. Sync distinction are owned by [Project Summary](./features/05_project_summary.md#summary-lifecycle); this table exists only to register the state names alongside every other State Model concept in this document, per this document's own indexing convention.
+
 ## Local Persistence (Conceptual)
 
 *(Explicit that V1 uses LocalStorage in place of a backend; the mapping below is Inferred conceptual ownership, not an implementation.)*
 
 - Platform API's V1 implementation ([Application Responsibilities](../context/05_application_responsibilities.md)) owns all persistence; Workspace never accesses LocalStorage directly in its own right — it only consumes Platform API's conceptual contract.
-- Conceptually, persistence is scoped **per Project**: one Project's Canvas, MVP Scope, Features, and Validation Checklist items are stored and retrieved together as a single unit — Summary is never separately persisted (see Data Ownership above).
+- Conceptually, persistence is scoped **per Project**: one Project's Canvas, MVP Scope, Features, Validation Checklist items, and — per [ADR-0016](../architecture/decisions/ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md) — its synthesized Summary and Summary Lifecycle state, are stored and retrieved together as a single unit (see Data Ownership above).
 - A second, separate persisted concept enumerates **all Project IDs** the user has created, so the Dashboard/Project List can render without loading every Project's full content.
 - A third, separate persisted concept holds **the selected `language`** (e.g., conceptually `language = "ko"`) — independent of both the Project-list concept and any individual Project's data, per [Application-Level State (Non-Project)](#application-level-state-non-project) above. This is a single global value, not scoped per Project.
 - No cross-device or cross-browser persistence exists in V1 — this is a known, already-recorded limitation (see [Product Scope](../context/02_product_scope.md)'s Risks table), not restated here beyond this reference.
@@ -75,6 +88,7 @@
 | User attempts a lifecycle transition whose guard isn't satisfied (e.g., confirming Build-Ready without every Validation Checklist item resolved) | Block the transition; state explicitly which guard failed and which artifact is incomplete, per [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md)'s transition table |
 | Platform API's LocalStorage read fails or returns corrupted/unreadable data for a Project | Show a recoverable "this project's data couldn't be loaded" state — never a silent data loss or an unhandled crash |
 | Platform API's LocalStorage write fails (e.g., storage quota exceeded) | Surface the failure to the user immediately, before they assume the edit was Saved — never leave content in an ambiguous Draft/Saved state without telling the user which it is |
+| Project Summary's Initial Generation or Sync's AI Summary Update fails | Per [ADR-0017](../architecture/decisions/ADR-0017-automatic-invocation-for-project-summary-initial-generation.md) and [Project Summary](./features/05_project_summary.md#summary-lifecycle): Initial Generation returns Summary to NotGenerated (never a stuck Generating or dead-end Failed state) and is safely re-attempted later; a failed Sync draft leaves the persisted summary and OutOfSync state untouched, per the Synchronization Dialog's Cancel-equivalent behavior on failure |
 | User's LocalStorage is cleared or the Project is opened on a different browser/device | Show the Dashboard's normal empty state (no Projects found) — this is the accepted, already-documented V1 limitation ([Product Scope](../context/02_product_scope.md) Risks), not a new failure mode to solve here |
 
 **Recovery behavior in V1 is limited to what's stated above** — there is no cloud backup, undo-after-clear, or cross-device recovery mechanism; introducing one is future Platform API work (a real backend), not a V1 Workspace responsibility.
