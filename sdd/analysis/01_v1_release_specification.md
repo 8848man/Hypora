@@ -63,9 +63,8 @@ This gate applies **in addition to**, not instead of, the Success Criteria above
 
 Synthesized from already-recorded facts — no new limitation is introduced here:
 
-- No backend, no authentication, no cross-device persistence ([Product Scope](../context/02_product_scope.md)'s Constraints and Risks).
-- No AI capability of any kind ([Product Vision](../context/01_product_vision.md)'s V1 constraint).
-- Platform API is not deployed — Workspace's persistence is entirely client-side LocalStorage ([Deployment Strategy](../infra/01_deployment.md)).
+- No general/multi-user authentication, no cross-device persistence for Workspace's own project data ([Product Scope](../context/02_product_scope.md)'s Constraints and Risks) — still true.
+- **Stale as literally written, flagged rather than silently corrected:** [Product Vision](../context/01_product_vision.md)'s "no AI capability of any kind" V1 constraint and [Deployment Strategy](../infra/01_deployment.md)'s "Platform API is not deployed" are both narrower than current reality — the AI Platform capability (5 assistants) is implemented and deployed, per [Application Responsibilities](../context/05_application_responsibilities.md#platform-api). This document only synthesizes; it does not re-decide V1's scope boundary, so this line is not rewritten here — whether V1's own scope should be formally revised (or whether this is better framed as V2 work shipped ahead of a corresponding roadmap-stage decision) is an open product/architecture question, not resolved by this document. See the synchronization review that flagged this for the recommended next step.
 
 ## Deployment Target
 

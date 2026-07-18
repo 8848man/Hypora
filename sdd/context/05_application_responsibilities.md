@@ -51,18 +51,18 @@ Per `10_bootstrap_guide.md` Step 3, a dedicated `sdd/<application>/` implementat
 
 **Purpose:** Backend platform. *(Explicit.)*
 
-**Current MVP implementation (V1):** LocalStorage stands in for a real backend. *(Explicit.)* Workspace reads/writes project data through this layer; Platform API's V1 responsibility is scoped entirely to persisting and retrieving project data structured per the Canvas/MVP Scope/Feature Planning/Validation Checklist shape Workspace defines.
+**Current MVP implementation (V1):** Workspace's own project data (Canvas/MVP Scope/Feature Planning/Validation Checklist) still persists entirely via LocalStorage. *(Explicit.)* The AI Platform capability (row below) is the one exception — it is backed by a real deployed service (Vercel serverless functions, bundled into the same single Vercel project per [Deployment Strategy](../infra/01_deployment.md), not a separate Platform API deployment), not LocalStorage. Platform API otherwise remains scoped to persisting and retrieving project data structured per the shape Workspace defines.
 
-**Future platform capabilities** *(Explicit — named as examples in the brief; detail on how each becomes real is in [Future Expansion Strategy](./06_future_expansion_strategy.md))*:
+**Platform capabilities** *(Explicit — named as examples in the brief; detail on how each becomes real is in [Future Expansion Strategy](./06_future_expansion_strategy.md)):*
 
 | Capability | V1 status | Future role |
 |---|---|---|
-| Authentication | Not implemented | Required once Workspace moves beyond single-browser, single-user persistence |
+| Authentication | Not implemented (general, multi-user) | Required once Workspace moves beyond single-browser, single-user persistence — a narrow, admin-only Firebase Authentication gate exists for the internal Analytics Dashboard only ([ADR-0015](../architecture/decisions/ADR-0015-analytics-dashboard-access-boundary.md)), explicitly not a substitute for or acceleration of this general capability |
 | Projects | Implemented via LocalStorage | Same conceptual API surface, backed by a real service instead of the browser |
-| AI | Not implemented | Backs V2 (AI Canvas Assistant) through V5 (AI Product Builder) |
+| AI | **Implemented** — 5 capabilities live (Canvas Assistant, Risk Memo Assistant, MVP Planning Assistant, Validation Planning Assistant, Feature Suggestion Assistant), per [AI Platform Architecture](../ai/01_architecture.md) and [Capability Index](../ai/capabilities/000_index.md) | V2 (AI Canvas Assistant) through V5 (AI Product Builder); the roadmap-stage framing continues to apply to which *Workspace Feature* consumes AI, not whether the AI Platform itself exists |
 | Search | Not implemented | Backs V3 (Market Intelligence) discovery features |
 | Integrations | Not implemented | Backs future external data sources (market data, competitor data) |
-| Analytics | Not implemented | Product event tracking, cross-cutting across every Feature and AI Capability — introduced ahead of V3 per [ADR-0013](../architecture/decisions/ADR-0013-analytics-provider-independence.md); see `sdd/analytics/` for its own architecture, independent of AI and Search |
+| Analytics | **Implemented** — event tracking write path and an internal Analytics Dashboard read path, per [Analytics Architecture](../analytics/01_architecture.md) | Product event tracking, cross-cutting across every Feature and AI Capability, per [ADR-0013](../architecture/decisions/ADR-0013-analytics-provider-independence.md); see `sdd/analytics/` for its own architecture, independent of AI and Search |
 
 **Distinguishing current vs. future is mandatory for every fact recorded about Platform API** — a capability listed above as "Not implemented" must never be described elsewhere as if it already exists in V1.
 

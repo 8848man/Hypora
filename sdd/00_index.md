@@ -46,6 +46,24 @@ Master index of every document in the `sdd/` tree. Every document must be reacha
 | [workspace/features/04_validation_planning.md](./workspace/features/04_validation_planning.md) | Author and resolve testable Assumptions |
 | [workspace/features/05_project_summary.md](./workspace/features/05_project_summary.md) | Aggregate readiness; own the Validated → Build-Ready confirmation |
 
+## AI
+
+Undocumented in this master index until this pass, despite existing since 2026-07-08 (see "Triggers already fired" below) — every document here was already real and reachable via its own `Refs` header, just never listed in this file, violating this index's own "every document must be reachable from here" rule. Fixed in this synchronization pass.
+
+| Doc | Purpose |
+|---|---|
+| [ai/01_architecture.md](./ai/01_architecture.md) | Purpose, Responsibilities, the Capability Model (Workspace Feature → AI Capability → AI Application Service → LLM Provider Interface → Provider), Localization composition |
+| [ai/02_provider_independence_and_configuration.md](./ai/02_provider_independence_and_configuration.md) | The LLM Provider Interface's independence guarantee and Provider × Capability configuration scoping |
+| [ai/03_ownership_model.md](./ai/03_ownership_model.md) | The single-owner split across the prompt/context/response request lifecycle |
+| [ai/04_ai_interaction.md](./ai/04_ai_interaction.md) | Governing Rules, Invocation Model, the universal `Ask AI → Suggestion → Accept/Reject/Regenerate` Interaction Lifecycle, Loading Behavior |
+| [ai/05_ai_feedback_and_error_experience.md](./ai/05_ai_feedback_and_error_experience.md) | The unified error taxonomy and user-facing feedback/failure presentation every AI Capability shares |
+| [ai/capabilities/000_index.md](./ai/capabilities/000_index.md) | Index of every AI Capability, the Capability Specification Template, Contract Versioning rules, Capability Promotion Rules |
+| [ai/capabilities/01_canvas_assistant.md](./ai/capabilities/01_canvas_assistant.md) | Canvas Assistant (V2) — improve/complete/refine a Business Canvas via AI suggestions and follow-up questions |
+| [ai/capabilities/02_risk_memo_assistant.md](./ai/capabilities/02_risk_memo_assistant.md) | Risk Memo Assistant — suggests one Risk Memo field at a time, grounded in the Business Canvas and sibling fields |
+| [ai/capabilities/03_mvp_planning_assistant.md](./ai/capabilities/03_mvp_planning_assistant.md) | MVP Planning Assistant — suggests MVP Scope content, grounded in Business Canvas and Risk Memo (read-only) |
+| [ai/capabilities/04_validation_planning_assistant.md](./ai/capabilities/04_validation_planning_assistant.md) | Validation Planning Assistant — suggests a new Assumption statement, grounded in Business Canvas, Risk Memo, and MVP Scope (read-only) |
+| [ai/capabilities/05_feature_suggestion_assistant.md](./ai/capabilities/05_feature_suggestion_assistant.md) | Feature Suggestion Assistant — proposes a batch of Feature names, grounded in Business Canvas, MVP Scope, existing Features, and Risk Memo (read-only, optional) |
+
 ## Analytics
 
 | Doc | Purpose |
@@ -102,12 +120,7 @@ Landing's own dedicated specification directory, promoted 2026-07-17 — real La
 | Doc | Purpose |
 |---|---|
 | [architecture/01_platform_services.md](./architecture/01_platform_services.md) | The Platform Service architectural role AI and Analytics both instantiate; Candidate Members, Admission Criteria, Dependency Rules |
-| [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | Running index of every ADR, its status, and a one-line summary |
-| [architecture/decisions/ADR-0001-one-product-multiple-applications.md](./architecture/decisions/ADR-0001-one-product-multiple-applications.md) | Why Hypora is one Product with multiple Applications, not three products |
-| [architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md) | Why a canonical Project lifecycle was introduced as the domain model, and the alternatives rejected |
-| [architecture/decisions/ADR-0003-single-v1-deployment-target.md](./architecture/decisions/ADR-0003-single-v1-deployment-target.md) | Why Landing + Workspace are bundled into one Vercel project for V1, and Platform API excluded |
-| [architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md](./architecture/decisions/ADR-0004-guided-question-flow-for-business-structuring.md) | Why Business Structuring's multi-field form was replaced with a guided, one-question-at-a-time flow with a Review step |
-| [architecture/decisions/ADR-0005-korean-first-localization-architecture.md](./architecture/decisions/ADR-0005-korean-first-localization-architecture.md) | Why Korean is canonical and English is an official localization, and how the architecture separates content identity from presentation content |
+| [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | The single, complete, authoritative index of every ADR (currently ADR-0001 through ADR-0015), its status, date, and one-line summary — this document does not restate any ADR individually; see that index for the full list rather than duplicating it here, per this project's own Duplication Rule |
 
 ## Not Yet Created (by design)
 
