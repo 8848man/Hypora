@@ -20,10 +20,10 @@ Give every AI Capability (Canvas Assistant today; Persona Review, Market Intelli
 
 ## Invocation Model
 
-| Mode | V2 status | Rule |
+| Mode | Status | Rule |
 |---|---|---|
-| **Manual invocation** | Allowed | A user takes an explicit action (e.g., activating an "Ask AI" affordance) that starts the lifecycle at Requesting. This is the only invocation mode V2 implements. |
-| **Automatic invocation** | Intentionally deferred | The system starting a capability call without an explicit user action (e.g., on field blur, on a timer, on page load) is out of scope for V2. Per Governing Rule 1, merely *showing* an AI affordance is never itself invocation — deferring automatic invocation means no code path may trigger Requesting except a user's explicit action. A capability offering richer seed context when a field is empty (e.g., [Canvas Assistant](./capabilities/01_canvas_assistant.md)'s AI-first Draft Generation) changes what context is available to an invocation, never whether the invocation itself is automatic — that distinction still binds. |
+| **Manual invocation** | Allowed | A user takes an explicit action (e.g., activating an "Ask AI" affordance) that starts the lifecycle at Requesting. This is the default, and the only invocation mode for every capability except the one named exception below. |
+| **Automatic invocation** | **Deferred by default; one narrow, named exception exists** | The system starting a capability call without an explicit user action (e.g., on field blur, on a timer, on page load) remains out of scope by default. Per Governing Rule 1, merely *showing* an AI affordance is never itself invocation — deferring automatic invocation means no code path may trigger Requesting except a user's explicit action, unless a specific ADR grants a narrow exception. **The sole current exception:** [Project Summary Synthesis Assistant](./capabilities/06_project_summary_synthesis_assistant.md)'s `initial_generation` Operation, per [ADR-0017](../architecture/decisions/ADR-0017-automatic-invocation-for-project-summary-initial-generation.md) — system-triggered exactly once per Project, when the Project's domain lifecycle stage first reaches Validated. No other capability, and no other operation of that same capability (its `sync` Operation remains Manual-only), carries this exception. A future capability wanting Automatic Invocation must obtain its own ADR against the same narrow bar ADR-0017 sets, per that ADR's Future Impact — this table is updated to name each such exception individually, never generalized into a second, open-ended "automatic" mode. A capability offering richer seed context when a field is empty (e.g., [Canvas Assistant](./capabilities/01_canvas_assistant.md)'s AI-first Draft Generation) changes what context is available to an invocation, never whether the invocation itself is automatic — that distinction still binds. |
 
 ## Interaction Lifecycle {#interaction-lifecycle}
 
@@ -82,6 +82,8 @@ Restates Governing Rule 2 with its full operational detail:
 - This applies identically to every future single-call AI Capability instantiating this lifecycle — it is not a Canvas Assistant-specific rule.
 
 ## Suggestion Lifecycle
+
+*(Governs every invocation except [ADR-0017](../architecture/decisions/ADR-0017-automatic-invocation-for-project-summary-initial-generation.md)'s single named carve-out: [Project Summary Synthesis Assistant](./capabilities/06_project_summary_synthesis_assistant.md)'s `initial_generation` writes a successful response directly to its target on `Generating` success, with no `Suggestion Ready`/Accept step, because that Operation targets an artifact that does not yet exist — there is no live user-authored content for Manual-first's overwrite protection to apply to. That capability's `sync` Operation is not part of this carve-out and follows this Suggestion Lifecycle exactly as written below.)*
 
 - **Accept:** inserts the suggestion text into the targeted field. From that moment, per [ADR-0009](../architecture/decisions/ADR-0009-ai-platform-localization-integration.md) and [Canvas Assistant](./capabilities/01_canvas_assistant.md#localization), it is ordinary user-authored content — never re-localized on a later language switch, and not visually distinguished as AI-originated after acceptance (only the pre-acceptance offer is marked as AI-originated; see AI-Specific UX Terminology).
 - **Reject:** dismisses the suggestion without altering the field. The user may invoke the capability again later; rejection carries no penalty or cooldown.
