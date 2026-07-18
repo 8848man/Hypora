@@ -79,6 +79,23 @@ export interface FeatureHistoryEvent {
   annotation?: string;
 }
 
+// Project Summary's persisted, AI-synthesized artifact — per
+// sdd/architecture/decisions/ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md.
+// Feature-local state, orthogonal to LifecycleStage above (never a redefinition
+// of it) — see domain/summaryLifecycle.ts for the pure transition logic.
+export type SummaryLifecycleStatus = "notGenerated" | "generating" | "generated" | "outOfSync";
+
+export interface ProjectSummary {
+  text: string;
+  status: SummaryLifecycleStatus;
+  generatedAt?: string;
+}
+
+export const emptyProjectSummary: ProjectSummary = {
+  text: "",
+  status: "notGenerated",
+};
+
 export interface Project {
   id: string;
   name: string;
@@ -96,6 +113,8 @@ export interface Project {
   featureHistory: FeatureHistoryEvent[];
 
   validationItems: ValidationItem[];
+
+  summary: ProjectSummary;
 }
 
 export function createEmptyProject(id: string, name: string): Project {
@@ -113,5 +132,6 @@ export function createEmptyProject(id: string, name: string): Project {
     featurePlanningComplete: false,
     featureHistory: [],
     validationItems: [],
+    summary: { ...emptyProjectSummary },
   };
 }
