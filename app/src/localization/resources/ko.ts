@@ -390,7 +390,7 @@ export const ko: Resources = {
     goToMvpPlanning: "MVP 계획으로 이동",
     goToValidationPlanning: "검증 계획으로 이동",
     summaryCardTitle: "요약",
-    summaryNotGenerated: "비즈니스 캔버스, MVP 계획, 검증 계획이 모두 완료되면 요약이 자동으로 생성됩니다.",
+    summaryNotGenerated: "비즈니스 캔버스가 완료되면 요약이 자동으로 생성됩니다.",
     summaryGenerating: "프로젝트 요약을 생성하는 중입니다…",
     summaryOutOfSyncBadge: "동기화 필요",
     summaryOutOfSyncNotice: "이 요약은 최근 변경 사항이 반영되기 전에 작성되었습니다. 동기화하기 전까지는 아래 내용이 그대로 표시됩니다.",

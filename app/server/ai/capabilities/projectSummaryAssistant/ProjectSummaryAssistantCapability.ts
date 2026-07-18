@@ -1,6 +1,7 @@
 // Project Summary Synthesis Assistant — the sixth real AI Capability
 // (sdd/ai/capabilities/06_project_summary_synthesis_assistant.md). Contract
-// Version 1.0, Stable.
+// Version 2.0, Stable, per ADR-0018 (narrowed to Business Canvas identity
+// synthesis; 1.0 additionally read MVP Scope and Validation Checklist).
 //
 // This module owns the Request/Response Contract and capability-specific
 // content (prompt template text, response shape). It knows nothing about
@@ -21,7 +22,7 @@ import type { ProjectSummaryAssistantRequest, ProjectSummaryAssistantResponse } 
 
 export const PROJECT_SUMMARY_ASSISTANT = {
   capabilityId: "project-summary-assistant",
-  contractVersion: "1.0",
+  contractVersion: "2.0",
 };
 
 function isProjectSummaryAssistantResponseShape(
@@ -43,13 +44,9 @@ export class ProjectSummaryAssistantCapability {
 
   async invoke(request: ProjectSummaryAssistantRequest): Promise<ProjectSummaryAssistantResponse> {
     const prompt = createTemplate(SUMMARY_TEMPLATE).render({
+      // Business Canvas only, per ADR-0018 — never MVP Scope, the Feature
+      // list, the Validation Checklist, or Risk Memo.
       canvasContext: serializeContext(request.canvasContext),
-      // Read-only MVP Scope and Validation Checklist context — per the
-      // Capability Matrix this capability adds
-      // (sdd/ai/03_ownership_model.md#capability-matrix); never another
-      // Feature's data (e.g. Risk Memo is deliberately excluded).
-      mvpContext: serializeContext(request.mvpContext ?? []),
-      validationContext: serializeContext(request.validationContext ?? []),
       language: request.language,
     });
 

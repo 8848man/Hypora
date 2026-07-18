@@ -61,10 +61,6 @@ async function main(): Promise<void> {
     const response = await container.projectSummaryAssistant.invoke({
       operation,
       canvasContext: [{ field: "problem", value: "Founders struggle to structure a new idea" }],
-      mvpContext: [{ field: "mvpScope", value: "A single-project workspace" }],
-      validationContext: [
-        { field: "validationItem1", value: "Assumption: x; Method: y; Success criterion: z; Status: validated" },
-      ],
       language: "en",
     });
     assert(
@@ -80,8 +76,6 @@ async function main(): Promise<void> {
       createMockRequest("POST", {
         operation: "initial_generation",
         canvasContext: [{ field: "problem", value: "x" }],
-        mvpContext: [],
-        validationContext: [],
         language: "en",
       }),
       res,
@@ -105,8 +99,6 @@ async function main(): Promise<void> {
       createMockRequest("POST", {
         operation: "not-a-real-operation",
         canvasContext: [],
-        mvpContext: [],
-        validationContext: [],
         language: "en",
       }),
       res,
@@ -115,14 +107,11 @@ async function main(): Promise<void> {
     assert(JSON.parse(body()).kind === "validation", "expected kind=validation in 400 response");
   }
 
-  // 5. Missing mvpContext -> 400.
+  // 5. Missing canvasContext -> 400.
   {
     const { res, status } = createMockResponse();
-    await handler(
-      createMockRequest("POST", { operation: "sync", canvasContext: [], validationContext: [], language: "en" }),
-      res,
-    );
-    assert(status() === 400, `expected 400 for missing mvpContext, got ${status()}`);
+    await handler(createMockRequest("POST", { operation: "sync", language: "en" }), res);
+    assert(status() === 400, `expected 400 for missing canvasContext, got ${status()}`);
   }
 
   console.log("Stage 6 verification: PASS");

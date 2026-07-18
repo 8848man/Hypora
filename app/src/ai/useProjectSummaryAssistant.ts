@@ -29,8 +29,6 @@ export type { AiAssistantStatus as ProjectSummaryAssistantStatus } from "./useAi
 export type ProjectSummaryAssistantInvokeInput = {
   operation: ProjectSummaryAssistantOperation;
   canvasContext: CanvasContextField[];
-  mvpContext: CanvasContextField[];
-  validationContext: CanvasContextField[];
   language: "ko" | "en";
 };
 

@@ -22,20 +22,26 @@ function assert(condition: boolean, message: string): void {
 function main(): void {
   const base = createEmptyProject("proj_test", "Test Project");
 
-  // Not eligible: NotGenerated but not yet Validated.
-  assert(!shouldTriggerInitialGeneration({ ...base, stage: "validating" }), "must not trigger before Validated");
+  // Not eligible: NotGenerated but Canvas not yet complete (per ADR-0018,
+  // trigger is Canvas-complete, i.e. any stage past Structuring/Captured).
+  assert(!shouldTriggerInitialGeneration({ ...base, stage: "structuring" }), "must not trigger before Canvas is complete");
+  assert(!shouldTriggerInitialGeneration({ ...base, stage: "captured" }), "must not trigger at Captured");
 
-  // Eligible: Validated + NotGenerated.
+  // Eligible: Canvas complete (Scoped or later) + NotGenerated.
+  assert(
+    shouldTriggerInitialGeneration({ ...base, stage: "scoped" }),
+    "must trigger once Canvas is complete (Scoped) with NotGenerated summary",
+  );
   assert(
     shouldTriggerInitialGeneration({ ...base, stage: "validated" }),
-    "must trigger once Validated with NotGenerated summary",
+    "must also trigger at any later stage if still NotGenerated",
   );
 
   // Not eligible: already Generated.
   assert(
     !shouldTriggerInitialGeneration({
       ...base,
-      stage: "validated",
+      stage: "scoped",
       summary: { text: "x", status: "generated" },
     }),
     "must not re-trigger once already generated",
@@ -50,9 +56,27 @@ function main(): void {
 
   // No-op: an edit while summary is NotGenerated must not spuriously flip state.
   const notGenerated = { ...base, summary: { text: "", status: "notGenerated" as const } };
-  const editedNotGenerated = { ...notGenerated, mvpScope: "changed" };
+  const editedNotGenerated = { ...notGenerated, canvas: { ...notGenerated.canvas, problem: "changed" } };
   const afterEdit2 = withSummaryOutOfSyncIfChanged(notGenerated, editedNotGenerated);
   assert(afterEdit2.summary.status === "notGenerated", "must not affect a NotGenerated summary");
+
+  // No-op, per ADR-0018: MVP Scope, Feature list, and Validation Checklist
+  // changes no longer affect Summary Lifecycle at all.
+  const mvpChanged = { ...generated, mvpScope: "a completely different scope statement" };
+  const afterMvpChange = withSummaryOutOfSyncIfChanged(generated, mvpChanged);
+  assert(afterMvpChange.summary.status === "generated", "MVP Scope changes must no longer mark OutOfSync");
+
+  const validationChanged = {
+    ...generated,
+    validationItems: [
+      { id: "v1", assumption: "a", method: "b", successCriterion: "c", status: "validated" as const },
+    ],
+  };
+  const afterValidationChange = withSummaryOutOfSyncIfChanged(generated, validationChanged);
+  assert(
+    afterValidationChange.summary.status === "generated",
+    "Validation Checklist changes must no longer mark OutOfSync",
+  );
 
   // No-op: an unrelated field change (e.g. name) must not mark OutOfSync.
   const renamed = { ...generated, name: "Renamed Project" };

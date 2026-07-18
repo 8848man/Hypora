@@ -413,7 +413,7 @@ export const en: Resources = {
     goToMvpPlanning: "Go to MVP Planning",
     goToValidationPlanning: "Go to Validation Planning",
     summaryCardTitle: "Summary",
-    summaryNotGenerated: "A synthesized summary will be generated automatically once your Canvas, MVP Plan, and Validation Plan are complete.",
+    summaryNotGenerated: "A synthesized summary will be generated automatically once your Business Canvas is complete.",
     summaryGenerating: "Generating your project summary…",
     summaryOutOfSyncBadge: "Out of sync",
     summaryOutOfSyncNotice: "This summary was written before your latest changes. It's still shown below, unchanged, until you choose to sync it.",

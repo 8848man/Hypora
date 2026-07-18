@@ -39,12 +39,6 @@ export function validateProjectSummaryAssistantRequest(body: unknown): ProjectSu
   if (!isContextFieldArray(candidate.canvasContext)) {
     throw new HttpValidationError('"canvasContext" must be an array of { field: string, value: string }');
   }
-  if (!isContextFieldArray(candidate.mvpContext)) {
-    throw new HttpValidationError('"mvpContext" must be an array of { field: string, value: string }');
-  }
-  if (!isContextFieldArray(candidate.validationContext)) {
-    throw new HttpValidationError('"validationContext" must be an array of { field: string, value: string }');
-  }
   if (typeof candidate.language !== "string" || !VALID_LANGUAGES.includes(candidate.language as "ko" | "en")) {
     throw new HttpValidationError(`"language" must be one of: ${VALID_LANGUAGES.join(", ")}`);
   }
@@ -52,8 +46,6 @@ export function validateProjectSummaryAssistantRequest(body: unknown): ProjectSu
   return {
     operation: candidate.operation as ProjectSummaryAssistantOperation,
     canvasContext: candidate.canvasContext as CanvasContextField[],
-    mvpContext: candidate.mvpContext as CanvasContextField[],
-    validationContext: candidate.validationContext as CanvasContextField[],
     language: candidate.language as "ko" | "en",
   };
 }
