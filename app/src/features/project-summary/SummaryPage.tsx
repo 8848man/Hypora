@@ -52,8 +52,12 @@ export function SummaryPage() {
       initialGeneration.reset();
     } else if (initialGeneration.status === "failed") {
       // Per ADR-0017 Decision 6: return to NotGenerated, never a stuck
-      // Generating or dead-end Failed state — safely re-attempted the next
-      // time the trigger condition re-evaluates.
+      // Generating or dead-end Failed state. Deliberately does NOT reset
+      // hasTriggeredRef here: per sdd/ai/05_ai_feedback_and_error_experience.md's
+      // "V2 performs no silent, automatic retries" policy, a failure must not
+      // immediately re-fire Initial Generation in a tight loop within the same
+      // mount — retry happens "the next time the Summary page is opened"
+      // (ADR-0017), i.e. on the next mount, when hasTriggeredRef is fresh.
       update({ ...project, summary: { ...project.summary, status: "notGenerated" } });
       initialGeneration.reset();
     }
