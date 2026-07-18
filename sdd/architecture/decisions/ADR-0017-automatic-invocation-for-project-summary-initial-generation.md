@@ -1,9 +1,11 @@
 # ADR-0017: Automatic (System-Triggered) Invocation for Project Summary's Initial Generation
 
-**Status:** Accepted
+**Status:** Partially Superseded by [ADR-0018](./ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md) — see note below
 **Date:** 2026-07-18
 **Affects specs:** [AI Interaction Specification](../../ai/04_ai_interaction.md), [Project Summary Feature](../../workspace/features/05_project_summary.md), AI Capability Index (forthcoming capability file, `sdd/ai/capabilities/`)
-**Related ADRs:** [ADR-0016](./ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md) (the companion decision this ADR's trigger condition depends on), [ADR-0011](./ADR-0011-defer-multi-step-workflow-orchestration.md) (confirms this remains a single-call capability, not workflow orchestration)
+**Related ADRs:** [ADR-0016](./ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md) (the companion decision this ADR's trigger condition depends on), [ADR-0011](./ADR-0011-defer-multi-step-workflow-orchestration.md) (confirms this remains a single-call capability, not workflow orchestration), [ADR-0018](./ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md) (supersedes this ADR's trigger condition — see note below)
+
+> **Partial supersession note (2026-07-19):** [ADR-0018](./ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md) supersedes only this ADR's trigger condition (Decision 3, and the Context section's "Business Canvas, MVP Plan, and Validation Plan each complete" framing) — the trigger is now Canvas completion, not the Validated stage. This ADR's core thesis — a single, narrowly-scoped Automatic Invocation exception, bound to exactly one capability and one operation, with no Suggestion Ready step, client-orchestrated and non-blocking, safely re-attempted on failure — remains fully in force, unchanged. The rest of this document is preserved as originally written, per this project's discipline against rewriting an Accepted ADR's Decision in place; read it together with ADR-0018 for the current, accurate trigger condition.
 
 ## Context
 

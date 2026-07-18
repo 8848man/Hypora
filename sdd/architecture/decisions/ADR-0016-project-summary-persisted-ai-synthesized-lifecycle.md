@@ -1,9 +1,11 @@
 # ADR-0016: Project Summary Becomes a Persisted, AI-Synthesized Artifact with an Explicit Lifecycle
 
-**Status:** Accepted
+**Status:** Partially Superseded by [ADR-0018](./ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md) — see note below
 **Date:** 2026-07-18
 **Affects specs:** [Workspace Data & State](../../workspace/02_data_and_state.md), [Project Summary Feature](../../workspace/features/05_project_summary.md), [Workspace Architecture](../../workspace/01_architecture.md), AI Capability Index (forthcoming capability file, `sdd/ai/capabilities/`)
-**Related ADRs:** [ADR-0002](./ADR-0002-business-idea-lifecycle-domain-model.md) (the Project-level domain lifecycle this ADR does not touch), [ADR-0006](./ADR-0006-ai-as-platform-capability.md) through [ADR-0009](./ADR-0009-ai-platform-localization-integration.md) (the AI Platform architecture this ADR's new capability is built against, unchanged), [ADR-0017](./ADR-0017-automatic-invocation-for-project-summary-initial-generation.md) (the companion decision governing how this artifact's first generation is triggered)
+**Related ADRs:** [ADR-0002](./ADR-0002-business-idea-lifecycle-domain-model.md) (the Project-level domain lifecycle this ADR does not touch), [ADR-0006](./ADR-0006-ai-as-platform-capability.md) through [ADR-0009](./ADR-0009-ai-platform-localization-integration.md) (the AI Platform architecture this ADR's new capability is built against, unchanged), [ADR-0017](./ADR-0017-automatic-invocation-for-project-summary-initial-generation.md) (the companion decision governing how this artifact's first generation is triggered), [ADR-0018](./ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md) (supersedes this ADR's OutOfSync-trigger and Read Context content — see note below)
+
+> **Partial supersession note (2026-07-19):** [ADR-0018](./ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md) supersedes only this ADR's OutOfSync-trigger wording (Decision 2's diagram/state description and Decision 3, which named Canvas, MVP Plan, and Validation Plan as triggers) and Decision 7's Read Context description (which named Canvas, MVP Scope, and Validation Checklist). This ADR's core thesis — a persisted, stateful Summary artifact with the NotGenerated/Generating/Generated/OutOfSync lifecycle shape, the Repository Pattern reuse, and Build-Ready's independence from Summary Lifecycle — remains fully in force, unchanged. The rest of this document is preserved as originally written, per this project's discipline against rewriting an Accepted ADR's Decision in place; read it together with ADR-0018 for the current, accurate behavior.
 
 ## Context
 
