@@ -12,8 +12,8 @@ This went through two design iterations in one session:
 
 | Iteration | Read Context | Trigger | Status |
 |---|---|---|---|
-| v1 (initial build) | Canvas + MVP Plan + Validation Plan (whole-project) | Project reaches **Validated** stage | Superseded |
-| v2 (current, shipped) | **Canvas only** | Business Canvas reaches **completion** (Structuring → Scoped) | Live in production |
+| v2.0.1 (initial build) | Canvas + MVP Plan + Validation Plan (whole-project) | Project reaches **Validated** stage | Superseded |
+| v2.0.2 (current, shipped) | **Canvas only** | Business Canvas reaches **completion** (Structuring → Scoped) | Live in production |
 
 The redefinition happened after a design review found the whole-project version conflated two responsibilities (project *identity* vs. project *readiness*), produced lower-quality AI output (narrative prose forced to also carry checklist-shaped planning data), and was the only capability in the AI Platform's Capability Matrix that recapped everything it read instead of drafting one bounded, new field like every other capability does.
 
