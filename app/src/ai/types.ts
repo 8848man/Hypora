@@ -132,3 +132,26 @@ export type FeatureSuggestionItem = {
 export type FeatureSuggestionAssistantResponse = FeatureSuggestionItem[];
 
 export type FeatureSuggestionAssistantFailureKind = AiFailureKind;
+
+// Project Summary Synthesis Assistant's own outward contract
+// (sdd/ai/capabilities/06_project_summary_synthesis_assistant.md, Contract
+// Version 2.0, per ADR-0018). One shared Request/Response shape for both
+// Operations (initial_generation, sync) — per that capability spec's own
+// framing note. Contract Version 1.0 additionally carried mvpContext and
+// validationContext — removed entirely in 2.0, not deprecated; see the
+// capability spec's own Contract Version History.
+
+export type ProjectSummaryAssistantOperation = "initial_generation" | "sync";
+
+export type ProjectSummaryAssistantRequest = {
+  operation: ProjectSummaryAssistantOperation;
+  canvasContext: CanvasContextField[];
+  language: "ko" | "en";
+};
+
+export type ProjectSummaryAssistantResponse = {
+  summaryText: string;
+  rationale?: string;
+};
+
+export type ProjectSummaryAssistantFailureKind = AiFailureKind;

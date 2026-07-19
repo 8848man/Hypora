@@ -48,3 +48,4 @@ export function buildRiskMemoContext(project: Project): CanvasContextField[] {
 export function buildMvpScopeContext(project: Project): CanvasContextField[] {
   return project.mvpScope.trim() === "" ? [] : [{ field: "mvpScope", value: project.mvpScope }];
 }
+

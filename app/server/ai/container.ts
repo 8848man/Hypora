@@ -15,6 +15,7 @@ import { RiskMemoAssistantCapability, RISK_MEMO_ASSISTANT } from "./capabilities
 import { MvpPlanningAssistantCapability, MVP_PLANNING_ASSISTANT } from "./capabilities/mvpPlanningAssistant/MvpPlanningAssistantCapability.js";
 import { ValidationPlanningAssistantCapability, VALIDATION_PLANNING_ASSISTANT } from "./capabilities/validationPlanningAssistant/ValidationPlanningAssistantCapability.js";
 import { FeatureSuggestionAssistantCapability, FEATURE_SUGGESTION_ASSISTANT } from "./capabilities/featureSuggestionAssistant/FeatureSuggestionAssistantCapability.js";
+import { ProjectSummaryAssistantCapability, PROJECT_SUMMARY_ASSISTANT } from "./capabilities/projectSummaryAssistant/ProjectSummaryAssistantCapability.js";
 import type { Provider } from "./provider/ProviderInterface.js";
 
 // A "-latest" alias rather than a pinned version: Gemini model versions have been
@@ -43,6 +44,7 @@ export type Container = {
   mvpPlanningAssistant: MvpPlanningAssistantCapability;
   validationPlanningAssistant: ValidationPlanningAssistantCapability;
   featureSuggestionAssistant: FeatureSuggestionAssistantCapability;
+  projectSummaryAssistant: ProjectSummaryAssistantCapability;
   providerId: string;
 };
 
@@ -98,6 +100,13 @@ export function createContainer(overrideProvider?: Provider): Container {
       model: "n/a",
       providerParameters: {},
     },
+    {
+      providerId: provider.id,
+      capabilityId: PROJECT_SUMMARY_ASSISTANT.capabilityId,
+      contractVersion: PROJECT_SUMMARY_ASSISTANT.contractVersion,
+      model: "n/a",
+      providerParameters: {},
+    },
   ]);
 
   const aiApplicationService = new AiApplicationService({ provider, config });
@@ -106,6 +115,7 @@ export function createContainer(overrideProvider?: Provider): Container {
   const mvpPlanningAssistant = new MvpPlanningAssistantCapability(aiApplicationService);
   const validationPlanningAssistant = new ValidationPlanningAssistantCapability(aiApplicationService);
   const featureSuggestionAssistant = new FeatureSuggestionAssistantCapability(aiApplicationService);
+  const projectSummaryAssistant = new ProjectSummaryAssistantCapability(aiApplicationService);
 
   return {
     aiApplicationService,
@@ -114,6 +124,7 @@ export function createContainer(overrideProvider?: Provider): Container {
     mvpPlanningAssistant,
     validationPlanningAssistant,
     featureSuggestionAssistant,
+    projectSummaryAssistant,
     providerId: provider.id,
   };
 }

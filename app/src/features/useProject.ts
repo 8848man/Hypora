@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import type { Project } from "../domain/types";
+import { withSummaryOutOfSyncIfChanged } from "../domain/summaryLifecycle";
 import { readProject, saveProject } from "../platform/storage";
 
 export interface ProjectContextValue {
@@ -25,6 +26,15 @@ export function useProjectLoader(projectId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Mirrors `project` for use inside `update` below, so OutOfSync detection
+  // (ADR-0016 Decision 3) always compares against the truly-current value,
+  // not a stale closure — same ref-mirroring convention already used in
+  // BusinessStructuringPage for the analogous problem.
+  const projectRef = useRef<Project | null>(null);
+  useEffect(() => {
+    projectRef.current = project;
+  }, [project]);
+
   useEffect(() => {
     if (!projectId) {
       setError("No project selected.");
@@ -41,8 +51,15 @@ export function useProjectLoader(projectId: string | undefined) {
   }, [projectId]);
 
   const update = useCallback((next: Project) => {
-    setProject(next);
-    const ok = saveProject(next);
+    // Single shared choke point every Feature page's edit passes through, per
+    // this hook's own docstring — the natural place to apply Summary
+    // Lifecycle's OutOfSync transition (ADR-0016 Decision 3) once, rather than
+    // duplicating the check inside every Feature page that can change Canvas,
+    // MVP Scope, the Feature list, or the Validation Checklist.
+    const prev = projectRef.current;
+    const withSummarySync = prev ? withSummaryOutOfSyncIfChanged(prev, next) : next;
+    setProject(withSummarySync);
+    const ok = saveProject(withSummarySync);
     setError(ok ? null : "Your last change couldn't be saved. Please try again.");
   }, []);
 
