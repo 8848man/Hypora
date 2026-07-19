@@ -1,0 +1,53 @@
+/* Widens the shared .ds-dialog primitive (ConfirmDialog.css) for this
+   dialog's two-column As-Is/To-Be layout only — the shared class's own
+   max-width stays untouched for every other dialog. */
+.sync-summary-dialog {
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-summary-dialog .ds-dialog__actions {
+  flex-shrink: 0;
+}
+
+/* Scrolls internally once content (long As-Is/To-Be text) exceeds the
+   dialog's own max-height — keeps Apply/Cancel always reachable regardless
+   of summary length or viewport height. */
+.sync-summary-dialog__columns {
+  display: flex;
+  gap: var(--space-4);
+  margin: var(--space-3) 0 var(--space-4);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.sync-summary-dialog__column {
+  flex: 1;
+  min-width: 0;
+}
+
+.sync-summary-dialog__column-label {
+  margin: 0 0 var(--space-1);
+  font-weight: 600;
+}
+
+.sync-summary-dialog__asis {
+  border: 1px solid var(--color-neutral-border);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+  min-height: 180px;
+  white-space: pre-wrap;
+  color: var(--color-neutral-text-muted);
+  background: var(--color-neutral-bg-subtle, transparent);
+}
+
+.sync-summary-dialog__hint {
+  color: var(--color-neutral-text-muted);
+}
+
+.sync-summary-dialog__error {
+  margin: var(--space-2) 0 0;
+  color: var(--color-danger-text, #b91c1c);
+}

@@ -11,6 +11,7 @@ Every AI Capability that exists, in the order it was introduced. Mirrors the ADR
 | [03](./03_mvp_planning_assistant.md) | MVP Planning Assistant | Same as above | Suggest MVP Scope content, grounded in Business Canvas and Risk Memo (read-only) |
 | [04](./04_validation_planning_assistant.md) | Validation Planning Assistant | Same as above | Suggest a new Assumption statement, grounded in Business Canvas, Risk Memo, and MVP Scope (read-only) |
 | [05](./05_feature_suggestion_assistant.md) | Feature Suggestion Assistant | Same as above | Propose a batch of Feature names for the Feature Plan, grounded in Business Canvas, MVP Scope, existing Features, and Risk Memo (read-only, optional) |
+| [06](./06_project_summary_synthesis_assistant.md) | Project Summary Synthesis Assistant | Introduced alongside [ADR-0016](../../architecture/decisions/ADR-0016-project-summary-persisted-ai-synthesized-lifecycle.md)/[ADR-0017](../../architecture/decisions/ADR-0017-automatic-invocation-for-project-summary-initial-generation.md), 2026-07-18 (not a V-numbered roadmap stage — see [Future Expansion Strategy](../../context/06_future_expansion_strategy.md#future-ready-architecture-principle)) | Synthesize a concise narrative (what/who/problem/validation approach) from Business Canvas, MVP Scope, and Validation Checklist; the AI Platform's first, narrowly-scoped Automatic Invocation, per ADR-0017 |
 
 ## Capability Specification Template
 
