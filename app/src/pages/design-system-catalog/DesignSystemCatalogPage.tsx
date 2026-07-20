@@ -168,6 +168,7 @@ export function DesignSystemCatalogPage() {
           <Badge tone="success">Success</Badge>
           <Badge tone="warning">Warning</Badge>
           <Badge tone="danger">Danger</Badge>
+          <Badge tone="info">Info</Badge>
         </Stack>
       </Section>
 

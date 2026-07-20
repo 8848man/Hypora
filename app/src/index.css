@@ -25,6 +25,24 @@ a {
   color: var(--color-primary);
 }
 
+/* Visually hidden but still readable by assistive technology — the
+   standard clip-based technique (never display:none/visibility:hidden,
+   which remove it from the accessibility tree too). Generic utility, not
+   tied to any one feature; first real consumer is Project navigation's
+   completed-state text (ADR-0022), reused wherever a visible icon/color
+   alone would otherwise be the only signal. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .language-switcher {
   display: flex;
   gap: var(--space-2);

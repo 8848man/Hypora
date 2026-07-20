@@ -17,6 +17,13 @@
   --color-warning-bg: #fdf1e0;
   --color-danger: #b3261e;
   --color-danger-bg: #fbe9e8;
+  /* "info" — forward-pointing, non-alarming (e.g. a next-step suggestion).
+     Deliberately distinct from --color-warning, whose meaning ("needs
+     attention / could go wrong") is wrong for this purpose — see
+     sdd/design-system/01_design_system.md's Component Inventory note
+     (ADR-0022). Generically named, not tied to its first consumer. */
+  --color-info: #0f6e73;
+  --color-info-bg: #e2f3f2;
 
   /* Spacing scale */
   --space-1: 4px;
@@ -63,6 +70,8 @@
     --color-warning-bg: #2c210e;
     --color-danger: #ff8a80;
     --color-danger-bg: #2c1513;
+    --color-info: #5fd0d6;
+    --color-info-bg: #12292b;
   }
 }
 

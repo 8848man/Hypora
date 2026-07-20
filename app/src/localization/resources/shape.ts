@@ -123,6 +123,12 @@ export interface Resources {
     validationPlanning: string;
     riskMemo: string;
     summary: string;
+    statusCompletedSr: string;
+    statusNextLabel: string;
+    statusNextSr: string;
+    statusOptionalLabel: string;
+    statusCurrentSr: string;
+    landmarkLabel: string;
   };
   language: {
     korean: string;
