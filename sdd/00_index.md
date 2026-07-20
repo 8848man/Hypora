@@ -63,6 +63,8 @@ Undocumented in this master index until this pass, despite existing since 2026-0
 | [ai/capabilities/03_mvp_planning_assistant.md](./ai/capabilities/03_mvp_planning_assistant.md) | MVP Planning Assistant — suggests MVP Scope content, grounded in Business Canvas and Risk Memo (read-only) |
 | [ai/capabilities/04_validation_planning_assistant.md](./ai/capabilities/04_validation_planning_assistant.md) | Validation Planning Assistant — suggests a new Assumption statement, grounded in Business Canvas, Risk Memo, and MVP Scope (read-only) |
 | [ai/capabilities/05_feature_suggestion_assistant.md](./ai/capabilities/05_feature_suggestion_assistant.md) | Feature Suggestion Assistant — proposes a batch of Feature names, grounded in Business Canvas, MVP Scope, existing Features, and Risk Memo (read-only, optional) |
+| [ai/capabilities/06_project_summary_synthesis_assistant.md](./ai/capabilities/06_project_summary_synthesis_assistant.md) | Project Summary Synthesis Assistant — synthesizes a Business Canvas identity narrative; the AI Platform's first Automatic Invocation exception (ADR-0017/ADR-0018) |
+| [ai/capabilities/07_onboarding_preset_assistant.md](./ai/capabilities/07_onboarding_preset_assistant.md) | Onboarding Preset Assistant — generates tailored Business Structuring presets (or Thinking Prompts) from a Project's Name/Description at creation; the AI Platform's second Automatic Invocation exception (ADR-0019) |
 
 ## Analytics
 
@@ -120,7 +122,7 @@ Landing's own dedicated specification directory, promoted 2026-07-17 — real La
 | Doc | Purpose |
 |---|---|
 | [architecture/01_platform_services.md](./architecture/01_platform_services.md) | The Platform Service architectural role AI and Analytics both instantiate; Candidate Members, Admission Criteria, Dependency Rules |
-| [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | The single, complete, authoritative index of every ADR (currently ADR-0001 through ADR-0015), its status, date, and one-line summary — this document does not restate any ADR individually; see that index for the full list rather than duplicating it here, per this project's own Duplication Rule |
+| [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | The single, complete, authoritative index of every ADR (currently ADR-0001 through ADR-0020), its status, date, and one-line summary — this document does not restate any ADR individually; see that index for the full list rather than duplicating it here, per this project's own Duplication Rule |
 
 ## Not Yet Created (by design)
 

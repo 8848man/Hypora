@@ -8,6 +8,7 @@ import {
   LoadingIndicator,
   PageHeader,
   ProgressIndicator,
+  Skeleton,
   Stack,
   SuggestionCard,
   TextArea,
@@ -17,7 +18,7 @@ import { advanceAfterCanvasEdit } from "../../domain/lifecycle";
 import { useLocalization } from "../../localization";
 import { useCanvasAssistant } from "../../ai/useCanvasAssistant";
 import { useProjectContext } from "../useProject";
-import { QUESTIONS, resumeQuestionIndex, v1StaticPresetProvider } from "./questionModel";
+import { QUESTIONS, resumeQuestionIndex, resolvePresets, onboardingStatus } from "./questionModel";
 import { buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
 
 export function BusinessStructuringPage() {
@@ -191,7 +192,15 @@ export function BusinessStructuringPage() {
 
   const question = QUESTIONS[currentIndex];
   const value = project.canvas[question.relatedCanvasField];
-  const presets = v1StaticPresetProvider(question.questionId, { project, language });
+  const onboarding = onboardingStatus(project);
+  // While generating, presets are deliberately never resolved (not even to
+  // static) — resolvePresets() falls back to static V1 presets whenever
+  // AI-tailored ones aren't ready, and calling it here would show exactly
+  // the pre-project-specific flash this loading state exists to prevent.
+  // See questionModel.ts's own note on why resolvePresets() itself does
+  // not special-case "generating".
+  const isGeneratingOnboarding = onboarding === "generating";
+  const presets = isGeneratingOnboarding ? [] : resolvePresets(question.questionId, { project, language });
   const questionText = t.question[question.localizationKey].title;
 
   return (
@@ -209,6 +218,41 @@ export function BusinessStructuringPage() {
         <Card>
           <h2 style={{ margin: "0 0 var(--space-4)" }}>{questionText}</h2>
 
+          {/* Initial-generation loading state, per the Design System's Loading
+              Pattern Policy (sdd/design-system/01_design_system.md#loading-pattern-policy):
+              skeleton chips occupy the exact slot and shape Choice List's real
+              chips will use — never static presets, never an empty area, never
+              interactive placeholder controls. Replaces the preset-chip area
+              only — never the whole page, never navigates away, never blocks
+              the always-available custom-answer path below. Tied to the actual
+              persisted "generating" status (see onboardingStatus()), never an
+              arbitrary timer. aria-busy + a concise label carry the loading
+              meaning for assistive technology; the skeleton chips themselves
+              are aria-hidden and never focusable/selectable (Skeleton's own
+              contract). */}
+          {isGeneratingOnboarding && (
+            <div aria-busy="true" aria-live="polite" style={{ marginBottom: "var(--space-3)" }}>
+              <p style={{ margin: "0 0 var(--space-2)", color: "var(--color-neutral-text-muted)" }}>
+                {t.businessStructuring.onboardingGeneratingTitle}
+              </p>
+              <Stack gap="var(--space-2)" style={{ marginBottom: "var(--space-2)" }}>
+                {[0, 1, 2, 3].map((i) => (
+                  <Skeleton key={i} height="48px" borderRadius="var(--radius)" />
+                ))}
+              </Stack>
+              <p style={{ margin: 0, fontSize: "var(--font-size-caption)", color: "var(--color-neutral-text-muted)" }}>
+                {t.businessStructuring.onboardingGeneratingHint}
+              </p>
+            </div>
+          )}
+
+          {/* Per ADR-0021: this question's presets always come from exactly one
+              provider (AI-tailored or static) and are always a selectable list —
+              never replaced or hidden by a non-selectable AI content type. During
+              initial generation, presets is deliberately [] (see above) so this
+              renders only its always-available "write my own" custom-answer path —
+              never static chips, and never a fully empty area (the loading block
+              above occupies this same slot). */}
           <ChoiceList
             presets={presets}
             value={value}
@@ -218,6 +262,18 @@ export function BusinessStructuringPage() {
             onSelectPreset={handleSelectPreset}
             onCustomChange={saveAnswer}
           />
+
+          {/* Confirmed-fallback note: per this capability's own Acceptance Criteria,
+              the preset chips themselves stay visually identical regardless of
+              source (provider-agnostic, per the Preset Strategy) — this is a
+              separate, unobtrusive line, not a change to the chips, satisfying
+              "clearly distinguish fallback from AI-generated" without redesigning
+              ChoiceList's own established interaction. */}
+          {onboarding === "fallback" && (
+            <p style={{ margin: "var(--space-2) 0 0", fontSize: "var(--font-size-caption)", color: "var(--color-neutral-text-muted)" }}>
+              {t.businessStructuring.onboardingFallbackNote}
+            </p>
+          )}
 
           {/* AI area: the field above remains editable in every state below —
               Manual-first (sdd/ai/04_ai_interaction.md#manual-first-behavior-and-field-editability).

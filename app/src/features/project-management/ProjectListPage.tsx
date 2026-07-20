@@ -9,12 +9,13 @@ import {
   Stack,
   Badge,
   TextField,
+  TextArea,
   LoadingIndicator,
 } from "../../design-system";
 import { archiveProject as archiveProjectStage } from "../../domain/lifecycle";
 import { createEmptyProject } from "../../domain/types";
 import { LanguageSwitcher } from "../../layout/LanguageSwitcher";
-import { useLocalization } from "../../localization";
+import { useLocalization, type Language } from "../../localization";
 import {
   createProjectId,
   listProjects,
@@ -22,14 +23,50 @@ import {
   saveProject,
   type ProjectListEntry,
 } from "../../platform/storage";
+import { requestOnboardingPresetAssistant } from "../../ai/onboardingPresetAssistantClient";
+import { registerPendingOnboarding } from "./onboardingPresetsRegistry";
+
+// Onboarding Preset Assistant's one-time, automatic call, per ADR-0019 —
+// triggered here (Project Management), never blocking navigation into
+// Business Structuring (see handleCreate below: navigate() fires first,
+// this promise resolves in the background). Storage is updated directly,
+// not via component state, since by the time this resolves the user may
+// already have navigated away; whichever screen next reads this Project
+// from storage sees the result, per the capability spec's Lifecycle
+// section ("Generating" is never itself persisted or user-blocking).
+async function triggerOnboardingPresets(
+  projectId: string,
+  projectName: string,
+  projectDescription: string,
+  language: Language,
+): Promise<void> {
+  const result = await requestOnboardingPresetAssistant({
+    projectName,
+    projectDescription: projectDescription || undefined,
+    language,
+  });
+
+  const current = readProject(projectId);
+  if (!current) return; // Project no longer exists (e.g. already archived/removed) — nothing to update.
+
+  if (!result.ok) {
+    saveProject({ ...current, onboardingPresets: { status: "fallback" } });
+    return;
+  }
+
+  const presets: Partial<Record<string, string[]>> = {};
+  for (const set of result.data.presets) presets[set.questionId] = set.options;
+  saveProject({ ...current, onboardingPresets: { status: "ready", presets } });
+}
 
 export function ProjectListPage() {
   const navigate = useNavigate();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const [projects, setProjects] = useState<ProjectListEntry[] | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
   const [pendingArchiveId, setPendingArchiveId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,9 +77,24 @@ export function ProjectListPage() {
     const name = newName.trim();
     if (!name) return;
     const id = createProjectId();
-    const project = createEmptyProject(id, name);
+    const description = newDescription.trim();
+    const project = createEmptyProject(id, name, description);
+    // Seeded synchronously, in the same write as creation — never left
+    // `undefined` even for one read. `undefined` already means "no AI
+    // metadata" (a pre-AI-era Project, see onboardingStatus() in
+    // questionModel.ts); persisting "generating" from the first moment is
+    // what lets the very first render of Business Structuring tell "AI
+    // generation is pending" apart from that case, instead of both reading
+    // identically and falling through to static presets before the
+    // pending request has even resolved.
+    project.onboardingPresets = { status: "generating" };
     saveProject(project);
     navigate(`/app/projects/${id}/canvas`);
+    // Fire-and-forget, per ADR-0019 Decision 7 — never awaited before
+    // navigate() above. Registered so useProjectLoader (mounted by the
+    // navigation this triggers) can pick up the result once it resolves —
+    // see onboardingPresetsRegistry.ts for why this bridge exists.
+    registerPendingOnboarding(id, triggerOnboardingPresets(id, name, description, language));
   }
 
   function handleArchive(id: string) {
@@ -76,6 +128,13 @@ export function ProjectListPage() {
             placeholder={t.dashboard.projectNamePlaceholder}
             autoFocus
           />
+          <TextArea
+            label={t.dashboard.projectDescriptionLabel}
+            hint={t.dashboard.projectDescriptionHint}
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+            placeholder={t.dashboard.projectDescriptionPlaceholder}
+          />
           <Stack direction="row" gap="var(--space-2)">
             <Button onClick={handleCreate} disabled={!newName.trim()}>
               {t.common.create}
@@ -85,6 +144,7 @@ export function ProjectListPage() {
               onClick={() => {
                 setCreating(false);
                 setNewName("");
+                setNewDescription("");
               }}
             >
               {t.common.cancel}

@@ -22,6 +22,7 @@ import {
   PageHeader,
   ProgressIndicator,
   ReadinessCallout,
+  Skeleton,
   Stack,
   Stepper,
   SuggestionCard,
@@ -197,6 +198,19 @@ export function DesignSystemCatalogPage() {
 
       <Section title="Loading Indicator">
         <LoadingIndicator label="Loading…" />
+      </Section>
+
+      <Section title="Skeleton">
+        <p style={{ color: "var(--color-neutral-text-muted)" }}>
+          Per sdd/design-system/01_design_system.md's Loading Pattern Policy — a Feature composes
+          this block to mirror its own final layout (shown here as a stand-in for Business
+          Structuring's onboarding recommendation chips).
+        </p>
+        <Stack gap="var(--space-2)">
+          <Skeleton height="48px" borderRadius="var(--radius)" />
+          <Skeleton height="48px" borderRadius="var(--radius)" />
+          <Skeleton height="48px" borderRadius="var(--radius)" />
+        </Stack>
       </Section>
 
       <Section title="Alerts">
