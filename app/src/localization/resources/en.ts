@@ -41,6 +41,16 @@ export const en: Resources = {
     validationPlanning: "Testing",
     riskMemo: "Risks",
     summary: "Overview",
+    // Navigation state semantics (ADR-0022) — visible micro-labels and their
+    // screen-reader-only long forms. "완료"/Completed has no visible text by
+    // default (the check icon carries it visually); its screen-reader text
+    // still exists so the state is never color/icon-only for assistive tech.
+    statusCompletedSr: "Completed",
+    statusNextLabel: "Next",
+    statusNextSr: "Recommended next step",
+    statusOptionalLabel: "Optional",
+    statusCurrentSr: "Current page",
+    landmarkLabel: "Project navigation",
   },
   language: {
     korean: "한국어",

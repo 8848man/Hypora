@@ -1,7 +1,9 @@
 # ADR-0020: Progressive Navigation as Non-Restrictive Guided Emphasis
 
-**Status:** Accepted
+**Status:** Partially Superseded by [ADR-0022](./ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md) — see note below
 **Date:** 2026-07-20
+
+> **Partial supersession note (2026-07-21):** [ADR-0022](./ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md) supersedes only this ADR's Decision 3 (the "Business Structuring only" scope boundary) — exactly the generalization this ADR's own Future Considerations named as needing a separate decision. Decisions 1 (never a restriction), 2 (presentation-layer only), and 4 (no new state) remain fully in force and are extended, not reopened, by ADR-0022. Read this ADR together with ADR-0022 for the current, accurate Navigation Model.
 **Affects specs:** [Workspace Architecture](../../workspace/01_architecture.md) (Navigation Model, Workspace Mental Model Review), [Project Management](../../workspace/features/01_project_management.md)
 **Related ADRs:** [ADR-0012](./ADR-0012-guided-question-flow-as-standard-interaction-pattern.md) (established that a guided flow's internal sequence is a Feature-level concept, distinct from Workspace-level non-linear navigation — this ADR extends that same distinction to a new, related case), [ADR-0019](./ADR-0019-ai-generated-onboarding-presets-at-project-creation.md) (the companion decision this ADR's motivating context, the reviewed onboarding proposal, shares an origin with)
 

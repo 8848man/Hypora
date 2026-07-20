@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hypora 내비게이션 상태 표현 — 컨셉 비교</title>
+<style>
+/* ======================================================================
+   TOKENS
+   Two token sets on purpose:
+   1) --page-*  the surrounding review-document chrome (control panel,
+      section labels, comparison matrix, recommendation). Theme-able —
+      follows the viewer's light/dark preference, per the artifact contract.
+   2) --hd-*    the Hypora header/nav mock itself. Fixed dark, regardless
+      of the surrounding page theme, because it reproduces a specific,
+      already-dark piece of the real product chrome — not a themeable
+      document element. This is a deliberate choice, not an oversight.
+   3) --role-*  the five navigation-state roles (current / completed /
+      next / future / optional-summary handled per concept). Shared by
+      every concept so states read consistently across all seven.
+   ====================================================================== */
+:root{
+  --page-bg:#f6f6f3;
+  --page-surface:#ffffff;
+  --page-surface-2:#f0f0ec;
+  --page-border:#e2e1db;
+  --page-text:#1b1c1e;
+  --page-text-secondary:#54565c;
+  --page-text-muted:#8a8c90;
+  --doc-accent:#33529b;
+  --doc-accent-soft:#e8ecf7;
+  --warn-bg:#fbeee0;
+  --warn-border:#e3c393;
+  --warn-text:#6b4a17;
+
+  --hd-bg:#12141b;
+  --hd-surface:#1a1d26;
+  --hd-surface-raised:#232733;
+  --hd-border:#2b3040;
+  --hd-border-strong:#3b4258;
+  --hd-text:#eef0f4;
+  --hd-text-secondary:#a3aabc;
+  --hd-text-muted:#6b7284;
+
+  --role-current:#7fa2ff;
+  --role-current-soft:rgba(127,162,255,.16);
+  --role-next:#dba43f;
+  --role-next-soft:rgba(219,164,63,.16);
+  --role-completed:#5fb98d;
+  --role-completed-soft:rgba(95,185,141,.14);
+  --role-optional:#a79bea;
+  --role-optional-soft:rgba(167,155,234,.14);
+
+  --focus-ring:#ffcf4d;
+
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-pill:999px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px;
+
+  --font-ui:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
+  --font-mono:ui-monospace,"SFMono-Regular","Roboto Mono",Consolas,monospace;
+
+  --fs-2xs:10.5px; --fs-xs:11.5px; --fs-sm:12.5px; --fs-md:14px; --fs-base:15px; --fs-lg:18px; --fs-xl:23px; --fs-2xl:30px;
+
+  --dur-fast:120ms; --dur-base:180ms; --ease:cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --page-bg:#131419;
+    --page-surface:#191b22;
+    --page-surface-2:#1f222b;
+    --page-border:#2b2e38;
+    --page-text:#edeef2;
+    --page-text-secondary:#a4a7b1;
+    --page-text-muted:#6d707a;
+    --doc-accent:#8fa7ff;
+    --doc-accent-soft:#232a42;
+    --warn-bg:#3a2f1c;
+    --warn-border:#5c481f;
+    --warn-text:#e8c988;
+  }
+}
+:root[data-theme="dark"]{
+  --page-bg:#131419; --page-surface:#191b22; --page-surface-2:#1f222b; --page-border:#2b2e38;
+  --page-text:#edeef2; --page-text-secondary:#a4a7b1; --page-text-muted:#6d707a;
+  --doc-accent:#8fa7ff; --doc-accent-soft:#232a42; --warn-bg:#3a2f1c; --warn-border:#5c481f; --warn-text:#e8c988;
+}
+:root[data-theme="light"]{
+  --page-bg:#f6f6f3; --page-surface:#ffffff; --page-surface-2:#f0f0ec; --page-border:#e2e1db;
+  --page-text:#1b1c1e; --page-text-secondary:#54565c; --page-text-muted:#8a8c90;
+  --doc-accent:#33529b; --doc-accent-soft:#e8ecf7; --warn-bg:#fbeee0; --warn-border:#e3c393; --warn-text:#6b4a17;
+}
+
+/* ===== Reset & base ===== */
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  background:var(--page-bg);
+  color:var(--page-text);
+  font-family:var(--font-ui);
+  font-size:var(--fs-base);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,p{margin:0;}
+h1,h2,h3{text-wrap:balance;}
+ul,ol{margin:0;padding:0;list-style:none;}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;}
+select{font:inherit;}
+img,svg{display:block;}
+
+/* visible focus for every interactive element — never suppressed */
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:4px;}
+.nav-btn:focus-visible{outline-offset:3px;}
+
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.skip-link{
+  position:absolute;left:var(--sp-3);top:-48px;background:var(--doc-accent);color:#fff;
+  padding:var(--sp-2) var(--sp-3);border-radius:var(--radius-sm);z-index:100;
+  transition:top var(--dur-base) var(--ease);
+}
+.skip-link:focus{top:var(--sp-3);}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+}
+
+/* ===== Page shell ===== */
+.page{max-width:1180px;margin:0 auto;padding:var(--sp-6) var(--sp-5) var(--sp-8);}
+.intro{max-width:760px;margin-bottom:var(--sp-6);}
+.intro .eyebrow{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--doc-accent);margin-bottom:var(--sp-2);
+}
+.intro h1{font-size:var(--fs-2xl);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--sp-3);}
+.intro p{color:var(--page-text-secondary);font-size:var(--fs-md);max-width:64ch;}
+
+.section{margin-top:var(--sp-8);padding-top:var(--sp-6);border-top:1px solid var(--page-border);}
+.section-head{display:flex;align-items:baseline;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-3);}
+.section-head h2{font-size:var(--fs-xl);font-weight:700;letter-spacing:-.01em;}
+.section-tag{
+  font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--page-text-muted);background:var(--page-surface-2);border:1px solid var(--page-border);
+  border-radius:var(--radius-pill);padding:2px var(--sp-2);
+}
+.section-note{color:var(--page-text-secondary);font-size:var(--fs-md);max-width:74ch;margin-bottom:var(--sp-4);}
+.assumption{
+  display:flex;gap:var(--sp-2);align-items:flex-start;background:var(--warn-bg);border:1px solid var(--warn-border);
+  color:var(--warn-text);border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);font-size:var(--fs-sm);
+  max-width:74ch;margin-top:var(--sp-4);
+}
+.assumption b{font-family:var(--font-mono);letter-spacing:.04em;text-transform:uppercase;font-size:var(--fs-2xs);}
+
+/* ===== Control panel ===== */
+.controls{
+  background:var(--page-surface);border:1px solid var(--page-border);border-radius:var(--radius-lg);
+  padding:var(--sp-4) var(--sp-5);display:flex;gap:var(--sp-5);flex-wrap:wrap;align-items:flex-end;
+  position:sticky;top:var(--sp-3);z-index:20;box-shadow:0 6px 20px -12px rgba(0,0,0,.25);
+}
+.control-group{display:flex;flex-direction:column;gap:6px;min-width:190px;}
+.control-group label{
+  font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--page-text-muted);
+}
+.control-group select{
+  background:var(--page-surface-2);border:1px solid var(--page-border);border-radius:var(--radius-sm);
+  padding:var(--sp-2) var(--sp-3);color:var(--page-text);font-size:var(--fs-sm);
+}
+.controls .live-hint{font-size:var(--fs-xs);color:var(--page-text-muted);}
+
+/* ======================================================================
+   HYPORA HEADER MOCK — reproduced identically for every concept so
+   states are compared under matching chrome. Always dark (--hd-*),
+   independent of the surrounding document theme — see token note above.
+   ====================================================================== */
+.hypora-header{
+  background:var(--hd-bg);border:1px solid var(--hd-border);border-radius:var(--radius-lg);
+  padding:var(--sp-4) var(--sp-5) var(--sp-3);color:var(--hd-text);
+}
+.hypora-header__top{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-4);flex-wrap:wrap;margin-bottom:var(--sp-4);}
+.hypora-header__eyebrow{
+  font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--hd-text-muted);margin-bottom:6px;
+}
+.hypora-header__title{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em;}
+.lang-switch{display:flex;gap:var(--sp-2);font-size:var(--fs-xs);color:var(--hd-text-muted);}
+.lang-switch button{padding:2px 6px;border-radius:var(--radius-sm);}
+.lang-switch button[aria-pressed="true"]{color:var(--hd-text);background:var(--hd-surface-raised);}
+
+/* ===== Shared nav-item role treatment ===== */
+.nav-item{display:flex;}
+.nav-btn{
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+  border-radius:var(--radius-sm);transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.nav-label{font-size:var(--fs-md);}
+.role-future .nav-btn{color:var(--hd-text-secondary);font-weight:500;}
+.role-future .nav-btn:hover{color:var(--hd-text);}
+.role-completed .nav-btn{color:var(--hd-text-secondary);font-weight:500;}
+.role-completed .icon{color:var(--role-completed);}
+.role-current .nav-btn{color:var(--hd-text);font-weight:700;}
+.role-next .nav-btn{color:var(--hd-text-secondary);font-weight:600;}
+.role-next .icon{color:var(--role-next);}
+.role-optional .nav-btn{color:var(--hd-text-secondary);font-weight:500;}
+.role-summary .nav-btn{color:var(--hd-text-secondary);font-weight:500;}
+.micro-tag{
+  font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.05em;text-transform:uppercase;
+  padding:1px 6px;border-radius:var(--radius-pill);line-height:1.5;
+}
+.micro-tag--current{background:var(--role-current-soft);color:var(--role-current);}
+.micro-tag--next{background:var(--role-next-soft);color:var(--role-next);}
+.micro-tag--optional{background:var(--role-optional-soft);color:var(--role-optional);}
+.micro-tag--completed{background:var(--role-completed-soft);color:var(--role-completed);}
+.micro-tag--summary{color:var(--hd-text-muted);}
+.icon{flex:none;}
+
+/* ===== Concept A — typography + icon hierarchy ===== */
+.concept-a nav ul{display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;}
+.concept-a .role-current .nav-btn{
+  border-bottom:2px solid var(--role-current);padding-bottom:5px;
+}
+.concept-a .role-next .nav-btn{border-bottom:2px dashed transparent;padding-bottom:5px;}
+.concept-a .divider{width:1px;height:20px;background:var(--hd-border-strong);}
+.concept-a .role-optional .nav-btn{
+  background:var(--role-optional-soft);border-radius:var(--radius-pill);padding:4px 12px;
+}
+.concept-a .role-summary .nav-btn{padding:4px 2px;}
+
+/* ===== Concept B — status labels ===== */
+.concept-b nav ul{display:flex;align-items:flex-end;gap:var(--sp-5);flex-wrap:wrap;}
+.concept-b .nav-item{flex-direction:column;align-items:flex-start;gap:4px;}
+.concept-b .status-chip{
+  font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.05em;text-transform:uppercase;
+  padding:1px 7px;border-radius:var(--radius-pill);
+}
+.concept-b .role-current .nav-btn{border-bottom:2px solid var(--role-current);padding-bottom:3px;}
+
+/* ===== Concept C — step indicator + separated utility row ===== */
+.concept-c .stepper{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.concept-c .step{display:flex;align-items:center;}
+.concept-c .step-btn{display:flex;align-items:center;gap:8px;}
+.concept-c .step-marker{
+  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--hd-border-strong);font-family:var(--font-mono);font-size:var(--fs-2xs);color:var(--hd-text-muted);
+  flex:none;
+}
+.concept-c .role-completed .step-marker{background:var(--role-completed);border-color:var(--role-completed);color:var(--hd-bg);}
+.concept-c .role-current .step-marker{border-color:var(--role-current);color:var(--role-current);}
+.concept-c .role-next .step-marker{border-color:var(--role-next);color:var(--role-next);}
+.concept-c .step-connector{width:36px;height:2px;background:var(--hd-border-strong);margin:0 8px;}
+.concept-c .step-connector.filled{background:var(--role-completed);}
+.concept-c .utility-row{
+  display:flex;gap:var(--sp-3);margin-top:var(--sp-4);padding-top:var(--sp-3);border-top:1px dashed var(--hd-border);
+  align-items:center;flex-wrap:wrap;
+}
+.concept-c .utility-row .group-label{font-family:var(--font-mono);font-size:var(--fs-2xs);color:var(--hd-text-muted);text-transform:uppercase;letter-spacing:.06em;}
+.concept-c .role-optional .nav-btn,.concept-c .role-summary .nav-btn{
+  border:1px solid var(--hd-border-strong);border-radius:var(--radius-pill);padding:4px 12px;
+}
+.concept-c .role-summary .nav-btn{border-style:dashed;}
+
+/* ===== Concept D — nav + progress summary ===== */
+.concept-d nav ul{display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;margin-bottom:var(--sp-3);}
+.concept-d .role-current .nav-btn{border-bottom:2px solid var(--role-current);padding-bottom:5px;}
+.concept-d .progress-line{
+  display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);color:var(--hd-text-secondary);
+  padding-top:var(--sp-2);border-top:1px solid var(--hd-border);
+}
+.concept-d .progress-track{width:64px;height:5px;border-radius:var(--radius-pill);background:var(--hd-surface-raised);overflow:hidden;}
+.concept-d .progress-fill{height:100%;background:var(--role-completed);border-radius:var(--radius-pill);}
+.concept-d .progress-next{color:var(--role-next);font-weight:600;}
+
+/* ===== Concept E — nav + next-step CTA panel ===== */
+.concept-e nav ul{display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;}
+.concept-e .role-current .nav-btn{border-bottom:2px solid var(--role-current);padding-bottom:5px;}
+.concept-e .cta-panel{
+  margin-top:var(--sp-4);background:var(--hd-surface);border:1px solid var(--hd-border);border-radius:var(--radius-md);
+  padding:var(--sp-4);display:flex;justify-content:space-between;gap:var(--sp-4);align-items:center;flex-wrap:wrap;
+}
+.concept-e .cta-eyebrow{font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.06em;text-transform:uppercase;color:var(--role-next);margin-bottom:4px;}
+.concept-e .cta-title{font-size:var(--fs-md);font-weight:600;color:var(--hd-text);margin-bottom:2px;}
+.concept-e .cta-desc{font-size:var(--fs-sm);color:var(--hd-text-secondary);}
+.concept-e .cta-btn{
+  background:var(--role-next);color:#1b1406;font-weight:700;font-size:var(--fs-sm);
+  padding:8px 16px;border-radius:var(--radius-sm);flex:none;
+}
+.concept-e .cta-btn:hover{filter:brightness(1.08);}
+.concept-e .cta-confirm{
+  margin-top:var(--sp-2);font-size:var(--fs-sm);color:var(--role-completed);display:none;align-items:center;gap:6px;
+}
+.concept-e .cta-confirm.show{display:flex;}
+.concept-e .compact-variant{
+  margin-top:var(--sp-3);display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);
+  background:var(--hd-surface);border:1px solid var(--hd-border);border-radius:var(--radius-pill);
+  padding:6px 8px 6px 14px;width:fit-content;
+}
+.concept-e .compact-variant .cta-btn{padding:5px 12px;font-size:var(--fs-xs);}
+.concept-e .variant-label{font-family:var(--font-mono);font-size:var(--fs-2xs);color:var(--hd-text-muted);text-transform:uppercase;letter-spacing:.06em;margin:var(--sp-3) 0 6px;}
+
+/* ===== Concept F — progressive timeline ===== */
+.concept-f .timeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.concept-f .tl-node{display:flex;align-items:center;gap:8px;}
+.concept-f .tl-marker{
+  width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;
+  background:var(--hd-surface-raised);color:var(--hd-text-muted);
+}
+.concept-f .role-completed .tl-marker{background:var(--role-completed);color:var(--hd-bg);}
+.concept-f .role-current .tl-marker{background:var(--role-current);color:var(--hd-bg);}
+.concept-f .role-next .tl-marker{background:transparent;border:2px solid var(--role-next);color:var(--role-next);}
+.concept-f .tl-line{width:40px;height:2px;background:var(--hd-border-strong);margin:0 6px;}
+.concept-f .tl-line.filled{background:var(--role-completed);}
+.concept-f .tl-utility{display:flex;gap:var(--sp-2);margin-top:var(--sp-4);}
+.concept-f .tl-utility .nav-btn{
+  border:1px solid var(--hd-border-strong);border-radius:var(--radius-pill);padding:4px 12px;font-size:var(--fs-sm);
+}
+@media (max-width:520px){
+  .concept-f .timeline{flex-direction:column;align-items:flex-start;}
+  .concept-f .tl-line{width:2px;height:24px;margin:2px 9px;}
+}
+
+/* ===== Concept G — recommended hybrid ===== */
+.concept-g .hybrid-row{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;}
+.concept-g .required-group{
+  display:flex;align-items:center;gap:var(--sp-4);background:var(--hd-surface);border:1px solid var(--hd-border);
+  border-radius:var(--radius-pill);padding:6px var(--sp-4);
+}
+.concept-g .role-current .nav-btn{
+  background:var(--role-current-soft);color:var(--role-current);border-radius:var(--radius-pill);
+  padding:5px 12px;border-bottom:2px solid var(--role-current);
+}
+.concept-g .role-next .nav-btn{padding:5px 4px;}
+.concept-g .utility-group{display:flex;align-items:center;gap:var(--sp-3);}
+.concept-g .utility-divider{width:1px;height:18px;background:var(--hd-border-strong);}
+.concept-g .role-optional .nav-btn{
+  border:1px solid var(--role-optional);color:var(--role-optional);border-radius:var(--radius-pill);padding:4px 12px;
+}
+.concept-g .annotations{list-style:none;margin-top:var(--sp-4);padding:var(--sp-3) var(--sp-4);background:var(--page-surface-2);
+  border:1px solid var(--page-border);border-radius:var(--radius-md);display:grid;gap:6px;}
+.concept-g .annotations li{font-size:var(--fs-sm);color:var(--page-text-secondary);display:flex;gap:8px;}
+.concept-g .annotations b{color:var(--page-text);font-weight:600;}
+
+/* ===== Comparison matrix ===== */
+.matrix-wrap{overflow-x:auto;border:1px solid var(--page-border);border-radius:var(--radius-md);}
+table.matrix{border-collapse:collapse;width:100%;min-width:920px;font-size:var(--fs-sm);}
+table.matrix th,table.matrix td{padding:var(--sp-2) var(--sp-3);text-align:left;border-bottom:1px solid var(--page-border);}
+table.matrix thead th{
+  background:var(--page-surface-2);font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:.04em;
+  text-transform:uppercase;color:var(--page-text-muted);position:sticky;top:0;
+}
+table.matrix tbody th{font-weight:700;background:var(--page-surface);white-space:nowrap;}
+table.matrix td{white-space:nowrap;}
+.rating{display:inline-flex;align-items:center;gap:6px;font-weight:600;}
+.rating::before{content:"";width:8px;height:8px;border-radius:50%;flex:none;}
+.rating--excellent{color:#2f7a52;}
+.rating--excellent::before{background:#2f7a52;}
+.rating--good{color:#3a6bd6;}
+.rating--good::before{background:#3a6bd6;}
+.rating--fair{color:#b0791f;}
+.rating--fair::before{background:#b0791f;}
+.rating--weak{color:#c0442f;}
+.rating--weak::before{background:#c0442f;}
+@media (prefers-color-scheme:dark){
+  .rating--excellent{color:#5fd196;} .rating--excellent::before{background:#5fd196;}
+  .rating--good{color:#8fa7ff;} .rating--good::before{background:#8fa7ff;}
+  .rating--fair{color:#e0ac4c;} .rating--fair::before{background:#e0ac4c;}
+  .rating--weak{color:#e8735c;} .rating--weak::before{background:#e8735c;}
+}
+
+/* ===== Recommendation ===== */
+.reco-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5);margin-top:var(--sp-4);}
+.reco-card{background:var(--page-surface);border:1px solid var(--page-border);border-radius:var(--radius-md);padding:var(--sp-4);}
+.reco-card h3{font-size:var(--fs-md);margin-bottom:var(--sp-2);}
+.reco-card ul{display:grid;gap:6px;}
+.reco-card li{font-size:var(--fs-sm);color:var(--page-text-secondary);padding-left:var(--sp-3);position:relative;}
+.reco-card li::before{content:"–";position:absolute;left:0;color:var(--page-text-muted);}
+.qa-list{display:grid;gap:var(--sp-3);margin-top:var(--sp-4);}
+.qa-item{border:1px solid var(--page-border);border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);background:var(--page-surface);}
+.qa-item .q{font-weight:700;font-size:var(--fs-sm);margin-bottom:4px;}
+.qa-item .a{font-size:var(--fs-sm);color:var(--page-text-secondary);}
+.order-list{counter-reset:step;display:grid;gap:8px;margin-top:var(--sp-3);}
+.order-list li{
+  counter-increment:step;font-size:var(--fs-sm);color:var(--page-text-secondary);padding-left:var(--sp-6);position:relative;
+}
+.order-list li::before{
+  content:counter(step);position:absolute;left:0;top:-1px;width:20px;height:20px;border-radius:50%;
+  background:var(--doc-accent-soft);color:var(--doc-accent);font-family:var(--font-mono);font-size:var(--fs-2xs);
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+}
+@media (max-width:720px){.reco-grid{grid-template-columns:1fr;}}
+
+/* ===== Responsive ===== */
+@media (max-width:760px){
+  .page{padding:var(--sp-5) var(--sp-3) var(--sp-7);}
+  .controls{position:static;flex-direction:column;align-items:stretch;}
+  .control-group{min-width:0;}
+  .hypora-header__top{flex-direction:column;gap:var(--sp-2);}
+  .concept-a nav ul,.concept-b nav ul,.concept-d nav ul,.concept-e nav ul{gap:var(--sp-3);row-gap:var(--sp-3);}
+  .concept-c .utility-row{flex-direction:column;align-items:flex-start;}
+  .concept-g .hybrid-row{flex-direction:column;align-items:flex-start;}
+  .concept-g .required-group{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+<div id="live-status" class="sr-only" role="status" aria-live="polite"></div>
+
+<div class="page">
+  <header class="intro">
+    <p class="eyebrow">Hypora · 디자인 탐색 프로토타입</p>
+    <h1>프로젝트 내비게이션 상태 표현 — 컨셉 비교</h1>
+    <p>
+      현재 구현은 &ldquo;현재 페이지&rdquo;와 &ldquo;다음 추천 단계&rdquo;를 모두 같은 파란색으로 표시해 구분이 어렵습니다.
+      아래 7가지 컨셉은 색상 외에 타이포그래피·아이콘·라벨·모양을 결합해 같은 상태를
+      더 명확하게 전달할 수 있는지 비교하기 위한 것입니다. 모든 컨셉은 동일한 상태로 동시에 업데이트됩니다.
+    </p>
+  </header>
+
+  <section class="controls" aria-label="프로토타입 컨트롤">
+    <div class="control-group">
+      <label for="ctrl-current">현재 페이지</label>
+      <select id="ctrl-current"></select>
+    </div>
+    <div class="control-group">
+      <label for="ctrl-completed">완료된 필수 단계</label>
+      <select id="ctrl-completed">
+        <option value="none">아직 완료 없음</option>
+        <option value="idea">아이디어 완료</option>
+        <option value="idea_mvp">아이디어 + 첫 버전 완료</option>
+        <option value="all">모든 필수 단계 완료</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="ctrl-next">다음 추천 단계</label>
+      <select id="ctrl-next"></select>
+    </div>
+    <p class="live-hint">컨트롤을 변경하면 아래 7개 컨셉이 동시에 갱신됩니다.</p>
+  </section>
+
+  <main id="main">
+
+    <section class="section concept-a" data-concept="A">
+      <div class="section-head"><h2>Concept A — 타이포그래피 &amp; 아이콘 위계</h2><span class="section-tag">기존 구조 유지</span></div>
+      <p class="section-note">현재의 가로 메뉴 구조를 거의 그대로 두고, 굵기·밑줄·아이콘·배지만으로 다섯 가지 상태를 구분합니다. 그레이스케일로 봐도 상태를 구분할 수 있어야 합니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept A 프로젝트 내비게이션"><ul></ul></nav>
+      </div>
+    </section>
+
+    <section class="section concept-b" data-concept="B">
+      <div class="section-head"><h2>Concept B — 상태 라벨</h2><span class="section-tag">라벨 태그</span></div>
+      <p class="section-note">각 메뉴 항목 위에 완료·현재·다음·선택·개요 같은 작은 의미 라벨을 붙입니다. 명확함은 커지지만, 시각적 무게도 함께 커지므로 그 비용이 정당한지 판단하는 것이 목적입니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept B 프로젝트 내비게이션"><ul></ul></nav>
+      </div>
+    </section>
+
+    <section class="section concept-c" data-concept="C">
+      <div class="section-head"><h2>Concept C — 스텝 인디케이터 + 분리 배치</h2><span class="section-tag">필수/유틸리티 분리</span></div>
+      <p class="section-note">필수 단계(아이디어→첫 버전→테스트)는 진행 스텝으로 표현하고, 리스크·개요는 별도 줄에 다른 시각 언어로 배치합니다. 리스크가 개요보다 먼저 완료돼야 한다는 인상을 주지 않아야 합니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept C 필수 단계 스텝" class="stepper-nav"><ol class="stepper"></ol></nav>
+        <div class="utility-row"><span class="group-label">도구 &amp; 요약</span><ul class="utility-items"></ul></div>
+      </div>
+    </section>
+
+    <section class="section concept-d" data-concept="D">
+      <div class="section-head"><h2>Concept D — 내비게이션 + 진행 요약</h2><span class="section-tag">보조 정보 한 줄</span></div>
+      <p class="section-note">메뉴 자체는 간결하게 유지하고, 그 아래 한 줄로 전체 진행 상황을 요약합니다. 메뉴 안에서도 현재·다음이 구분되는지 함께 확인합니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept D 프로젝트 내비게이션"><ul></ul></nav>
+        <p class="progress-line"></p>
+      </div>
+    </section>
+
+    <section class="section concept-e" data-concept="E">
+      <div class="section-head"><h2>Concept E — 내비게이션 + 다음 단계 액션</h2><span class="section-tag">별도 CTA 패널</span></div>
+      <p class="section-note">메뉴는 위치·상태 전달에만 집중하고, 다음 단계 제안은 그 아래 별도 패널로 분리합니다. 광고처럼 보이지 않고 워크스페이스의 일부처럼 느껴져야 합니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept E 프로젝트 내비게이션"><ul></ul></nav>
+        <div class="cta-panel"></div>
+        <p class="cta-confirm" role="status"></p>
+        <p class="variant-label">컴팩트 변형 (헤더에 바로 삽입 가능한 크기)</p>
+        <div class="compact-variant"></div>
+      </div>
+    </section>
+
+    <section class="section concept-f" data-concept="F">
+      <div class="section-head"><h2>Concept F — 프로그레시브 타임라인</h2><span class="section-tag">체크아웃과 다른 느낌</span></div>
+      <p class="section-note">타임라인 형태를 탐색하되, 계정 개설이나 결제 단계처럼 보이지 않고 AI 워크스페이스의 진행 흐름처럼 느껴지도록 절제합니다. 좁은 화면에서는 세로로 전환됩니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept F 필수 단계 타임라인"><div class="timeline"></div></nav>
+        <nav aria-label="Concept F 도구 및 요약" class="tl-utility"></nav>
+      </div>
+    </section>
+
+    <section class="section concept-g" data-concept="G">
+      <div class="section-head"><h2>Concept G — 권장 하이브리드</h2><span class="section-tag">최종 권장안</span></div>
+      <p class="section-note">앞선 컨셉들의 강점을 조합합니다: 현재 페이지가 가장 강한 강조를 받고, 완료는 체크 아이콘, 다음은 화살표+배지로 파란색에 의존하지 않고 구분되며, 필수 단계는 하나의 그룹으로 묶이고, 리스크는 선택 도구로, 개요는 워크플로 단계가 아닌 상시 접근 가능한 목적지로 표현됩니다.</p>
+      <div class="hypora-header">
+        <div class="hypora-header__top">
+          <div><p class="hypora-header__eyebrow">프로젝트</p><p class="hypora-header__title">방구 대신 끼어주는 앱</p></div>
+          <div class="lang-switch"><button type="button" aria-pressed="false">한국어</button><button type="button" aria-pressed="true">EN</button></div>
+        </div>
+        <nav aria-label="Concept G 프로젝트 내비게이션"><div class="hybrid-row"></div></nav>
+      </div>
+      <ul class="annotations">
+        <li><b>묶인 필수 그룹 — </b>아이디어·첫 버전·테스트가 하나의 캡슐 안에 있어 &ldquo;이것이 순서가 있는 워크플로&rdquo;임을 형태로 전달합니다.</li>
+        <li><b>현재 = 배경 필 + 밑줄 + 굵은 글씨 — </b>세 가지 신호가 겹치므로 그레이스케일에서도, 색약 사용자에게도 가장 강하게 읽힙니다.</li>
+        <li><b>다음 = 화살표 + 앰버 배지 — </b>파란색이 아닌 별도 색상과 아이콘 조합이라 &ldquo;현재&rdquo;와 절대 혼동되지 않습니다.</li>
+        <li><b>리스크 = 그룹 밖 + 다른 모양 — </b>같은 캡슐에 넣지 않고 외곽선 알약 모양으로 분리해 &ldquo;완료해야 할 단계가 아님&rdquo;을 형태로 전달합니다.</li>
+        <li><b>개요 = 구분선 뒤 상시 링크 — </b>번호도 체크마크도 없이, 항상 존재하는 목적지로 취급됩니다.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="matrix-section">
+      <div class="section-head"><h2>비교 매트릭스</h2></div>
+      <p class="section-note">동일한 상태값(완료: 아이디어 · 현재: 첫 버전 · 다음: 테스트)에서 7개 컨셉을 평가했습니다. 모든 컨셉이 우수하다고 말하지 않습니다 — 실제 트레이드오프를 그대로 남겼습니다.</p>
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th scope="col">컨셉</th>
+              <th scope="col">현재 위치 인지</th>
+              <th scope="col">다음 단계 인지</th>
+              <th scope="col">완료 상태 인지</th>
+              <th scope="col">전체 흐름 이해</th>
+              <th scope="col">시각적 복잡도</th>
+              <th scope="col">기존 UI 적용 난이도</th>
+              <th scope="col">모바일 확장성</th>
+              <th scope="col">단계 증가 대응</th>
+              <th scope="col">접근성</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="reco-section">
+      <div class="section-head"><h2>권장안</h2></div>
+      <p class="section-note"><strong>권장 컨셉: G — 권장 하이브리드.</strong> 파란색 하나에 의존하던 기존 문제를 형태(그룹핑)·아이콘(체크/화살표)·위치(구분선)의 조합으로 해결하면서, 헤더에 들어갈 만큼 컴팩트합니다. 필수 단계가 늘어나도(예: 시장 조사, 페르소나 추가) 캡슐 안에 항목만 추가하면 되므로 구조가 깨지지 않습니다.</p>
+
+      <div class="reco-grid">
+        <div class="reco-card">
+          <h3>유지해야 할 요소</h3>
+          <ul>
+            <li>현재 페이지에 3가지 신호를 겹치는 것 (배경 필 + 밑줄 + 굵기) — 색 하나에 의존하지 않는 핵심 장치</li>
+            <li>완료 = 체크 아이콘 (Concept A/C/F 공통으로 가장 즉각적으로 읽힘)</li>
+            <li>다음 = 화살표 + 다른 색상 배지 (파란색과 절대 겹치지 않음)</li>
+            <li>리스크·개요를 필수 워크플로 캡슐 밖에 배치 (Concept C의 분리 원칙)</li>
+          </ul>
+        </div>
+        <div class="reco-card">
+          <h3>채택하지 않을 요소</h3>
+          <ul>
+            <li>Concept B의 항목별 라벨 칩 — 다섯 항목 모두에 라벨을 얹으면 다섯 개의 새로운 텍스트 블록이 생겨 오히려 스캔 속도를 늦춤</li>
+            <li>Concept E의 상시 노출 CTA 패널 — 유용하지만 헤더 높이를 늘려 &ldquo;컴팩트한 헤더&rdquo; 제약과 충돌; 온보딩 첫 진입 등 좁은 맥락에서만 조건부로 고려</li>
+            <li>Concept F의 원형 타임라인 마커를 기본값으로 — 계정 개설/체크아웃 위저드 느낌에 가장 가까워, 채택 시 절제된 크기로만</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa-list">
+        <div class="qa-item"><p class="q">현재 페이지와 다음 단계가 같은 색을 공유해야 하는가?</p><p class="a">아니요. 이번 프로토타입의 근본 원인입니다. 현재는 accent 블루 하나로, 다음은 별도의 앰버(호박색) 계열로 분리하고, 형태(밑줄+필 vs. 화살표+배지)까지 함께 다르게 해야 합니다.</p></div>
+        <div class="qa-item"><p class="q">완료 단계에 체크 아이콘을 써야 하는가?</p><p class="a">예. 텍스트 대비 스캔 속도가 가장 빠르고, 그레이스케일·색약 환경에서도 형태로 구분됩니다. 다만 완료 텍스트 자체는 필수 그룹 안에서 여전히 중간 명도를 유지해 현재 페이지보다 시각적으로 가라앉아야 합니다.</p></div>
+        <div class="qa-item"><p class="q">리스크는 워크플로 행(row)에 남아야 하는가?</p><p class="a">시각적으로는 남되, 형태로 분리돼야 합니다 (다른 모양, 그룹 캡슐 밖). 완전히 다른 줄로 옮기면 &ldquo;프로젝트 안의 도구&rdquo;라는 정체성이 약해지고 별도 설정 메뉴처럼 보일 위험이 있습니다 — 이는 UX 판단이며, 최종 배치는 프로덕트 팀의 결정 사항입니다.</p></div>
+        <div class="qa-item"><p class="q">개요는 처음에, 끝에, 아니면 별도 유틸리티 그룹에 있어야 하는가?</p><p class="a">별도 그룹 끝쪽을 권장합니다 — 워크플로 캡슐과 시각적으로 분리하되, 여전히 프로젝트 내비게이션의 일부처럼 보이는 위치. &ldquo;처음&rdquo;에 두면 필수 순서의 0번째 단계처럼 오인될 수 있습니다.</p></div>
+        <div class="qa-item"><p class="q">별도의 다음 단계 CTA가 꼭 필요한가?</p><p class="a">필수는 아닙니다. Concept G(메뉴 자체의 명확성)만으로 &ldquo;다음이 무엇인지&rdquo;는 충분히 전달됩니다. CTA 패널(Concept E)은 온보딩 직후처럼 설명이 더 필요한 맥락에서 추가하는 강화 옵션으로 남겨두는 것을 제안합니다.</p></div>
+        <div class="qa-item"><p class="q">1차 구현에 반드시 필요한 상태 구분은 무엇인가?</p><p class="a">현재·완료·다음 세 가지입니다. future(향후)와 optional(선택)은 &ldquo;강조되지 않음&rdquo;이라는 동일한 시각적 결로 묶어도 무방합니다 — 다섯 가지를 모두 똑같이 강하게 구분하려 하면 오히려 위계가 무너집니다.</p></div>
+      </div>
+
+      <div class="reco-card" style="margin-top:var(--sp-5)">
+        <h3>잠재적 리스크</h3>
+        <ul>
+          <li>완료 체크 + 필 그룹 + 다음 배지가 좁은 모바일 폭에서 줄바꿈되면 위계가 흐트러질 수 있음 — 반응형 검증 필요</li>
+          <li>다음 단계 강조가 &ldquo;시스템이 순서를 강요한다&rdquo;는 인상을 줄 수 있음 — 이전 리뷰(ADR-0020)에서 이미 지적된 위험과 동일한 맥락이므로, 시각적 강조가 실제 잠금(lock)으로 오인되지 않도록 카피와 상호작용으로 뒷받침해야 함</li>
+          <li>앰버 색상이 warning(경고) 색상과 근접해, 다음 단계가 &ldquo;문제가 있다&rdquo;는 오해를 줄 가능성 — 사용자 테스트로 확인 필요</li>
+        </ul>
+      </div>
+
+      <div class="reco-card" style="margin-top:var(--sp-4)">
+        <h3>사용자 테스트로 확인해야 할 것</h3>
+        <ul>
+          <li>5초 노출 후 &ldquo;지금 어느 페이지에 있다고 생각하는지&rdquo; 회상 테스트 (현재 vs. 다음 혼동 여부)</li>
+          <li>처음 보는 사용자에게 &ldquo;다음에 무엇을 해야 할지&rdquo; 질문 — 화살표+배지만으로 충분한지, 텍스트 라벨(다음)이 꼭 필요한지</li>
+          <li>리스크가 완료해야 할 필수 단계로 오인되는 비율</li>
+          <li>색맹 시뮬레이션 환경에서의 완료/현재/다음 구분 정확도</li>
+        </ul>
+      </div>
+
+      <h3 style="margin-top:var(--sp-6);font-size:var(--fs-md)">제안 구현 순서</h3>
+      <ol class="order-list">
+        <li>현재 페이지 표시를 3중 신호(필 배경 + 밑줄 + 굵기)로 먼저 교체 — 가장 시급한 버그(현재/다음 혼동) 해결</li>
+        <li>다음 단계를 별도 색상(앰버)과 화살표 아이콘으로 분리 — 여전히 색상 하나에만 의존하지 않도록 배지 텍스트(다음) 동반</li>
+        <li>완료 상태에 체크 아이콘 추가</li>
+        <li>필수 3단계를 시각적으로 그룹핑(캡슐/구분선)하고 리스크·개요를 그룹 밖으로 분리</li>
+        <li>반응형 줄바꿈 및 접근성(aria-current, 포커스, 라이브 리전) 검증</li>
+        <li>사용자 테스트 후 CTA 패널(Concept E) 추가 여부를 별도 결정</li>
+      </ol>
+
+      <p class="assumption">
+        <b>가정</b>&nbsp;— 이 프로토타입은 상태 전달의 명확성만 다룹니다. 향후 단계가 숨김·비활성화·잠금 중 무엇으로 처리될지는 별도의 프로덕트 정책 결정이며, 여기서 시각적으로 결정하지 않았습니다. 모든 컨셉은 요청대로 다섯 항목을 항상 클릭 가능하게 유지합니다.
+      </p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ======================================================================
+   SHARED DATA & STATE
+   One source of truth every concept renders from — no per-concept
+   duplication of state logic.
+   ====================================================================== */
+const MENU = [
+  { id:'idea',     label:'아이디어', type:'required', step:1 },
+  { id:'mvp',      label:'첫 버전',   type:'required', step:2 },
+  { id:'test',     label:'테스트',   type:'required', step:3 },
+  { id:'risk',     label:'리스크',   type:'optional' },
+  { id:'overview', label:'개요',     type:'summary' },
+];
+const REQUIRED = MENU.filter(m => m.type === 'required');
+
+const state = { current:'mvp', completed:['idea'], next:'test' };
+
+const COMPLETED_PRESETS = {
+  none:['idea_mvp_placeholder']  // placeholder never used, overwritten below
+};
+COMPLETED_PRESETS.none = [];
+COMPLETED_PRESETS.idea = ['idea'];
+COMPLETED_PRESETS.idea_mvp = ['idea','mvp'];
+COMPLETED_PRESETS.all = ['idea','mvp','test'];
+
+function role(item){
+  if (state.current === item.id) return 'current';
+  if (item.type === 'summary') return 'summary';
+  if (item.type === 'optional') return 'optional';
+  if (state.completed.includes(item.id)) return 'completed';
+  if (state.next === item.id) return 'next';
+  return 'future';
+}
+
+const ICON = {
+  check:'<svg class="icon" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><path d="M3 8.3l3.2 3.2L13 4.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  arrow:'<svg class="icon" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><path d="M2.5 8h10M8.5 3.5L13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
+/* Micro copy per role, reused by concepts that show explicit text labels */
+const ROLE_LABEL = { current:'현재', completed:'완료', next:'다음', optional:'선택', summary:'개요', future:'' };
+
+/* ======================================================================
+   MENU BUTTON — one shared builder every concept composes with its own
+   prefix/suffix markup and wrapper classes.
+   ====================================================================== */
+function menuButton(item, { prefix = '', suffix = '' } = {}){
+  const r = role(item);
+  const isCurrent = r === 'current';
+  return `<li class="nav-item role-${r}" data-role="${r}">
+    <button type="button" class="nav-btn" data-menu-id="${item.id}"${isCurrent ? ' aria-current="page"' : ''}>
+      ${prefix}<span class="nav-label">${item.label}</span>${suffix}
+    </button>
+  </li>`;
+}
+
+/* ======================================================================
+   CONCEPT RENDERERS
+   ====================================================================== */
+function renderConceptA(root){
+  const ul = root.querySelector('.concept-a nav ul');
+  const parts = MENU.map((item, i) => {
+    const r = role(item);
+    let prefix = '', suffix = '';
+    if (r === 'completed') prefix = ICON.check;
+    if (r === 'current') suffix = ' <span class="micro-tag micro-tag--current sr-only-inline">현재</span>';
+    if (r === 'next') { prefix = ICON.arrow; suffix = ' <span class="micro-tag micro-tag--next">다음</span>'; }
+    const li = menuButton(item, { prefix, suffix });
+    const needsDivider = item.type !== 'required' && MENU[i-1] && MENU[i-1].type === 'required';
+    return (needsDivider ? '<li class="divider" aria-hidden="true"></li>' : '') + li;
+  });
+  ul.innerHTML = parts.join('');
+}
+
+function renderConceptB(root){
+  const ul = root.querySelector('.concept-b nav ul');
+  ul.innerHTML = MENU.map(item => {
+    const r = role(item);
+    const label = ROLE_LABEL[r];
+    const chip = label ? `<span class="status-chip micro-tag--${r}">${label}</span>` : `<span class="status-chip" style="visibility:hidden">–</span>`;
+    const prefix = r === 'completed' ? ICON.check : (r === 'next' ? ICON.arrow : '');
+    return `<li class="nav-item role-${r}" data-role="${r}">
+      ${chip}
+      <button type="button" class="nav-btn" data-menu-id="${item.id}"${r==='current'?' aria-current="page"':''}>${prefix}<span class="nav-label">${item.label}</span></button>
+    </li>`;
+  }).join('');
+}
+
+function renderConceptC(root){
+  const stepper = root.querySelector('.concept-c .stepper');
+  stepper.innerHTML = REQUIRED.map((item, i) => {
+    const r = role(item);
+    const marker = r === 'completed' ? ICON.check : `<span aria-hidden="true">${item.step}</span>`;
+    const connector = i < REQUIRED.length - 1
+      ? `<span class="step-connector ${state.completed.includes(item.id) ? 'filled' : ''}" aria-hidden="true"></span>` : '';
+    return `<li class="step role-${r}" data-role="${r}">
+      <span class="step-btn"><button type="button" class="nav-btn" data-menu-id="${item.id}"${r==='current'?' aria-current="page"':''}>
+        <span class="step-marker">${marker}</span><span class="nav-label">${item.label}</span>
+      </button></span>${connector}
+    </li>`;
+  }).join('');
+
+  const utility = root.querySelector('.concept-c .utility-items');
+  utility.innerHTML = MENU.filter(m => m.type !== 'required').map(item => {
+    const r = role(item);
+    const prefix = r === 'current' ? '' : (item.type === 'optional' ? '' : '');
+    return menuButton(item, { prefix });
+  }).join('');
+}
+
+function renderConceptD(root){
+  const ul = root.querySelector('.concept-d nav ul');
+  ul.innerHTML = MENU.map(item => {
+    const r = role(item);
+    const prefix = r === 'completed' ? ICON.check : (r === 'next' ? ICON.arrow : '');
+    return menuButton(item, { prefix });
+  }).join('');
+
+  const completedCount = state.completed.filter(id => REQUIRED.some(r => r.id === id)).length;
+  const nextItem = MENU.find(m => m.id === state.next);
+  const currentItem = MENU.find(m => m.id === state.current);
+  const currentStep = REQUIRED.findIndex(r => r.id === state.current) + 1;
+  const pct = Math.round((completedCount / REQUIRED.length) * 100);
+
+  const line = root.querySelector('.concept-d .progress-line');
+  const stepText = currentStep > 0
+    ? `${currentStep}/${REQUIRED.length}단계 진행 중`
+    : `${completedCount}/${REQUIRED.length} 완료`;
+  const nextText = nextItem ? ` · 다음: <span class="progress-next">${nextItem.label}</span>` : '';
+  line.innerHTML = `<span class="progress-track"><span class="progress-fill" style="width:${pct}%"></span></span> ${stepText}${nextText}`;
+}
+
+function ctaCopy(nextId){
+  const map = {
+    idea:{ title:'아이디어 정리를 시작해 보세요', desc:'핵심 문제와 대상 고객을 한 문장으로 정리하면 다음 단계가 훨씬 쉬워져요.', btn:'아이디어 시작' },
+    mvp:{ title:'첫 버전 범위를 정해 보세요', desc:'전체를 만들 필요 없어요 — 가장 먼저 검증할 핵심 기능만 추려보세요.', btn:'첫 버전 시작' },
+    test:{ title:'테스트 계획을 작성해 아이디어를 검증해 보세요', desc:'가정을 세우고 확인 방법을 정하면 "될 것 같다"가 "확인했다"로 바뀌어요.', btn:'테스트 시작' },
+  };
+  return map[nextId] || null;
+}
+
+function renderConceptE(root){
+  const ul = root.querySelector('.concept-e nav ul');
+  ul.innerHTML = MENU.map(item => {
+    const r = role(item);
+    const prefix = r === 'completed' ? ICON.check : (r === 'next' ? ICON.arrow : '');
+    return menuButton(item, { prefix });
+  }).join('');
+
+  const panel = root.querySelector('.concept-e .cta-panel');
+  const compact = root.querySelector('.concept-e .compact-variant');
+  const copy = ctaCopy(state.next);
+  if (!copy){
+    panel.innerHTML = `<p class="cta-desc">추천할 다음 단계가 없습니다 — 필수 단계가 모두 완료되었거나 선택되지 않았습니다.</p>`;
+    compact.innerHTML = '';
+    return;
+  }
+  panel.innerHTML = `
+    <div>
+      <p class="cta-eyebrow">다음 추천 단계</p>
+      <p class="cta-title">${copy.title}</p>
+      <p class="cta-desc">${copy.desc}</p>
+    </div>
+    <button type="button" class="cta-btn" data-cta-next="${state.next}">${copy.btn} ${ICON.arrow}</button>
+  `;
+  compact.innerHTML = `<span class="nav-label" style="color:var(--hd-text-secondary)">다음: <strong style="color:var(--role-next)">${MENU.find(m=>m.id===state.next).label}</strong></span>
+    <button type="button" class="cta-btn" data-cta-next="${state.next}">${copy.btn}</button>`;
+}
+
+function renderConceptF(root){
+  const tl = root.querySelector('.concept-f .timeline');
+  tl.innerHTML = REQUIRED.map((item, i) => {
+    const r = role(item);
+    const marker = r === 'completed' ? ICON.check : (r === 'current' ? '<span aria-hidden="true">●</span>' : (r === 'next' ? ICON.arrow : `<span aria-hidden="true">${item.step}</span>`));
+    const line = i < REQUIRED.length - 1 ? `<span class="tl-line ${state.completed.includes(item.id) ? 'filled':''}" aria-hidden="true"></span>` : '';
+    return `<div class="tl-node role-${r}" data-role="${r}">
+      <button type="button" class="nav-btn" data-menu-id="${item.id}"${r==='current'?' aria-current="page"':''}>
+        <span class="tl-marker">${marker}</span><span class="nav-label">${item.label}</span>
+      </button>${line}
+    </div>`;
+  }).join('');
+
+  const utility = root.querySelector('.concept-f .tl-utility');
+  utility.innerHTML = MENU.filter(m => m.type !== 'required').map(item => menuButton(item)).join('');
+}
+
+function renderConceptG(root){
+  const wrap = root.querySelector('.concept-g .hybrid-row');
+  const requiredHtml = REQUIRED.map(item => {
+    const r = role(item);
+    const prefix = r === 'completed' ? ICON.check : (r === 'next' ? ICON.arrow : '');
+    const suffix = r === 'next' ? ' <span class="micro-tag micro-tag--next">다음</span>' : '';
+    return menuButton(item, { prefix, suffix });
+  }).join('');
+  const utilityHtml = MENU.filter(m => m.type !== 'required').map(item => menuButton(item)).join('');
+  wrap.innerHTML = `
+    <ul class="required-group">${requiredHtml}</ul>
+    <span class="utility-divider" aria-hidden="true"></span>
+    <ul class="utility-group">${utilityHtml}</ul>
+  `;
+}
+
+function renderAll(){
+  const main = document.getElementById('main');
+  renderConceptA(main);
+  renderConceptB(main);
+  renderConceptC(main);
+  renderConceptD(main);
+  renderConceptE(main);
+  renderConceptF(main);
+  renderConceptG(main);
+}
+
+/* ======================================================================
+   STATE MUTATIONS + LIVE ANNOUNCEMENT
+   ====================================================================== */
+function announce(text){
+  const live = document.getElementById('live-status');
+  live.textContent = '';
+  window.setTimeout(() => { live.textContent = text; }, 30);
+}
+
+function setCurrent(id, { silent = false } = {}){
+  state.current = id;
+  document.getElementById('ctrl-current').value = id;
+  renderAll();
+  if (!silent){
+    const item = MENU.find(m => m.id === id);
+    announce(`현재 페이지: ${item.label}`);
+  }
+}
+
+function showCtaConfirm(){
+  document.querySelectorAll('.concept-e .cta-confirm').forEach(el => {
+    el.textContent = `${ICON.check.replace('<svg','<svg style="display:inline;vertical-align:-2px"')} 현재 단계를 '${MENU.find(m=>m.id===state.next).label}'(으)로 설정했습니다.`.trim();
+    el.classList.add('show');
+    window.clearTimeout(el._hideTimer);
+    el._hideTimer = window.setTimeout(() => el.classList.remove('show'), 2600);
+  });
+}
+
+document.addEventListener('click', (e) => {
+  const cta = e.target.closest('[data-cta-next]');
+  if (cta){
+    const id = cta.getAttribute('data-cta-next');
+    setCurrent(id);
+    showCtaConfirm();
+    return;
+  }
+  const btn = e.target.closest('[data-menu-id]');
+  if (btn){
+    setCurrent(btn.getAttribute('data-menu-id'));
+  }
+});
+
+/* ======================================================================
+   CONTROL PANEL WIRING
+   ====================================================================== */
+function populateSelect(select, includeNone){
+  const opts = includeNone ? [{id:'',label:'없음'}, ...MENU.filter(m=>m.type!=='summary')] : MENU;
+  select.innerHTML = opts.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+}
+
+const ctrlCurrent = document.getElementById('ctrl-current');
+const ctrlCompleted = document.getElementById('ctrl-completed');
+const ctrlNext = document.getElementById('ctrl-next');
+
+populateSelect(ctrlCurrent, false);
+populateSelect(ctrlNext, true);
+ctrlCurrent.value = state.current;
+ctrlNext.value = state.next;
+ctrlCompleted.value = 'idea';
+
+ctrlCurrent.addEventListener('change', () => setCurrent(ctrlCurrent.value));
+ctrlCompleted.addEventListener('change', () => {
+  state.completed = COMPLETED_PRESETS[ctrlCompleted.value].slice();
+  renderAll();
+  announce(`완료 상태 변경: ${ctrlCompleted.selectedOptions[0].textContent}`);
+});
+ctrlNext.addEventListener('change', () => {
+  state.next = ctrlNext.value || null;
+  renderAll();
+  announce(state.next ? `다음 추천 단계: ${MENU.find(m=>m.id===state.next).label}` : '다음 추천 단계 없음');
+});
+
+/* ======================================================================
+   MATRIX DATA — kept as data, not hard-coded HTML, so it stays easy to
+   re-evaluate without touching markup.
+   ====================================================================== */
+const MATRIX = [
+  { c:'A', name:'타이포그래피 · 아이콘', rows:['good','fair','good','fair','excellent','excellent','good','fair','good'] },
+  { c:'B', name:'상태 라벨', rows:['excellent','excellent','excellent','good','fair','good','fair','fair','excellent'] },
+  { c:'C', name:'스텝 인디케이터 + 분리', rows:['good','good','excellent','excellent','good','fair','good','good','good'] },
+  { c:'D', name:'내비 + 진행 요약', rows:['good','good','good','excellent','good','good','excellent','fair','good'] },
+  { c:'E', name:'내비 + 다음 단계 CTA', rows:['good','excellent','fair','good','fair','weak','fair','fair','good'] },
+  { c:'F', name:'프로그레시브 타임라인', rows:['fair','good','excellent','excellent','fair','weak','excellent','weak','fair'] },
+  { c:'G', name:'권장 하이브리드', rows:['excellent','excellent','excellent','excellent','good','good','good','excellent','excellent'] },
+];
+const RATING_LABEL = { excellent:'Excellent', good:'Good', fair:'Fair', weak:'Weak' };
+
+document.getElementById('matrix-body').innerHTML = MATRIX.map(row => `
+  <tr>
+    <th scope="row">${row.c} · ${row.name}</th>
+    ${row.rows.map(v => `<td><span class="rating rating--${v}">${RATING_LABEL[v]}</span></td>`).join('')}
+  </tr>
+`).join('');
+
+/* Initial paint */
+renderAll();
+</script>
+</body>
+</html>

@@ -31,3 +31,8 @@
   background: var(--color-primary);
   color: var(--color-primary-contrast);
 }
+
+.ds-badge--info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}

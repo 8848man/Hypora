@@ -122,7 +122,7 @@ Landing's own dedicated specification directory, promoted 2026-07-17 — real La
 | Doc | Purpose |
 |---|---|
 | [architecture/01_platform_services.md](./architecture/01_platform_services.md) | The Platform Service architectural role AI and Analytics both instantiate; Candidate Members, Admission Criteria, Dependency Rules |
-| [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | The single, complete, authoritative index of every ADR (currently ADR-0001 through ADR-0020), its status, date, and one-line summary — this document does not restate any ADR individually; see that index for the full list rather than duplicating it here, per this project's own Duplication Rule |
+| [architecture/decisions/000_index.md](./architecture/decisions/000_index.md) | The single, complete, authoritative index of every ADR (currently ADR-0001 through ADR-0022), its status, date, and one-line summary — this document does not restate any ADR individually; see that index for the full list rather than duplicating it here, per this project's own Duplication Rule |
 
 ## Not Yet Created (by design)
 

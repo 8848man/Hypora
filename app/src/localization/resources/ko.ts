@@ -39,6 +39,12 @@ export const ko: Resources = {
     validationPlanning: "테스트",
     riskMemo: "리스크",
     summary: "개요",
+    statusCompletedSr: "완료됨",
+    statusNextLabel: "다음",
+    statusNextSr: "추천하는 다음 단계",
+    statusOptionalLabel: "선택",
+    statusCurrentSr: "현재 페이지",
+    landmarkLabel: "프로젝트 내비게이션",
   },
   language: {
     korean: "한국어",
