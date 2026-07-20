@@ -60,26 +60,28 @@ NotGenerated ──(Business Canvas reaches completion — ADR-0018 trigger)─�
 
 *(Owned here; consumes the [Project Summary Synthesis Assistant](../../ai/capabilities/06_project_summary_synthesis_assistant.md)'s "sync" operation as an ordinary Manual Invocation, per [AI Interaction Specification](../../ai/04_ai_interaction.md) — unaffected by ADR-0017's narrow exception, which covers Initial Generation only.)*
 
-Reachable from the Summary page via a **Sync Summary** action, shown exactly when Summary is `OutOfSync`.
+Reachable from the Summary page via an explicit action, shown exactly when Summary is `OutOfSync` (current display copy: see note below).
 
 | Side | Content | Behavior |
 |---|---|---|
-| **As-Is** (left) | The currently persisted Summary text | Read-only; fixed for the entire time the dialog is open — never changes while the dialog is open, even if underlying data changes elsewhere in another tab |
-| **To-Be** (right) | Initially empty | No AI request is made merely by opening the dialog (Governing Rule 1 applies unchanged here). Pressing **AI Summary Update** invokes the capability's sync operation; the result is displayed in an editable TextForm the user may freely revise before deciding |
+| **Current version** (left) | The currently persisted Summary text | Read-only; fixed for the entire time the dialog is open — never changes while the dialog is open, even if underlying data changes elsewhere in another tab |
+| **New draft** (right) | Initially empty | No AI request is made merely by opening the dialog (Governing Rule 1 applies unchanged here). Pressing the dialog's AI-update action invokes the capability's sync operation; the result is displayed in an editable TextForm the user may freely revise before deciding |
 
-**Apply:** saves the (possibly user-edited) To-Be text as the new persisted Summary, replacing the prior one, and transitions Summary Lifecycle `OutOfSync → Generated`.
+**Commit action:** saves the (possibly user-edited) new-draft text as the new persisted Summary, replacing the prior one, and transitions Summary Lifecycle `OutOfSync → Generated`.
 
-**Cancel:** discards the dialog's To-Be draft entirely. The persisted Summary and its `OutOfSync` state are untouched — closing without Apply is always a no-op on saved data.
+**Discard action:** discards the dialog's draft entirely. The persisted Summary and its `OutOfSync` state are untouched — closing without committing is always a no-op on saved data.
+
+*(This section's side names and action names above describe the dialog's own conceptual structure — its current display copy lives in the Frontend Localization Layer's resources, not here, and may change without reopening this document. As of this pass, the current copy is: dialog-opening action = "Get an Updated Summary"; sides = "Current version" / "New draft"; AI-update action = "Ask AI to rewrite it"; commit action = "Apply"; discard action = "Cancel.")*
 
 ## Acceptance Criteria
 
 - Initial Generation never blocks the user and never hides the Summary Card — it always remains visible, showing a loading state while `Generating` (per [ADR-0017](../../architecture/decisions/ADR-0017-automatic-invocation-for-project-summary-initial-generation.md)).
 - Initial Generation fires automatically exactly once per Project, only after the Business Canvas is complete (per [ADR-0018](../../architecture/decisions/ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md)) — never earlier, never on a partial Canvas. It does not wait for MVP Planning or Validation Planning.
 - Any Saved change to a Canvas field while Summary is `Generated` transitions it to `OutOfSync`; MVP Scope, Feature list, and Validation Checklist edits never affect Summary Lifecycle. The existing Summary text is never altered by an OutOfSync transition alone, and no automatic regeneration is ever triggered by it.
-- Opening the Synchronization Dialog makes no AI request; only pressing **AI Summary Update** does.
-- The Synchronization Dialog's As-Is side is read-only and never changes while the dialog is open.
-- The Synchronization Dialog's To-Be side is editable once a draft exists; the user's edits are what gets saved on Apply, not necessarily the AI's raw draft verbatim.
-- **Apply** replaces the persisted Summary and clears `OutOfSync` back to `Generated`; **Cancel** leaves the persisted Summary and its `OutOfSync` state completely unchanged.
+- Opening the Synchronization Dialog makes no AI request; only pressing the dialog's AI-update action does.
+- The Synchronization Dialog's current-version side is read-only and never changes while the dialog is open.
+- The Synchronization Dialog's new-draft side is editable once a draft exists; the user's edits are what gets saved on commit, not necessarily the AI's raw draft verbatim.
+- The **commit action** replaces the persisted Summary and clears `OutOfSync` back to `Generated`; the **discard action** leaves the persisted Summary and its `OutOfSync` state completely unchanged.
 - The synthesized Summary explains what the project is, who it's for, what problem it solves, and what value it provides, from Business Canvas alone — never a validation-approach narrative (that responsibility belongs solely to the Validation Planning completion card, per [ADR-0018](../../architecture/decisions/ADR-0018-narrow-project-summary-to-business-canvas-identity-synthesis.md)) and never merely a completion checklist (that responsibility belongs to the readiness/blocking-artifact messaging below, which remains separate content).
 - When a Project is not yet Validated, the Summary page names the specific incomplete artifact(s) blocking progress, per the relevant guard in [Business Idea Lifecycle](../../domain/01_business_idea_lifecycle.md) — unchanged from the original specification, and independent of Summary Lifecycle (a project can be pre-Validated, and therefore Summary `NotGenerated`, while this blocking-artifact messaging is still shown).
 - The Build-Ready confirmation action is only available once the Project is in the Validated stage — never earlier, per the domain model's Invalid Transitions ("any state → Build-Ready except from Validated: rejected") — entirely independent of Summary Lifecycle state (Build-Ready never depends on Summary being `Generated` rather than `OutOfSync`).
@@ -131,13 +133,13 @@ Depends on the Project Summary screen owned by [Workspace Architecture](../01_ar
 
 | Aspect | Definition |
 |---|---|
-| Primary Actions | Confirm Build-Ready (only when Validated); Sync Summary (only when `OutOfSync`) → opens Synchronization Dialog → AI Summary Update, edit To-Be, Apply |
-| Secondary Actions | Follow a pointer to whichever section is blocking the next transition; Cancel out of the Synchronization Dialog |
+| Primary Actions | Confirm Build-Ready (only when Validated); the Synchronization Dialog's opening action (only when `OutOfSync`) → opens the dialog → AI-update action, edit new draft, commit |
+| Secondary Actions | Follow a pointer to whichever section is blocking the next transition; discard out of the Synchronization Dialog |
 | Empty State | A Captured Project with nothing filled in yet shows a minimal summary clearly stating that structuring hasn't started — not an error; distinct from `NotGenerated` Summary Lifecycle, which may also apply to a Validated project whose Initial Generation hasn't yet run or is still in flight |
 | Loading State | Summary Card shows a loading indicator while Summary Lifecycle is `Generating` (Initial Generation or a Sync's AI Summary Update) — the Card itself remains visible and the layout stable throughout, per [ADR-0017](../../architecture/decisions/ADR-0017-automatic-invocation-for-project-summary-initial-generation.md); readiness/blocking-artifact messaging continues to aggregate current data from Business Structuring, MVP Planning, and Validation Planning as before, independent of Summary Lifecycle |
 | Error State | A read failure in any underlying artifact; a failed Build-Ready write; a failed Initial Generation (returns to `NotGenerated`) or failed Sync draft (dialog shows the failure, As-Is and persisted state unchanged) — per [Workspace Data & State](../02_data_and_state.md#error-states) |
-| Validation State | The Build-Ready action is unavailable/disabled unless the Project is in the Validated stage; Sync Summary is unavailable unless Summary is `OutOfSync`; Apply is unavailable until a To-Be draft exists |
-| Success State | Build-Ready is confirmed and reflected immediately; a Sync Apply replaces the Summary and clears `OutOfSync` immediately |
+| Validation State | The Build-Ready action is unavailable/disabled unless the Project is in the Validated stage; the Synchronization Dialog's opening action is unavailable unless Summary is `OutOfSync`; the commit action is unavailable until a new-draft exists |
+| Success State | Build-Ready is confirmed and reflected immediately; a Synchronization Dialog commit replaces the Summary and clears `OutOfSync` immediately |
 
 ## Navigation
 
