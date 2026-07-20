@@ -16,3 +16,4 @@ export { ProgressIndicator } from "./ProgressIndicator";
 export { ChoiceList } from "./ChoiceList";
 export { TransitionWrapper } from "./TransitionWrapper";
 export { SuggestionCard } from "./SuggestionCard";
+export { Skeleton } from "./Skeleton";

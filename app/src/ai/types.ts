@@ -155,3 +155,38 @@ export type ProjectSummaryAssistantResponse = {
 };
 
 export type ProjectSummaryAssistantFailureKind = AiFailureKind;
+
+// Onboarding Preset Assistant's own outward contract
+// (sdd/ai/capabilities/07_onboarding_preset_assistant.md, Contract Version
+// 2.0, per ADR-0021). Separate type from every other capability's — an
+// array-of-question-preset-sets Response, never the scalar {suggestionText,
+// rationale?} shape most other capabilities use. No CanvasContextField
+// input at all: at invocation time no Canvas question has been answered
+// yet, per that capability's own Request Contract note.
+
+export const ONBOARDING_QUESTION_IDS = [
+  "business_idea",
+  "problem_definition",
+  "target_customer",
+  "solution_definition",
+  "value_proposition",
+] as const;
+
+export type OnboardingQuestionId = (typeof ONBOARDING_QUESTION_IDS)[number];
+
+export type OnboardingPresetAssistantRequest = {
+  projectName: string;
+  projectDescription?: string;
+  language: "ko" | "en";
+};
+
+export type QuestionPresetSet = {
+  questionId: OnboardingQuestionId;
+  options: string[];
+};
+
+export type OnboardingPresetAssistantResponse = {
+  presets: QuestionPresetSet[];
+};
+
+export type OnboardingPresetAssistantFailureKind = AiFailureKind;

@@ -17,9 +17,13 @@ import { SUPPORTED_LANGUAGES } from "../localization/types";
 function withDefaults(project: Project): Project {
   return {
     ...project,
+    description: project.description ?? "",
     riskMemo: project.riskMemo ?? { ...emptyRiskMemo },
     featureHistory: project.featureHistory ?? [],
     summary: project.summary ?? { ...emptyProjectSummary },
+    // onboardingPresets deliberately has no default fill-in here -- absent
+    // already means "static fallback" to questionModel.ts's resolvePresets(),
+    // identically to a Project created before this field existed.
   };
 }
 

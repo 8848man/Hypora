@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import type { Project } from "../domain/types";
 import { withSummaryOutOfSyncIfChanged } from "../domain/summaryLifecycle";
 import { readProject, saveProject } from "../platform/storage";
+import { takePendingOnboarding } from "./project-management/onboardingPresetsRegistry";
 
 export interface ProjectContextValue {
   project: Project;
@@ -48,6 +49,43 @@ export function useProjectLoader(projectId: string | undefined) {
       setProject(found);
     }
     setLoading(false);
+
+    // If Project Management registered an in-flight Onboarding Preset
+    // Assistant call for this Project (per ADR-0019 — see
+    // onboardingPresetsRegistry.ts), re-read storage once it resolves so
+    // this already-mounted state picks up the result. A plain re-read, not
+    // update() -- this is a background refresh of AI-sourced onboarding
+    // content, never a user edit, so it must not re-trigger Summary's
+    // OutOfSync comparison or write anything back to storage that isn't
+    // already there.
+    const pendingOnboarding = takePendingOnboarding(projectId);
+    if (pendingOnboarding) {
+      let cancelled = false;
+      void pendingOnboarding.then(() => {
+        if (cancelled) return;
+        const refreshed = readProject(projectId);
+        if (refreshed) setProject(refreshed);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    // Orphaned Generating state: the Project was persisted mid-generation
+    // (per ProjectListPage.tsx) but no in-flight promise is registered for
+    // it here — this in-memory registry never survives a browser refresh
+    // (see onboardingPresetsRegistry.ts), so the original request is
+    // unobservable now. Without this, the Project would stay in
+    // `generating` forever and Business Structuring would show its loading
+    // state with nothing left to end it. Resolves deterministically to
+    // Fallback (never a retry — this capability's own Failure Scenario
+    // Matrix already treats "lost request" the same as any other failure
+    // mode: silent, one-shot, no retry, per ADR-0019 Decision 5).
+    if (found?.onboardingPresets?.status === "generating") {
+      const resolved: Project = { ...found, onboardingPresets: { status: "fallback" } };
+      setProject(resolved);
+      saveProject(resolved);
+    }
   }, [projectId]);
 
   const update = useCallback((next: Project) => {

@@ -18,32 +18,170 @@
 .workspace-project__name {
   margin: 0;
   font-size: var(--font-size-heading-2);
+  /* A long Korean or English project name must never break the header
+     layout or clip -- wraps onto its own lines instead of forcing nav
+     items off-screen (Navigation State Semantics' responsive requirement). */
+  overflow-wrap: anywhere;
 }
 
+/* ======================================================================
+   Navigation shell (ADR-0022 / sdd/workspace/01_architecture.md#navigation-state-semantics)
+   Two grouped <ul>s inside one <nav> landmark: required workflow stages,
+   then a divider, then optional tools + the always-available summary.
+   ====================================================================== */
 .workspace-project__nav {
   display: flex;
+  align-items: center;
   gap: var(--space-4);
   border-bottom: 1px solid var(--color-neutral-border);
   margin-bottom: var(--space-5);
-  overflow-x: auto;
   padding-bottom: var(--space-2);
+  overflow-x: auto;
+  flex-wrap: wrap;
 }
 
-.workspace-project__nav a {
+.workspace-project__nav-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.workspace-project__nav-group li {
+  display: flex;
+}
+
+.workspace-project__nav-group--required {
+  /* The grouping itself is the "required workflow" signal, not just
+     proximity -- a subtle shared surface ties the three stages together
+     without adding visual weight. */
+  background: var(--color-neutral-surface);
+  border-radius: var(--radius);
+  padding: var(--space-1) var(--space-3);
+}
+
+.workspace-project__nav-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-neutral-border);
+  flex: none;
+}
+
+/* ===== Individual nav link ===== */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-neutral-text-muted);
   text-decoration: none;
   font-size: var(--font-size-body);
+  font-weight: 500;
   white-space: nowrap;
-  padding-bottom: var(--space-2);
+  padding: var(--space-1) 0 calc(var(--space-1) + 2px);
   border-bottom: 2px solid transparent;
+  transition: color var(--motion-duration-fast) var(--motion-easing-standard),
+    border-color var(--motion-duration-fast) var(--motion-easing-standard);
 }
 
-.workspace-project__nav a.active {
+.nav-link:hover {
+  color: var(--color-neutral-text);
+}
+
+/* Current page: the strongest emphasis of any state -- weight + underline
+   + color together, never color alone (Navigation State Semantics'
+   Visual hierarchy rule). Completed's check icon (rendered inside the
+   same link, see WorkspaceProjectLayout.tsx) is unaffected by and fully
+   combinable with this -- current + completed render simultaneously. */
+.nav-link.active {
   color: var(--color-primary);
   border-bottom-color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Next recommended: a distinct color role (info, not primary/warning) plus
+   an explicit badge with its own icon + text -- never the same treatment
+   as Current, and never suppressed just because it's "less important." */
+.nav-link--next .nav-link__label {
+  color: var(--color-neutral-text);
   font-weight: 600;
+}
+
+.nav-link__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.nav-status-icon {
+  flex: none;
+}
+
+.nav-link .nav-status-icon {
+  color: var(--color-success);
+}
+
+.nav-link--next .nav-link__badge .nav-status-icon {
+  color: var(--color-info);
+}
+
+/* ===== Optional / summary group ===== */
+.workspace-project__nav-group--utility {
+  color: var(--color-neutral-text-muted);
+}
+
+.nav-link--optional {
+  border: 1px solid var(--color-neutral-border);
+  border-radius: 999px;
+  padding: 3px var(--space-3);
+}
+
+.nav-link__tag {
+  font-size: var(--font-size-caption);
+  color: var(--color-neutral-text-muted);
+}
+
+.nav-link--summary {
+  font-style: normal;
+}
+
+/* ===== Focus ===== */
+.nav-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link {
+    transition: none;
+  }
 }
 
 .workspace-project__content {
   max-width: 720px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  .workspace-project__nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .workspace-project__nav-divider {
+    display: none;
+  }
+  .workspace-project__nav-group {
+    border-top: 1px dashed var(--color-neutral-border);
+    padding-top: var(--space-2);
+  }
+  .workspace-project__nav-group--required {
+    border-top: none;
+    padding-top: var(--space-1);
+  }
 }

@@ -4,6 +4,8 @@
 
 *(Explicit — the brief names Assumptions, Validation Methods, and Success Criteria directly.)*
 
+*(The status names "validated"/"invalidated"/"open" used throughout this document are this Feature's own internal status identity, not a specification of literal button or badge text — current display copy is a presentation-layer decision, may be revised without reopening this document, and is not restated here.)*
+
 ## Purpose
 
 Let a user turn their hypothesis into a set of testable assumptions — each with a way to check it and a definition of what "confirmed" looks like — so that "validated" means something specific and checkable, not a feeling.
@@ -24,7 +26,7 @@ Let a user turn their hypothesis into a set of testable assumptions — each wit
 ## User Stories
 
 - As the **Primary Persona (Solo Founder)**, I want to write down what I'm assuming and how I'll check it, so that "I think this will work" becomes something I can actually test.
-- As the **Primary Persona**, I want to mark an assumption as validated or invalidated, so that I have an honest record of what's confirmed versus still a guess.
+- As the **Primary Persona**, I want to mark an assumption as validated or invalidated, so that I have an honest record of what the evidence currently supports, separate from what I still only believe.
 - As the **Secondary Persona (Early-Stage Team Lead)**, I want the team to see which assumptions are still open, so that we don't start building on an unconfirmed premise.
 
 ## Acceptance Criteria

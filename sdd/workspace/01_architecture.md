@@ -65,6 +65,7 @@ Default language selected
 
 **Not localized in V1** — this is user-authored content, not product copy, and translating it would change its meaning rather than merely present it in another language:
 - User-created Project Name
+- User-created Project Description (per [ADR-0019](../architecture/decisions/ADR-0019-ai-generated-onboarding-presets-at-project-creation.md); added to [Workspace Data & State](./02_data_and_state.md))
 - User answers (Canvas field values, however they were entered — preset-derived or custom)
 - Business idea content generally
 - Anything in the Canvas that originated from user input, regardless of whether a preset supplied the starting text the user then kept or edited
@@ -104,14 +105,64 @@ Workspace (Application)
 |---|---|
 | Entry | Landing's call-to-action leads into the Dashboard / Project List — see [Application Responsibilities](../context/05_application_responsibilities.md) for the cross-Application rule; this document does not restate it. |
 | Dashboard / Project List → Project | Selecting a Project enters that Project's own navigation scope. |
-| Within a Project | Business Structuring, MVP Scope, Feature Planning, and Validation Checklist are siblings — reachable in any order (non-linear), with Project Summary as a read-only aggregate, not a step in the sequence. |
+| Within a Project | Business Structuring, MVP Scope, Feature Planning, and Validation Checklist are siblings — reachable in any order (non-linear), with Project Summary as a read-only aggregate, not a step in the sequence. **Presentation exception:** the navigation surface may show current-page emphasis, completion indication, and next-recommended emphasis for the three required stages (Business Structuring, MVP Planning, Validation Planning) — a non-restrictive presentation layer only, per [ADR-0020](../architecture/decisions/ADR-0020-progressive-navigation-as-non-restrictive-guided-emphasis.md) as generalized by [ADR-0022](../architecture/decisions/ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md); every sibling remains reachable in any order regardless of this presentation. See [Navigation State Semantics](#navigation-state-semantics) below for the full role/state model. |
 | Business Structuring internal order | Within the Business Structuring screen itself, the five questions follow a fixed guided sequence (not free navigation) per [Business Structuring](./features/02_business_structuring.md) and [Core User Journey](../context/03_personas_and_journey.md): Business Idea → Problem → Target Customer → Solution → Value Proposition, ending in Review. This internal sequence is a Feature-level concept, distinct from the Workspace-level non-linear navigation between Features on the row above. |
+
+### Navigation State Semantics {#navigation-state-semantics}
+
+*(Owned here, not in `sdd/design-system/`, because these are Workspace IA/workflow semantics — what a role or state *means* for a Project's navigation — not a visual primitive's own contract. The Design System owns the *treatment* those roles receive (tokens, Badge tone, icon usage); this section owns the roles and rules themselves, per [ADR-0022](../architecture/decisions/ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md).)*
+
+**Navigation roles** — every item in the Project navigation has exactly one, fixed by what it is, never by its current state:
+
+| Role | Items | Meaning |
+|---|---|---|
+| Required workflow stage | Business Structuring, MVP Planning, Validation Planning | Gates a [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) transition |
+| Optional tool | Risk Memo | Gates no lifecycle transition; always reachable, never part of completion/recommendation logic |
+| Project summary | Project Summary | Always-available read-only aggregate; not a workflow stage, never completable, never recommended |
+
+**Navigation states** — apply only to items with the Required workflow stage role, except Current, which applies to any item:
+
+| State | Meaning | Applies to |
+|---|---|---|
+| Current | The active route | Any item |
+| Completed | The stage's own lifecycle guard is already satisfied | Required workflow stages only |
+| Next recommended | The single stage [`blockingReason()`](../../app/src/domain/lifecycle.ts) currently names | At most one required workflow stage at a time |
+| Available | Neither current, completed, nor next-recommended | Required workflow stages only |
+
+**State independence.** Current and Completed are **independent, not mutually exclusive** — a user revisiting an already-completed stage is both at once, and the navigation must show both signals simultaneously, per [ADR-0022](../architecture/decisions/ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md) Decision 4. This is not an edge case to special-case away; it is the ordinary result of [Workspace Mental Model Review](#workspace-mental-model-review)'s "Artifacts as continuously revisable thinking" principle applied to the nav itself.
+
+**Valid state combinations:**
+
+| Combination | Valid? | Rendering |
+|---|---|---|
+| Current + Completed | Valid, expected | Both signals shown — current-page emphasis, unsuppressed by completion |
+| Current + Optional (Risk Memo is the active route) | Valid | Current-page emphasis on an otherwise-optional-styled item; no completion/recommendation concept applies |
+| Current + Summary (Project Summary is the active route) | Valid | Current-page emphasis on an otherwise-summary-styled item; no completion/recommendation concept applies |
+| Completed + Next recommended (same item) | **Never occurs**, by construction | `blockingReason()` only ever names an incomplete stage — this combination cannot arise from real domain data, not merely "handled," and no code path should attempt to render it |
+| Current + Next recommended (same item) | Valid, but de-duplicated | The next-recommended indicator is suppressed on the current item — redundant with current-page emphasis, per [ADR-0022](../architecture/decisions/ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md) Decision 5 |
+| No next recommended (`blockingReason()` returns `"confirm"` or `null`) | Valid | No item shows next-recommended emphasis — never a misleading fallback guess |
+
+**Visual hierarchy** (restates [ADR-0022](../architecture/decisions/ADR-0022-generalize-navigation-emphasis-with-completion-indicators.md), stated here as a binding rule for any future navigation-surface implementation):
+- Current location receives the strongest emphasis of any state.
+- Completed status is indicated with a non-color marker (a check), never color alone.
+- Next-recommended uses an explicit, distinct-from-current semantic marker — never the same color/treatment as Current.
+- Required workflow stages are visually grouped, distinct from Optional and Summary items.
+- Project Summary is never presented as a numbered or sequential step.
+- No state in this table is ever conveyed by color alone.
+
+**Behavioral rules:**
+- Clicking any navigation item uses ordinary routing — identical for every role/state combination.
+- Navigation styling never determines route access. A route's reachability is governed entirely by [Frontend Architecture](../frontend/01_architecture.md)'s routing, never by this presentation layer.
+- A Next-recommended indicator never changes what routes exist or are reachable — it is advisory only.
+- Revisiting a Completed stage is fully supported and remains styled as Completed (see State independence above).
+
+**Source of truth (no duplicated state):** Current is derived from the active route. Completed and Next-recommended are derived entirely from existing [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) data already computed by `lifecycle.ts` — `blockingReason()` for Next-recommended; Canvas completeness (`stage !== "captured"/"structuring"`), `canEnterValidating()`, and `canEnterValidated()` for Completed, per required stage. This document does not introduce, and no implementation may introduce, a separate persisted "navigation state" field — see [Workspace Data & State](./02_data_and_state.md)'s existing rule against duplicating what completeness already tells you.
 
 ## Workspace Mental Model Review
 
 *(Relocated from `context/04_information_architecture.md`, unchanged in substance — restated here because it is now Workspace-internal reasoning, not cross-Application IA.)*
 
-Navigation remains organized around **Projects and their artifacts**, not around lifecycle stages as top-level screens. The [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md)'s stages are a derived status, layered onto the Dashboard/Project List and each Project's own view (showing which artifact is blocking the next transition) — not a parallel navigation structure. See the [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) document for the state/transition model this status is derived from. Revisit this recommendation only if the Idea Explorer persona is promoted from Future to Secondary/Primary (see [Personas](../context/03_personas_and_journey.md)).
+Navigation remains organized around **Projects and their artifacts**, not around lifecycle stages as top-level screens — [ADR-0020](../architecture/decisions/ADR-0020-progressive-navigation-as-non-restrictive-guided-emphasis.md)'s onboarding presentation exception (Navigation Model table above) does not change this; it is a time-bounded visual layer over an unchanged set of always-reachable destinations, not a new navigation structure. The [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md)'s stages are a derived status, layered onto the Dashboard/Project List and each Project's own view (showing which artifact is blocking the next transition) — not a parallel navigation structure. See the [Business Idea Lifecycle](../domain/01_business_idea_lifecycle.md) document for the state/transition model this status is derived from. Revisit this recommendation only if the Idea Explorer persona is promoted from Future to Secondary/Primary (see [Personas](../context/03_personas_and_journey.md)).
 
 **Thinking flow vs. Feature flow** (per [ADR-0012](../architecture/decisions/ADR-0012-guided-question-flow-as-standard-interaction-pattern.md)): a guided flow's questions may move between conceptual domains whenever it improves the user's thinking, without that transition reading as a navigation event between separate screens — this is a refinement of the Mental Model above, not a change to it. Concept ownership never changes: every answer is still written to its single canonical Feature-owned field; no shared ownership, no duplicated data, and no cross-Feature orchestration state is introduced by this.
 
