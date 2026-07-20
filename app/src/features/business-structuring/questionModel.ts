@@ -88,6 +88,51 @@ export const v1StaticPresetProvider: PresetProvider = (questionId, { language })
 };
 
 /**
+ * The Onboarding provider's current status, distinct from whether presets
+ * happen to be resolvable — a Feature must be able to tell "generation is
+ * pending" apart from "no AI metadata exists" (a pre-AI-era Project) before
+ * ever calling resolvePresets(), since both cases read `onboardingPresets`
+ * as `undefined`/absent otherwise. `"none"` means this Project was created
+ * before Onboarding Preset Assistant existed, or otherwise never had a
+ * generation request registered for it — existing-Project compatibility
+ * relies on this being a distinct outcome from `"generating"`, never
+ * conflated with it.
+ */
+export type OnboardingUiStatus = "generating" | "ready" | "fallback" | "none";
+
+export function onboardingStatus(project: Project): OnboardingUiStatus {
+  return project.onboardingPresets?.status ?? "none";
+}
+
+/**
+ * The Onboarding provider — third Preset Provider, per
+ * sdd/workspace/features/02_1_question_model.md#preset-strategy's three-
+ * provider table. Reads Onboarding Preset Assistant's output (per
+ * ADR-0019, simplified by ADR-0021), persisted on the Project at creation
+ * time; falls back to the static V1 provider whenever that output is
+ * absent, `generating`, `fallback`, or simply doesn't cover this question.
+ * Per ADR-0021, a question's presets always come from exactly one provider
+ * and are always a selectable list — this function never returns an empty
+ * array for a question that has a fallback available.
+ *
+ * Deliberately does NOT special-case `generating` — this function only
+ * ever answers "what should a question's presets be if shown right now,"
+ * never "should presets be shown at all." A consumer must check
+ * onboardingStatus() first (see BusinessStructuringPage) and render its own
+ * loading state instead of calling this function while `generating` — the
+ * fix for the timing bug this pairing resolves is a rendering decision, not
+ * a resolution-priority one.
+ */
+export const resolvePresets: PresetProvider = (questionId, context) => {
+  const onboarding = context.project.onboardingPresets;
+  if (onboarding?.status === "ready") {
+    const tailored = onboarding.presets?.[questionId];
+    if (tailored) return tailored;
+  }
+  return v1StaticPresetProvider(questionId, context);
+};
+
+/**
  * Resume rule (sdd/workspace/02_data_and_state.md): derived from Canvas field completeness,
  * never a separately persisted pointer. Returns the index of the first unanswered question,
  * or QUESTIONS.length if every question is answered (meaning: show Review).

@@ -172,6 +172,9 @@ export interface Resources {
     newProject: string;
     projectNameLabel: string;
     projectNamePlaceholder: string;
+    projectDescriptionLabel: string;
+    projectDescriptionHint: string;
+    projectDescriptionPlaceholder: string;
     emptyTitle: string;
     emptyDescription: string;
     open: string;
@@ -193,6 +196,9 @@ export interface Resources {
     confirmAndContinue: string;
     loadingProject: string;
     guardedNotice: string;
+    onboardingGeneratingTitle: string;
+    onboardingGeneratingHint: string;
+    onboardingFallbackNote: string;
   };
   riskMemo: {
     title: string;

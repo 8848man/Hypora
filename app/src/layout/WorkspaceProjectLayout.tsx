@@ -38,7 +38,23 @@ export function WorkspaceProjectLayout() {
       </header>
 
       <nav className="workspace-project__nav">
-        <NavLink to={`/app/projects/${projectId}/canvas`}>{t.nav.businessStructuring}</NavLink>
+        {/* Progressive Navigation (ADR-0020): a Project whose Canvas isn't complete yet
+            (stage still "captured" or "structuring", the same domain-lifecycle signal
+            ADR-0017 already reuses for Project Summary) shows Business Structuring with
+            more visual weight — never a restriction; every link below stays reachable
+            regardless. Recomputed from current stage on every render, per ADR-0020
+            Decision 4 — no separate "was this shown" flag is introduced. */}
+        <NavLink
+          to={`/app/projects/${projectId}/canvas`}
+          className={({ isActive }) => {
+            if (isActive) return "active";
+            return project.stage === "captured" || project.stage === "structuring"
+              ? "workspace-project__nav-link--emphasis"
+              : "";
+          }}
+        >
+          {t.nav.businessStructuring}
+        </NavLink>
         <NavLink to={`/app/projects/${projectId}/scope`}>{t.nav.mvpPlanning}</NavLink>
         <NavLink to={`/app/projects/${projectId}/validation`}>{t.nav.validationPlanning}</NavLink>
         <NavLink to={`/app/projects/${projectId}/risks`}>{t.nav.riskMemo}</NavLink>

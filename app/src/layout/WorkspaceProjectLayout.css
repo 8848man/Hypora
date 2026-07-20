@@ -44,6 +44,14 @@
   font-weight: 600;
 }
 
+/* Progressive Navigation (ADR-0020): presentation-only emphasis on an
+   incomplete Project's Business Structuring link — never a restriction.
+   Every other nav item is unaffected and remains equally reachable. */
+.workspace-project__nav a.workspace-project__nav-link--emphasis:not(.active) {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .workspace-project__content {
   max-width: 720px;
 }
