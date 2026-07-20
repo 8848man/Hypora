@@ -8,9 +8,11 @@ Per `sdd-framework/08_release_process.md`: this is the one file in `release/` th
 
 | Component | Version | Git Tag | Deployed | Log |
 |---|---|---|---|---|
-| Frontend (bundled Landing + Workspace) | `0.1.0` | `frontend-v0.1.0` | [https://hypora-2026.vercel.app](https://hypora-2026.vercel.app) | [frontend/2026.md](./frontend/2026.md) |
+| Frontend (bundled Landing + Workspace) | `2.0.3` (product-facing; no `frontend-v2.0.3` git tag has been cut yet — see note below) | `frontend-v0.1.0` (last tagged) | [https://hypora-2026.vercel.app](https://hypora-2026.vercel.app) | [frontend/2026.md](./frontend/2026.md), [2.0.3_readme.md](./2.0.3_readme.md) |
 
 Platform API has no entry — it is not deployed (V1 uses LocalStorage inside the frontend bundle; see [Deployment Strategy](../sdd/infra/01_deployment.md)).
+
+**Note on versioning:** `2.0.3` is the product-facing release label used in [2.0.3_readme.md](./2.0.3_readme.md); it tracks a separate numbering line from the git-tag-anchored `frontend-vX.Y.Z` history in [frontend/2026.md](./frontend/2026.md) (still at `0.1.0`, unchanged by this release) and from `app/package.json` (also still `0.1.0`). Reconciling these into one number is not done here — this note exists so the mismatch reads as known, not as a discrepancy to investigate.
 
 ## Project Rollups
 
