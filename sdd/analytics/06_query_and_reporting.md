@@ -11,6 +11,8 @@ Events are being written successfully (Firestore, per ADR-0013), but the only wa
 ## Goals
 
 - Let an internal operator view Landing→Workspace conversion, a recent event timeline, and per-event detail, without touching the Firestore Console.
+- Let an internal operator view Workspace lifecycle progression (Structuring → Scoped → Validating), per-AI-Capability effectiveness (acceptance/failure signal), and per-Feature adoption — the product-decision questions a raw event log cannot answer at a glance.
+- Let an internal operator confirm, in seconds, that the Analytics write path is itself healthy (events are arriving, no catalogued event has silently stopped firing) — an operational, not product, concern, but one this same read path is the natural place to surface, since it already queries the same canonical store.
 - Introduce a read path that is symmetric in spirit to the existing write path: provider-independent, with no Feature or dashboard component ever depending on Firestore's SDK directly.
 - Keep Firestore as the sole canonical source the dashboard ever reads from.
 
@@ -19,7 +21,8 @@ Events are being written successfully (Firestore, per ADR-0013), but the only wa
 - **Not a product-facing Feature.** The dashboard is an internal operations tool, not a Workspace Feature, not part of the Landing/Workspace user experience, and not localized per [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md) — it has no end-user audience.
 - **Not a general Authentication system.** [Application Responsibilities](../context/05_application_responsibilities.md#platform-api) already lists Authentication as "Not implemented ... required once Workspace moves beyond single-browser, single-user persistence" — that is a future, multi-user, product-facing capability. This document's Authentication Boundary (below) is a narrower, internal-operator-only concern and must not be conflated with, and does not require or accelerate, that future capability.
 - **Not a GA4 reporting replacement.** GA4 already has its own dashboards (Firebase Analytics DebugView, Google Analytics Realtime/reporting UI) for marketing use, per [Provider Independence](./03_provider_independence.md#firebase-analytics-ga4--a-non-portable-reporting-sink-not-a-provider). This internal dashboard exists for product-validation questions GA4 cannot answer against this project's own Event Model, not to duplicate GA4's own UI.
-- **Not real-time streaming analytics, cohort/retention analysis, or a data warehouse.** Query, aggregate, and display what Firestore already holds — nothing here builds a second storage or processing layer.
+- **Not real-time streaming analytics, cohort/retention analysis, or a data warehouse.** Query, aggregate, and display what Firestore already holds — nothing here builds a second storage or processing layer. This continues to exclude cohort-by-signup-week retention curves (D1/D7/D30) specifically — a real future need, deferred until there is concrete evidence it's worth its query cost, per [Migration Considerations](#migration-considerations)'s own extension pattern.
+- **Not a general application-performance-monitoring tool.** Operational Health (below) answers "did an expected event arrive," using data already in the Event Model envelope — it never measures Firestore query latency, client performance, or anything requiring new instrumentation beyond the Event Model itself. A future need for real APM is a separate, unrelated tool, not an extension of this one.
 
 ## Architecture
 
@@ -57,13 +60,13 @@ The two paths never call into each other. The Dashboard never imports `EventTrac
 
 ### Analytics Dashboard
 
-**Owns:** presentation only — Overview metrics, Event Timeline, Funnel Analysis, Event Detail (see Dashboard Scope below). Requests data from the Analytics Query Service by calling its query operations; never assembles a query against Firestore's own query language, never knows a collection path or document shape exists.
+**Owns:** presentation only — every view named in Dashboard Scope below. Requests data from the Analytics Query Service by calling its query operations; never assembles a query against Firestore's own query language, never knows a collection path or document shape exists.
 
 **Must never:** read from GA4 as a data source; import the Firebase SDK, `EventTracker`, or any Provider directly; encode Feature-specific business rules (e.g., "a Business Structuring session that took longer than 10 minutes is at-risk") — such judgments belong to a future product-intelligence capability consuming the same read path, never hardcoded into dashboard presentation code.
 
 ### Analytics Query Service
 
-**Owns:** the read-side equivalent of the existing Analytics Service — event aggregation (counts, unique `sessionId`/`anonymousUserId` counts), filtering (by `eventName`, time range, `pagePath`), funnel calculation (an ordered sequence of `eventName` steps, computing how many distinct sessions reached each step and the conversion rate between consecutive steps), and provider-independent querying — it calls the Analytics Repository Interface, never a concrete Repository, mirroring how the write-side Analytics Service calls `EventTracker`, never a concrete Provider ([Analytics Platform Architecture](./01_architecture.md#responsibility-split)).
+**Owns:** the read-side equivalent of the existing Analytics Service — event aggregation (counts, unique `sessionId`/`anonymousUserId` counts), filtering (by `eventName`, time range, `pagePath`/`feature`), funnel calculation (an ordered sequence of `eventName` steps, computing how many distinct sessions reached each step and the conversion rate between consecutive steps), rate calculation (e.g., AI Capability acceptance/failure rate — a ratio between two already-aggregated counts, not a new kind of computation), elapsed-time calculation between two named events per session (Time to First Value), and provider-independent querying — it calls the Analytics Repository Interface, never a concrete Repository, mirroring how the write-side Analytics Service calls `EventTracker`, never a concrete Provider ([Analytics Platform Architecture](./01_architecture.md#responsibility-split)).
 
 **Must never:** own presentation formatting (chart shape, table layout — Dashboard's job); own a second copy of the Event Catalog's `eventName` vocabulary (references [Event Catalog](./04_event_catalog.md), same as the write side).
 
@@ -79,7 +82,7 @@ The two paths never call into each other. The Dashboard never imports `EventTrac
 
 ## Data Flow
 
-1. An internal operator opens the Dashboard and selects a view (Overview, Timeline, Funnel, Detail) and any filters (time range, specific event).
+1. An internal operator opens the Dashboard and selects a view (see Dashboard Scope) and any filters (time range, specific event).
 2. The Dashboard calls one Analytics Query Service operation (e.g., "compute this funnel over the last 7 days").
 3. The Query Service calls the Analytics Repository Interface for the raw events its calculation needs (e.g., every `landing_page_view`/`cta_clicked`/`workspace_started` in range).
 4. The Firebase Analytics Repository issues the actual Firestore query, maps results into Event Model envelopes, and returns them.
@@ -87,21 +90,29 @@ The two paths never call into each other. The Dashboard never imports `EventTrac
 
 ## Query Model
 
-Three query shapes cover the MVP scope below — no others are needed yet:
+Six query shapes cover the current scope below — all built on the existing Repository's `queryEvents(filter)` alone; none requires a new Repository method:
 
 | Query | Input | Output |
 |---|---|---|
 | Aggregate count | `eventName` (or list), time range | A count, plus a distinct-session count (for "how many visitors," not "how many events") |
 | Timeline | time range, optional `eventName` filter, pagination cursor | A time-ordered list of Event Model envelopes |
 | Funnel | an ordered list of `eventName` steps, time range | Per-step counts of distinct sessions reaching that step, and conversion percentage between consecutive steps |
+| Event Breakdown | time range | Per-catalogued-`eventName`: total count, distinct `anonymousUserId` count — the per-event table underlying Feature Adoption |
+| AI Capability Scorecard | time range | Per `properties.capabilityId` (per [AI Interaction](../ai/04_ai_interaction.md)'s events): total `ai_request_sent`, acceptance rate (`ai_suggestion_accepted ÷ ai_suggestion_ready`), failure rate (`ai_request_failed ÷ ai_request_sent`) |
+| Time to First Value | a start `eventName`, a milestone `eventName`, time range | Average and median elapsed time, per session, between the start event and the milestone event — a distribution/histogram is explicitly not required by this query shape; if ever needed it is a presentation concern layered on the same result, not a new query |
 
-A funnel is **configuration, not code** — the Funnel Analysis view accepts an ordered `eventName` array and renders whatever steps it's given; adding a future funnel (e.g., `template_selected → signup_started`, once that UI exists per [Event Catalog](./04_event_catalog.md#landing)) is a new configuration value, never a new dashboard component.
+A funnel is **configuration, not code** — the Funnel Analysis view accepts an ordered `eventName` array and renders whatever steps it's given; adding a future funnel (e.g., `template_selected → signup_started`, once that UI exists per [Event Catalog](./04_event_catalog.md#landing)) is a new configuration value, never a new dashboard component. The Workspace lifecycle funnel (`workspace_started → project_created → business_structuring_review_confirmed → mvp_scope_marked_complete → validation_item_resolved`) is a second instance of this same mechanism, not a new one.
 
-## Dashboard Scope (MVP)
+## Dashboard Scope
 
-- **Overview:** Landing page views, CTA clicks, Workspace starts, and the derived conversion rate — the `landing_page_view → cta_clicked → workspace_started` funnel, using the Funnel query above.
-- **Event Timeline:** timestamp, event name, page, `properties.placement`/`source` (whichever the event carries), session identifier — a Timeline query, most-recent-first.
-- **Funnel Analysis:** the Query Model's Funnel query, initially seeded with the Overview's own three-step funnel; the same mechanism supports any future funnel without new dashboard architecture.
+- **Operational Health:** events received today, the most recent event's timestamp, and a per-catalogued-`eventName` zero-count check over a recent window (surfacing a catalogued event that has silently stopped firing) — an Event Breakdown query read as a health signal, not a new query shape. Explicitly excludes Firestore query latency or any client-performance metric, per Non-Goals above.
+- **Usage Pulse:** today/yesterday/weekly distinct-device counts, new-vs-returning split (by `anonymousUserId` first-seen date), each with a trend indicator against the prior period — Aggregate Count query over rolling windows.
+- **Overview / Acquisition Funnel:** Landing page views, CTA clicks, Workspace starts, and the derived conversion rate — the `landing_page_view → cta_clicked → workspace_started` funnel, using the Funnel query above.
+- **Workflow Funnel:** the Workspace lifecycle funnel named above — the Funnel query's second configured instance.
+- **AI Capability Scorecard:** the AI Capability Scorecard query above, one row per capability, with high-usage/low-acceptance and high-failure-rate rows visually distinguished — presentation only, no new query per highlighted condition.
+- **Feature Adoption:** the Event Breakdown query, grouped/labeled by `feature` (per [Workspace Feature Inventory](../workspace/01_architecture.md#feature-inventory-v1)) — most/least-used features and per-feature distinct-device counts.
+- **Time to First Value:** the Time to First Value query above, seeded with `workspace_started → business_structuring_review_confirmed` as the default start/milestone pair.
+- **Event Timeline:** timestamp (operator-local display, e.g. KST), relative-time hint, event name, page/feature/screen, session identifier, filterable by `eventName` and jumpable-to-session — a Timeline query, most-recent-first.
 - **Event Detail:** the full Event Model envelope and `properties` for one selected event — direct passthrough of a single Timeline result, no additional query needed.
 
 ## Authentication Boundary
