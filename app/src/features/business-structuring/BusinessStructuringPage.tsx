@@ -20,6 +20,7 @@ import { useCanvasAssistant } from "../../ai/useCanvasAssistant";
 import { useProjectContext } from "../useProject";
 import { QUESTIONS, resumeQuestionIndex, resolvePresets, onboardingStatus } from "./questionModel";
 import { buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
+import { trackEvent } from "../../platform/analytics/analyticsService";
 
 export function BusinessStructuringPage() {
   const { project, update, saveError } = useProjectContext();
@@ -33,6 +34,18 @@ export function BusinessStructuringPage() {
   const [currentIndex, setCurrentIndex] = useState(() => resumeQuestionIndex(project.canvas));
   const advanceTimeout = useRef<number | null>(null);
   const assistant = useCanvasAssistant();
+
+  // business_structuring_started fires when the flow is opened with nothing
+  // yet answered — a pragmatic proxy for "first time," per
+  // sdd/analytics/04_event_catalog.md, since no separate first-open marker
+  // exists on Project. Mount-only (empty deps): re-opening a partially
+  // answered flow later is ordinary navigation, not a new "start."
+  useEffect(() => {
+    if (Object.values(project.canvas).every((value) => !value)) {
+      trackEvent({ eventName: "business_structuring_started", feature: "business-structuring", projectId: project.id });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Acceptance Confirmation (sdd/ai/04_ai_interaction.md#suggestion-lifecycle):
   // Feature-local, transient view-state only — not a new AI lifecycle state.
@@ -149,7 +162,15 @@ export function BusinessStructuringPage() {
     const text = assistant.suggestionText;
     const rationale = assistant.rationale;
 
-    if (text) saveAnswer(text);
+    if (text) {
+      saveAnswer(text);
+      trackEvent({
+        eventName: "ai_suggestion_accepted",
+        feature: "business-structuring",
+        projectId: project.id,
+        properties: { capabilityId: "canvas-assistant" },
+      });
+    }
     assistant.reset();
 
     if (text) {
@@ -174,6 +195,19 @@ export function BusinessStructuringPage() {
     : undefined;
 
   function goNext() {
+    // canvas_field_updated fires once per question exit, not per keystroke —
+    // ChoiceList's onCustomChange (-> saveAnswer) fires on every keystroke by
+    // design for autosave; tracking there would flood the event stream with
+    // no analytical value over this single coarser "this field now has a
+    // saved answer" signal.
+    if (value.trim()) {
+      trackEvent({
+        eventName: "canvas_field_updated",
+        feature: "business-structuring",
+        projectId: project.id,
+        properties: { field: question.relatedCanvasField },
+      });
+    }
     setCurrentIndex((i) => Math.min(i + 1, total));
   }
 
@@ -185,7 +219,14 @@ export function BusinessStructuringPage() {
     return (
       <ReviewStep
         onEditQuestion={(i) => setCurrentIndex(i)}
-        onConfirm={() => navigate(`/app/projects/${projectId}/scope`)}
+        onConfirm={() => {
+          trackEvent({
+            eventName: "business_structuring_review_confirmed",
+            feature: "business-structuring",
+            projectId: project.id,
+          });
+          navigate(`/app/projects/${projectId}/scope`);
+        }}
       />
     );
   }

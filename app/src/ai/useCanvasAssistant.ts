@@ -38,7 +38,7 @@ export type UseCanvasAssistantResult = Omit<
 };
 
 export function useCanvasAssistant(): UseCanvasAssistantResult {
-  const assistant = useAiAssistant(requestCanvasAssistantSuggestion, "generic" as const);
+  const assistant = useAiAssistant(requestCanvasAssistantSuggestion, "generic" as const, "canvas-assistant");
 
   return {
     ...assistant,

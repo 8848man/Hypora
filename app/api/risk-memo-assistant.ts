@@ -1,37 +1,12 @@
 // Platform API — Risk Memo Assistant endpoint (POST /api/risk-memo-assistant).
 //
 // HTTP request -> validation -> Capability invocation -> error translation ->
-// JSON response. Identical shape to /api/canvas-assistant, confirming the
-// pattern generalizes per capability without inventing new HTTP mechanics.
+// JSON response, via the shared handler shell (createCapabilityHandler).
 
-import type { IncomingMessage, ServerResponse } from "node:http";
 import { createContainer } from "../server/ai/container.js";
-import { readJsonBody } from "../server/http/readJsonBody.js";
 import { validateRiskMemoAssistantRequest } from "../server/http/validateRiskMemoAssistantRequest.js";
-import { translateErrorToHttpResponse } from "../server/http/errors.js";
+import { createCapabilityHandler } from "../server/http/createCapabilityHandler.js";
 
-export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
-  if (req.method !== "POST") {
-    res.statusCode = 405;
-    res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify({ error: "Method Not Allowed", kind: "method_not_allowed" }));
-    return;
-  }
-
-  try {
-    const rawBody = await readJsonBody(req);
-    const request = validateRiskMemoAssistantRequest(rawBody);
-
-    const container = createContainer();
-    const response = await container.riskMemoAssistant.invoke(request);
-
-    res.statusCode = 200;
-    res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify(response));
-  } catch (err) {
-    const { status, body } = translateErrorToHttpResponse(err);
-    res.statusCode = status;
-    res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify(body));
-  }
-}
+export default createCapabilityHandler(validateRiskMemoAssistantRequest, (request) =>
+  createContainer().riskMemoAssistant.invoke(request),
+);

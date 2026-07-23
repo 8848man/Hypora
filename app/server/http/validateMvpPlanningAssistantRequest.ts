@@ -5,21 +5,7 @@
 
 import type { CanvasContextField, MvpPlanningAssistantRequest } from "../ai/capabilities/mvpPlanningAssistant/types.js";
 import { HttpValidationError } from "./HttpValidationError.js";
-
-const VALID_LANGUAGES = ["ko", "en"] as const;
-
-function isContextFieldArray(value: unknown): value is CanvasContextField[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === "object" &&
-        item !== null &&
-        typeof (item as Record<string, unknown>).field === "string" &&
-        typeof (item as Record<string, unknown>).value === "string",
-    )
-  );
-}
+import { VALID_LANGUAGES, isContextFieldArray } from "./validationHelpers.js";
 
 export function validateMvpPlanningAssistantRequest(body: unknown): MvpPlanningAssistantRequest {
   if (typeof body !== "object" || body === null) {

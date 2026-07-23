@@ -60,14 +60,17 @@ export class FirebaseEventTracker implements EventTracker {
           timestamp: event.timestamp,
           sessionId: event.sessionId,
           anonymousUserId: event.anonymousUserId,
-          pagePath: event.pagePath,
           schemaVersion: FIRESTORE_DOCUMENT_SCHEMA_VERSION,
         };
-        // Firestore rejects `undefined` field values — only attach `properties`
-        // when the emitting call site actually supplied it.
-        if (event.properties) {
-          document.properties = event.properties;
-        }
+        // Firestore rejects `undefined` field values — an emitting call site
+        // supplies exactly one of pagePath (Landing) or feature/screen
+        // (Workspace/AI), per the Event Model envelope; only attach whichever
+        // optional fields were actually present.
+        if (event.pagePath !== undefined) document.pagePath = event.pagePath;
+        if (event.feature !== undefined) document.feature = event.feature;
+        if (event.screen !== undefined) document.screen = event.screen;
+        if (event.projectId !== undefined) document.projectId = event.projectId;
+        if (event.properties) document.properties = event.properties;
         return addDoc(collection(firestore, this.config.collectionPath), document);
       })
       .catch((error: unknown) => {

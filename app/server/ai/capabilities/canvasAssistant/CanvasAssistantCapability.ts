@@ -13,7 +13,7 @@ import type { AiApplicationService } from "../../AiApplicationService.js";
 import { createTemplate } from "../../prompt/PromptRenderer.js";
 import { serializeContext } from "../../context/ContextTransformer.js";
 import { parseJson } from "../../response/ResponseParser.js";
-import { assertNonEmptyText, assertShape } from "../../response/ResponseValidator.js";
+import { assertNonEmptyText, assertShape, isObjectWithStringField } from "../../response/ResponseValidator.js";
 import { OPERATION_TEMPLATES } from "./prompts.js";
 import type { CanvasAssistantRequest, CanvasAssistantResponse } from "./types.js";
 
@@ -38,11 +38,7 @@ function buildCanvasContextText(request: CanvasAssistantRequest): string {
 function isCanvasAssistantResponseShape(
   candidate: unknown,
 ): candidate is { suggestionText: string; rationale?: string } {
-  return (
-    typeof candidate === "object" &&
-    candidate !== null &&
-    typeof (candidate as Record<string, unknown>).suggestionText === "string"
-  );
+  return isObjectWithStringField(candidate, "suggestionText");
 }
 
 export class CanvasAssistantCapability {

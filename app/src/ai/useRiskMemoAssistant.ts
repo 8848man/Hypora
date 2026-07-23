@@ -36,7 +36,7 @@ export type UseRiskMemoAssistantResult = Omit<
 };
 
 export function useRiskMemoAssistant(): UseRiskMemoAssistantResult {
-  const assistant = useAiAssistant(requestRiskMemoAssistantSuggestion, "generic" as const);
+  const assistant = useAiAssistant(requestRiskMemoAssistantSuggestion, "generic" as const, "risk-memo-assistant");
 
   return {
     ...assistant,

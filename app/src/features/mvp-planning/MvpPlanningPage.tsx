@@ -22,6 +22,7 @@ import { useProjectContext } from "../useProject";
 import { buildRiskMemoContext, buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
 import { FeatureSuggestionPreview, type AcceptedProposal } from "./FeatureSuggestionPreview";
 import { createHistoryEvent } from "./featureHistory";
+import { trackEvent } from "../../platform/analytics/analyticsService";
 
 const PRIORITIES: FeaturePriority[] = ["must", "should", "could"];
 
@@ -77,7 +78,15 @@ export function MvpPlanningPage() {
     const text = assistant.suggestionText;
     const rationale = assistant.rationale;
 
-    if (text) update({ ...projectRef.current, mvpScope: text });
+    if (text) {
+      update({ ...projectRef.current, mvpScope: text });
+      trackEvent({
+        eventName: "ai_suggestion_accepted",
+        feature: "mvp-planning",
+        projectId: project.id,
+        properties: { capabilityId: "mvp-planning-assistant" },
+      });
+    }
     assistant.reset();
 
     if (text) {
@@ -166,6 +175,20 @@ export function MvpPlanningPage() {
     featureSuggestion.reset();
 
     if (newFeatures.length > 0) {
+      trackEvent({
+        eventName: "ai_suggestion_accepted",
+        feature: "mvp-planning",
+        projectId: project.id,
+        properties: { capabilityId: "feature-suggestion-assistant", count: newFeatures.length },
+      });
+      newFeatures.forEach(() => {
+        trackEvent({
+          eventName: "feature_created",
+          feature: "mvp-planning",
+          projectId: project.id,
+          properties: { origin: "suggested" },
+        });
+      });
       clearFeatureSuggestionConfirmation();
       setFeatureSuggestionConfirmation(t.mvpPlanning.featuresAddedLabel(newFeatures.length));
       featureSuggestionConfirmationTimeout.current = window.setTimeout(() => {
@@ -221,6 +244,12 @@ export function MvpPlanningPage() {
       features: [...project.features, feature],
       featureHistory: [...project.featureHistory, createHistoryEvent(feature.id, feature.name, "created")],
     });
+    trackEvent({
+      eventName: "feature_created",
+      feature: "mvp-planning",
+      projectId: project.id,
+      properties: { origin: "manual" },
+    });
     setNewFeatureName("");
   }
 
@@ -252,15 +281,23 @@ export function MvpPlanningPage() {
   const [showHistory, setShowHistory] = useState(false);
 
   function toggleScopeComplete() {
-    const next = { ...project, mvpScopeComplete: !project.mvpScopeComplete };
+    const markingComplete = !project.mvpScopeComplete;
+    const next = { ...project, mvpScopeComplete: markingComplete };
     next.stage = advanceToValidating(next);
     update(next);
+    if (markingComplete) {
+      trackEvent({ eventName: "mvp_scope_marked_complete", feature: "mvp-planning", projectId: project.id });
+    }
   }
 
   function toggleFeaturePlanningComplete() {
-    const next = { ...project, featurePlanningComplete: !project.featurePlanningComplete };
+    const markingComplete = !project.featurePlanningComplete;
+    const next = { ...project, featurePlanningComplete: markingComplete };
     next.stage = advanceToValidating(next);
     update(next);
+    if (markingComplete) {
+      trackEvent({ eventName: "feature_planning_marked_complete", feature: "mvp-planning", projectId: project.id });
+    }
   }
 
   return (
@@ -273,6 +310,16 @@ export function MvpPlanningPage() {
           hint={t.mvpPlanning.scopeHint}
           value={project.mvpScope}
           onChange={(e) => update({ ...project, mvpScope: e.target.value })}
+          // mvp_scope_updated fires on blur only — the existing onChange above
+          // saves per keystroke (autosave), but tracking there would flood the
+          // event stream with no analytical value over one "field left with a
+          // saved value" signal per edit session, same reasoning as Business
+          // Structuring's canvas_field_updated.
+          onBlur={() => {
+            if (project.mvpScope.trim()) {
+              trackEvent({ eventName: "mvp_scope_updated", feature: "mvp-planning", projectId: project.id });
+            }
+          }}
         />
 
         {/* AI area: the field above remains editable in every state below —
