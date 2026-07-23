@@ -2,10 +2,9 @@
 // per sdd/ai/capabilities/03_mvp_planning_assistant.md. Contract Version 1.0.
 // Deliberately a separate contract from Canvas/Risk Memo Assistant's.
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+import type { CanvasContextField } from "../../shared/types.js";
+
+export type { CanvasContextField };
 
 export type MvpPlanningAssistantRequest = {
   operation: "suggestion";

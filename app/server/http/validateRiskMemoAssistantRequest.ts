@@ -9,26 +9,13 @@ import type {
   RiskMemoTargetField,
 } from "../ai/capabilities/riskMemoAssistant/types.js";
 import { HttpValidationError } from "./HttpValidationError.js";
+import { VALID_LANGUAGES, isContextFieldArray } from "./validationHelpers.js";
 
 const VALID_TARGET_FIELDS: readonly RiskMemoTargetField[] = [
   "technical_risks",
   "business_risks",
   "open_questions",
 ];
-const VALID_LANGUAGES = ["ko", "en"] as const;
-
-function isContextFieldArray(value: unknown): value is CanvasContextField[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === "object" &&
-        item !== null &&
-        typeof (item as Record<string, unknown>).field === "string" &&
-        typeof (item as Record<string, unknown>).value === "string",
-    )
-  );
-}
 
 function isSiblingFieldArray(value: unknown): value is RiskMemoSiblingField[] {
   return (
