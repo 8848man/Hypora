@@ -35,10 +35,16 @@ function getHandle(config: FirebaseAnalyticsReportingConfig): Promise<FirebaseAn
 export function reportToFirebaseAnalytics(event: AnalyticsEvent, config: FirebaseAnalyticsReportingConfig): void {
   void getHandle(config)
     .then(({ logEvent, analytics }) => {
-      logEvent(analytics, event.eventName, {
+      // Cast past the GA4 SDK's reserved-event-name overloads (e.g. its own
+      // "screen_view" expects {firebase_screen, firebase_screen_class}) —
+      // this reporter forwards every eventName as an opaque custom event per
+      // this project's own Event Catalog, never GA4's reserved semantics.
+      logEvent(analytics, event.eventName as string, {
         sessionId: event.sessionId,
         anonymousUserId: event.anonymousUserId,
-        pagePath: event.pagePath,
+        ...(event.pagePath !== undefined ? { pagePath: event.pagePath } : {}),
+        ...(event.feature !== undefined ? { feature: event.feature } : {}),
+        ...(event.screen !== undefined ? { screen: event.screen } : {}),
         ...event.properties,
       });
     })
