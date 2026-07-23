@@ -37,7 +37,11 @@ export type UseValidationPlanningAssistantResult = Omit<
 };
 
 export function useValidationPlanningAssistant(): UseValidationPlanningAssistantResult {
-  const assistant = useAiAssistant(requestValidationPlanningAssistantSuggestion, "generic" as const);
+  const assistant = useAiAssistant(
+    requestValidationPlanningAssistantSuggestion,
+    "generic" as const,
+    "validation-planning-assistant",
+  );
 
   return {
     ...assistant,
