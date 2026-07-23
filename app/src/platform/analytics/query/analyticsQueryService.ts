@@ -125,6 +125,75 @@ export async function getAiCapabilityScorecard(range: TimeRange): Promise<AiCapa
     .sort((a, b) => b.totalRequests - a.totalRequests);
 }
 
+export type UsagePulseResult = {
+  activeDevices: number;
+  newDevices: number;
+  returningDevices: number;
+};
+
+// A device counts as "new" if its earliest event within the lookback window
+// falls inside the requested range, "returning" otherwise -- a bounded
+// approximation of true all-time new-vs-returning (which would require
+// scanning full event history to find each device's real first-ever event),
+// per "prefer simple queries over expensive analytics pipelines." 60 days is
+// a practical bound, not a spec requirement.
+const NEW_VS_RETURNING_LOOKBACK_DAYS = 60;
+
+export async function getUsagePulse(range: TimeRange): Promise<UsagePulseResult> {
+  const lookbackFloor = new Date(Date.now() - NEW_VS_RETURNING_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+  const lookbackSince = range.since < lookbackFloor ? range.since : lookbackFloor;
+  const events = await getAnalyticsRepository().queryEvents({ since: lookbackSince, until: range.until });
+
+  const firstSeenByDevice = new Map<string, number>();
+  for (const event of events) {
+    const t = new Date(event.timestamp).getTime();
+    const existing = firstSeenByDevice.get(event.anonymousUserId);
+    if (existing === undefined || t < existing) firstSeenByDevice.set(event.anonymousUserId, t);
+  }
+
+  const sinceMs = range.since.getTime();
+  const activeInRange = new Set(
+    events.filter((e) => new Date(e.timestamp).getTime() >= sinceMs).map((e) => e.anonymousUserId),
+  );
+
+  let newDevices = 0;
+  for (const deviceId of activeInRange) {
+    const firstSeen = firstSeenByDevice.get(deviceId);
+    if (firstSeen !== undefined && firstSeen >= sinceMs) newDevices += 1;
+  }
+
+  return { activeDevices: activeInRange.size, newDevices, returningDevices: activeInRange.size - newDevices };
+}
+
+export type FeatureAdoptionRow = {
+  feature: string;
+  eventCount: number;
+  distinctUserCount: number;
+};
+
+// Groups by the `feature` envelope field (sdd/analytics/02_event_model.md),
+// not by eventName — this is what distinguishes Feature Adoption from Event
+// Breakdown above, per sdd/analytics/06_query_and_reporting.md's Dashboard
+// Scope. Same no-eventName-filter, group-client-side approach as
+// getEventBreakdown, for the same reason (catalog size vs. Firestore's `in`
+// limit), sorted most-used first.
+export async function getFeatureAdoption(range: TimeRange): Promise<FeatureAdoptionRow[]> {
+  const events = await getAnalyticsRepository().queryEvents({ since: range.since, until: range.until });
+
+  const rows = new Map<string, { count: number; users: Set<string> }>();
+  for (const event of events) {
+    if (!event.feature) continue; // Landing events carry pagePath, not feature — excluded here by design
+    const row = rows.get(event.feature) ?? { count: 0, users: new Set() };
+    row.count += 1;
+    row.users.add(event.anonymousUserId);
+    rows.set(event.feature, row);
+  }
+
+  return Array.from(rows.entries())
+    .map(([feature, row]) => ({ feature, eventCount: row.count, distinctUserCount: row.users.size }))
+    .sort((a, b) => b.eventCount - a.eventCount);
+}
+
 export type TimeToFirstValueResult = {
   averageMs: number | null;
   medianMs: number | null;
