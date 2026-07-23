@@ -165,6 +165,35 @@ export async function getUsagePulse(range: TimeRange): Promise<UsagePulseResult>
   return { activeDevices: activeInRange.size, newDevices, returningDevices: activeInRange.size - newDevices };
 }
 
+// Daily-bucketed distinct-device counts over the trailing `days` days — one
+// query, bucketed client-side, per "prefer simple queries" — the single
+// trend chart Usage Pulse needs (sdd/analytics/06's Dashboard Scope trend
+// indicator). Not a general time-series operation; a future need for one
+// against a different metric is a new function, not a parameter added here.
+export async function getDailyActiveDeviceTrend(days: number): Promise<number[]> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+  const events = await getAnalyticsRepository().queryEvents({ since });
+
+  const devicesByDay = new Map<string, Set<string>>();
+  for (const event of events) {
+    const dayKey = event.timestamp.slice(0, 10); // YYYY-MM-DD, ISO 8601 date prefix
+    const set = devicesByDay.get(dayKey) ?? new Set<string>();
+    set.add(event.anonymousUserId);
+    devicesByDay.set(dayKey, set);
+  }
+
+  const result: number[] = [];
+  for (let i = 0; i < days; i += 1) {
+    const day = new Date(since);
+    day.setDate(day.getDate() + i);
+    const dayKey = day.toISOString().slice(0, 10);
+    result.push(devicesByDay.get(dayKey)?.size ?? 0);
+  }
+  return result;
+}
+
 export type FeatureAdoptionRow = {
   feature: string;
   eventCount: number;
