@@ -53,7 +53,11 @@ export class GeminiProvider implements Provider {
 
   async generate(request: ProviderRequest): Promise<ProviderResponse> {
     const schemaHint = request.parameters?.responseSchema;
-    const url = `${this.config.baseUrl ?? DEFAULT_BASE_URL}/models/${this.config.model}:generateContent?key=${this.config.apiKey}`;
+    // API key is sent as a header, not a `?key=` query-string parameter, so it
+    // never ends up captured in URL-based logging (access logs, intermediate
+    // proxies, browser history) — the Generative Language API accepts either;
+    // this Provider only ever uses one, per its own encapsulation boundary.
+    const url = `${this.config.baseUrl ?? DEFAULT_BASE_URL}/models/${this.config.model}:generateContent`;
 
     const body: Record<string, unknown> = {
       contents: [{ role: "user", parts: [{ text: request.prompt }] }],
@@ -81,7 +85,7 @@ export class GeminiProvider implements Provider {
     try {
       httpResponse = await fetch(url, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-goog-api-key": this.config.apiKey },
         body: JSON.stringify(body),
       });
     } catch (cause) {
