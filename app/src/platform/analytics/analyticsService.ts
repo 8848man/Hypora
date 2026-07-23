@@ -18,6 +18,9 @@ export function trackEvent(input: TrackEventInput): void {
     sessionId: getSessionId(),
     anonymousUserId: getAnonymousUserId(),
     pagePath: input.pagePath,
+    feature: input.feature,
+    screen: input.screen,
+    projectId: input.projectId,
     properties: input.properties,
   };
 

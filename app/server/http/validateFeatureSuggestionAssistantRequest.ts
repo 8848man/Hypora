@@ -10,22 +10,9 @@ import type {
   FeatureSuggestionAssistantRequest,
 } from "../ai/capabilities/featureSuggestionAssistant/types.js";
 import { HttpValidationError } from "./HttpValidationError.js";
+import { VALID_LANGUAGES, isContextFieldArray } from "./validationHelpers.js";
 
 const VALID_PRIORITIES: readonly FeaturePriority[] = ["must", "should", "could"];
-const VALID_LANGUAGES = ["ko", "en"] as const;
-
-function isContextFieldArray(value: unknown): value is CanvasContextField[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === "object" &&
-        item !== null &&
-        typeof (item as Record<string, unknown>).field === "string" &&
-        typeof (item as Record<string, unknown>).value === "string",
-    )
-  );
-}
 
 function isExistingFeatureArray(value: unknown): value is ExistingFeatureContext[] {
   return (

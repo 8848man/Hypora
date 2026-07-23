@@ -10,6 +10,7 @@
 // into the Feature's own data is the Feature's job (03_ownership_model.md).
 
 import { useCallback, useRef, useState } from "react";
+import { trackEvent } from "../platform/analytics/analyticsService";
 
 export type AiAssistantStatus = "idle" | "loading" | "ready" | "failed";
 
@@ -73,6 +74,11 @@ export function useAiAssistant<TRequest, TResponse, TFailureKind>(
   // hardcoded string cast, so this hook stays genuinely type-safe over
   // whatever TFailureKind union a given capability defines.
   genericFailureKind: TFailureKind,
+  // Analytics identity only (sdd/analytics/04_event_catalog.md#ai:
+  // "properties.capabilityId names which") — this hook never brands its
+  // lifecycle logic per capability, it only labels the events it already
+  // emits uniformly for every capability instantiating this same lifecycle.
+  capabilityId: string,
 ): UseAiAssistantResult<TRequest, TResponse, TFailureKind> {
   const [status, setStatus] = useState<AiAssistantStatus>("idle");
   const [data, setData] = useState<TResponse | undefined>(undefined);
@@ -101,6 +107,7 @@ export function useAiAssistant<TRequest, TResponse, TFailureKind>(
 
       setStatus("loading");
       setFailureKind(undefined);
+      trackEvent({ eventName: "ai_request_sent", properties: { capabilityId } });
 
       requestFn(input.request, controller.signal)
         .then((result) => {
@@ -108,7 +115,9 @@ export function useAiAssistant<TRequest, TResponse, TFailureKind>(
 
           // Manual-first / stale-response guard: if the user has edited the
           // target field since this invocation started, the arriving result is
-          // discarded outright — never applied over live user input.
+          // discarded outright — never applied over live user input. Nothing
+          // reaches Suggestion Ready or Failed from the user's perspective, so
+          // no analytics event fires for this path either.
           if (getCurrentFieldValue() !== input.fieldValueAtInvocation) {
             setStatus("idle");
             return;
@@ -117,18 +126,27 @@ export function useAiAssistant<TRequest, TResponse, TFailureKind>(
           if (result.ok) {
             setData(result.data);
             setStatus("ready");
+            trackEvent({ eventName: "ai_suggestion_ready", properties: { capabilityId } });
           } else {
             setFailureKind(result.failureKind);
             setStatus("failed");
+            trackEvent({
+              eventName: "ai_request_failed",
+              properties: { capabilityId, failureKind: String(result.failureKind) },
+            });
           }
         })
         .catch((err: unknown) => {
           if (err instanceof DOMException && err.name === "AbortError") return;
           setFailureKind(genericFailureKind);
           setStatus("failed");
+          trackEvent({
+            eventName: "ai_request_failed",
+            properties: { capabilityId, failureKind: String(genericFailureKind) },
+          });
         });
     },
-    [status, requestFn, genericFailureKind],
+    [status, requestFn, genericFailureKind, capabilityId],
   );
 
   const invoke = useCallback(
@@ -139,8 +157,9 @@ export function useAiAssistant<TRequest, TResponse, TFailureKind>(
 
   const regenerate = useCallback(() => {
     if (!lastBuildInputRef.current) return;
+    trackEvent({ eventName: "ai_regenerate_requested", properties: { capabilityId } });
     run(lastBuildInputRef.current, getCurrentFieldValueRef.current);
-  }, [run]);
+  }, [run, capabilityId]);
 
   const retry = useCallback(() => {
     if (!lastBuildInputRef.current) return;
@@ -148,9 +167,10 @@ export function useAiAssistant<TRequest, TResponse, TFailureKind>(
   }, [run]);
 
   const reject = useCallback(() => {
+    trackEvent({ eventName: "ai_suggestion_rejected", properties: { capabilityId } });
     setStatus("idle");
     setData(undefined);
-  }, []);
+  }, [capabilityId]);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();

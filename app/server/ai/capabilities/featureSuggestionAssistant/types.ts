@@ -4,10 +4,9 @@
 // capability's — its Response is a structured array, not the scalar
 // {suggestionText, rationale?} shape every other capability uses.
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+import type { CanvasContextField } from "../../shared/types.js";
+
+export type { CanvasContextField };
 
 export type FeaturePriority = "must" | "should" | "could";
 
