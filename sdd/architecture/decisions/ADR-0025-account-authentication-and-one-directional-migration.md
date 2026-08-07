@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-08-08
-**Affects specs:** [Platform API Architecture](../../platform-api/01_architecture.md), [Workspace Data & State](../../workspace/02_data_and_state.md), [Frontend Architecture](../../frontend/01_architecture.md), [Application Responsibilities](../../context/05_application_responsibilities.md)
+**Affects specs:** [Platform API — Projects](../../platform-api/02_projects.md), [Platform API — Authentication](../../platform-api/03_authentication.md), [Workspace Data & State](../../workspace/02_data_and_state.md), [Frontend Architecture](../../frontend/01_architecture.md), [Application Responsibilities](../../context/05_application_responsibilities.md)
 **Related ADRs:** [ADR-0024](./ADR-0024-project-data-durable-server-side-backup.md) (the Firestore backup and per-device Anonymous identity this ADR builds on and completes the read side of), [ADR-0015](./ADR-0015-analytics-dashboard-access-boundary.md) (the only prior use of Firebase Authentication's email/password sign-in, extended here for a second, distinct purpose)
 
 ## Context

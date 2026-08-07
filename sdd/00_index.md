@@ -123,7 +123,9 @@ Promoted 2026-08-07 by [ADR-0024](./architecture/decisions/ADR-0024-project-data
 
 | Doc | Purpose |
 |---|---|
-| [platform-api/01_architecture.md](./platform-api/01_architecture.md) | Current capability status (Projects, Authentication, Search, Integrations — AI and Analytics remain owned by their own directories); Projects' Firestore backup shape; Authentication's two narrow, non-general uses |
+| [platform-api/01_architecture.md](./platform-api/01_architecture.md) | Cross-capability status summary only — see 02/03 below for Projects/Authentication detail |
+| [platform-api/02_projects.md](./platform-api/02_projects.md) | Dual-mode LocalStorage/Firestore access; one-directional, confirm-then-delete migration policy; Firestore document shape |
+| [platform-api/03_authentication.md](./platform-api/03_authentication.md) | Three narrow, non-general Authentication uses; account sign-up/sign-in validation policy; anti-enumeration error classification |
 
 ## Architecture
 

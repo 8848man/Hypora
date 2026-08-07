@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-08-07
-**Affects specs:** [Application Responsibilities](../../context/05_application_responsibilities.md), [Workspace Data & State](../../workspace/02_data_and_state.md), [Frontend Architecture](../../frontend/01_architecture.md), Platform API Architecture (new, `sdd/platform-api/`)
+**Affects specs:** [Application Responsibilities](../../context/05_application_responsibilities.md), [Workspace Data & State](../../workspace/02_data_and_state.md), [Frontend Architecture](../../frontend/01_architecture.md), Platform API Architecture (new, `sdd/platform-api/`; its Projects detail later split out to `02_projects.md` alongside [ADR-0025](./ADR-0025-account-authentication-and-one-directional-migration.md))
 **Related ADRs:** [ADR-0007](./ADR-0007-llm-provider-independence-and-encapsulation-boundary.md) / [ADR-0013](./ADR-0013-analytics-provider-independence.md) (the Provider/Repository Interface pattern this decision reuses for a third concern), [ADR-0015](./ADR-0015-analytics-dashboard-access-boundary.md) (the only prior use of Firebase Authentication in this codebase, extended here for a different purpose)
 
 ## Context
