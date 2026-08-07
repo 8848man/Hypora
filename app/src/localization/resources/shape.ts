@@ -335,9 +335,17 @@ export interface Resources {
     signOutLabel: string;
     emailLabel: string;
     passwordLabel: string;
-    submitLabel: string;
+    confirmPasswordLabel: string;
     cancelLabel: string;
+    signUpTabLabel: string;
+    signInTabLabel: string;
+    signUpSubmitLabel: string;
+    signInSubmitLabel: string;
     errorGeneric: string;
+    errorWeakPassword: string;
+    errorInvalidEmail: string;
+    errorWrongCredentials: string;
+    errorPasswordMismatch: string;
     signedInAs: (email: string) => string;
   };
 }

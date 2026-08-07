@@ -136,6 +136,30 @@ export async function signOutAccount(): Promise<void> {
   await signOut(auth);
 }
 
+export type AuthErrorKind = "weak-password" | "invalid-email" | "wrong-credentials" | "generic";
+
+/**
+ * Keeps every Firebase error code this codebase reacts to confined to this
+ * sole firebase/auth-importing file — a caller (AccountMenu) never inspects
+ * `err.code` itself, only this classification, so it stays free to change
+ * without a second file needing to know Firebase's own code strings.
+ * `wrong-credentials` deliberately covers both "no such account" and "wrong
+ * password" identically -- never revealing which, a standard practice
+ * against account enumeration.
+ */
+export function classifyAuthError(err: unknown): AuthErrorKind {
+  if (isFirebaseAuthError(err, "auth/weak-password")) return "weak-password";
+  if (isFirebaseAuthError(err, "auth/invalid-email")) return "invalid-email";
+  if (
+    isFirebaseAuthError(err, "auth/wrong-password") ||
+    isFirebaseAuthError(err, "auth/user-not-found") ||
+    isFirebaseAuthError(err, "auth/invalid-credential")
+  ) {
+    return "wrong-credentials";
+  }
+  return "generic";
+}
+
 /**
  * A one-shot read of the current auth state, for callers (storage.ts) that
  * need to branch synchronously-in-effect on "is this a real, linked account"
