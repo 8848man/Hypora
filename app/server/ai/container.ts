@@ -56,67 +56,36 @@ export type Container = {
 const HEALTH_CHECK_CAPABILITY_ID = "platform.health-check";
 const HEALTH_CHECK_CONTRACT_VERSION = "0.0";
 
+// Every capability's config profile is identical in shape (only capabilityId/
+// contractVersion vary) — Model identifier is deliberately "n/a" for every
+// entry: GeminiProvider resolves its actual model from its own constructor
+// config (selectDefaultProvider above), not from this registry, but
+// ProviderConfigProfile.model is a Required field per the Provider
+// Configuration Schema (sdd/ai/02), so a placeholder satisfies the schema
+// without implying this registry's value is ever read for that purpose.
+const REGISTERED_CAPABILITIES = [
+  { capabilityId: HEALTH_CHECK_CAPABILITY_ID, contractVersion: HEALTH_CHECK_CONTRACT_VERSION },
+  CANVAS_ASSISTANT,
+  RISK_MEMO_ASSISTANT,
+  MVP_PLANNING_ASSISTANT,
+  VALIDATION_PLANNING_ASSISTANT,
+  FEATURE_SUGGESTION_ASSISTANT,
+  PROJECT_SUMMARY_ASSISTANT,
+  ONBOARDING_PRESET_ASSISTANT,
+];
+
 export function createContainer(overrideProvider?: Provider): Container {
   const provider = overrideProvider ?? selectDefaultProvider();
 
-  const config = createInMemoryProviderConfig([
-    {
+  const config = createInMemoryProviderConfig(
+    REGISTERED_CAPABILITIES.map(({ capabilityId, contractVersion }) => ({
       providerId: provider.id,
-      capabilityId: HEALTH_CHECK_CAPABILITY_ID,
-      contractVersion: HEALTH_CHECK_CONTRACT_VERSION,
+      capabilityId,
+      contractVersion,
       model: "n/a",
       providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: CANVAS_ASSISTANT.capabilityId,
-      contractVersion: CANVAS_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: RISK_MEMO_ASSISTANT.capabilityId,
-      contractVersion: RISK_MEMO_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: MVP_PLANNING_ASSISTANT.capabilityId,
-      contractVersion: MVP_PLANNING_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: VALIDATION_PLANNING_ASSISTANT.capabilityId,
-      contractVersion: VALIDATION_PLANNING_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: FEATURE_SUGGESTION_ASSISTANT.capabilityId,
-      contractVersion: FEATURE_SUGGESTION_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: PROJECT_SUMMARY_ASSISTANT.capabilityId,
-      contractVersion: PROJECT_SUMMARY_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-    {
-      providerId: provider.id,
-      capabilityId: ONBOARDING_PRESET_ASSISTANT.capabilityId,
-      contractVersion: ONBOARDING_PRESET_ASSISTANT.contractVersion,
-      model: "n/a",
-      providerParameters: {},
-    },
-  ]);
+    })),
+  );
 
   const aiApplicationService = new AiApplicationService({ provider, config });
   const canvasAssistant = new CanvasAssistantCapability(aiApplicationService);

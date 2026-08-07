@@ -8,6 +8,7 @@ import type {
   CanvasContextField,
 } from "../ai/capabilities/canvasAssistant/types.js";
 import { HttpValidationError } from "./HttpValidationError.js";
+import { VALID_LANGUAGES, isContextFieldArray } from "./validationHelpers.js";
 
 const VALID_OPERATIONS: readonly CanvasAssistantOperation[] = [
   "suggestion",
@@ -15,20 +16,6 @@ const VALID_OPERATIONS: readonly CanvasAssistantOperation[] = [
   "followUp",
   "refinement",
 ];
-const VALID_LANGUAGES = ["ko", "en"] as const;
-
-function isContextFieldArray(value: unknown): value is CanvasContextField[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === "object" &&
-        item !== null &&
-        typeof (item as Record<string, unknown>).field === "string" &&
-        typeof (item as Record<string, unknown>).value === "string",
-    )
-  );
-}
 
 export function validateCanvasAssistantRequest(body: unknown): CanvasAssistantRequest {
   if (typeof body !== "object" || body === null) {

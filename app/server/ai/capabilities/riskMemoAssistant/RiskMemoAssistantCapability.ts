@@ -13,7 +13,7 @@ import type { AiApplicationService } from "../../AiApplicationService.js";
 import { createTemplate } from "../../prompt/PromptRenderer.js";
 import { serializeContext } from "../../context/ContextTransformer.js";
 import { parseJson } from "../../response/ResponseParser.js";
-import { assertNonEmptyText, assertShape } from "../../response/ResponseValidator.js";
+import { assertNonEmptyText, assertShape, isObjectWithStringField } from "../../response/ResponseValidator.js";
 import { SUGGESTION_TEMPLATE, targetFieldLabel } from "./prompts.js";
 import type { RiskMemoAssistantRequest, RiskMemoAssistantResponse } from "./types.js";
 
@@ -25,11 +25,7 @@ export const RISK_MEMO_ASSISTANT = {
 function isRiskMemoAssistantResponseShape(
   candidate: unknown,
 ): candidate is { suggestionText: string; rationale?: string } {
-  return (
-    typeof candidate === "object" &&
-    candidate !== null &&
-    typeof (candidate as Record<string, unknown>).suggestionText === "string"
-  );
+  return isObjectWithStringField(candidate, "suggestionText");
 }
 
 export class RiskMemoAssistantCapability {

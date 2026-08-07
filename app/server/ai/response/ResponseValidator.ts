@@ -26,3 +26,19 @@ export function assertShape<T>(
   }
   return candidate;
 }
+
+// Shared building block for the common "parsed response is an object whose
+// primary text field is a non-empty string type" shape every scalar-response
+// Capability's own `is<Capability>ResponseShape` guard checks — each
+// Capability still declares its own named guard (for its own precise return
+// type), but no longer reimplements this same runtime check by hand.
+export function isObjectWithStringField<K extends string>(
+  candidate: unknown,
+  key: K,
+): candidate is Record<K, string> {
+  return (
+    typeof candidate === "object" &&
+    candidate !== null &&
+    typeof (candidate as Record<string, unknown>)[key] === "string"
+  );
+}

@@ -3,44 +3,13 @@
 // Exercises the real HTTP handler (POST /api/canvas-assistant) via mock Node
 // request/response objects, plus a direct unit check of the error-translation table.
 
-import { Readable } from "node:stream";
-import type { IncomingMessage, ServerResponse } from "node:http";
 import handler from "../../api/canvas-assistant.js";
 import { translateErrorToHttpResponse } from "../http/errors.js";
 import { ProviderError } from "../ai/provider/ProviderInterface.js";
 import { HttpValidationError } from "../http/HttpValidationError.js";
+import { createAssert, createMockRequest, createMockResponse } from "./verifyTestHelpers.js";
 
-function assert(condition: boolean, message: string): void {
-  if (!condition) {
-    console.error(`Stage 3 verification: FAIL - ${message}`);
-    process.exit(1);
-  }
-}
-
-function createMockRequest(method: string, body: unknown): IncomingMessage {
-  const bodyStr = body === undefined ? "" : typeof body === "string" ? body : JSON.stringify(body);
-  const readable = Readable.from([Buffer.from(bodyStr, "utf8")]) as unknown as IncomingMessage;
-  (readable as unknown as { method: string }).method = method;
-  return readable;
-}
-
-function createMockResponse(): { res: ServerResponse; status: () => number; body: () => string } {
-  let statusCode = 0;
-  let body = "";
-  const res = {
-    setHeader: () => {},
-    end: (chunk: string) => {
-      body = chunk;
-    },
-  } as unknown as ServerResponse;
-  Object.defineProperty(res, "statusCode", {
-    get: () => statusCode,
-    set: (v: number) => {
-      statusCode = v;
-    },
-  });
-  return { res, status: () => statusCode, body: () => body };
-}
+const assert = createAssert("Stage 3 verification");
 
 async function main(): Promise<void> {
   // 1. Happy path, one per operation.

@@ -12,6 +12,7 @@ import { useLocalization } from "../../localization";
 import { useRiskMemoAssistant } from "../../ai/useRiskMemoAssistant";
 import { useProjectContext } from "../useProject";
 import { buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
+import { trackEvent } from "../../platform/analytics/analyticsService";
 import type { Project, RiskMemo } from "../../domain/types";
 import type { RiskMemoSiblingField, RiskMemoTargetField } from "../../ai/types";
 
@@ -28,6 +29,14 @@ export function RiskMemoPage() {
 
   function saveField(targetField: RiskMemoTargetField, value: string) {
     update({ ...project, riskMemo: { ...project.riskMemo, [FIELD_KEY[targetField]]: value } });
+    // Fired here, not per-keystroke — onSave is only ever called on blur or
+    // AI Accept (see RiskMemoField below), never from a live-typing handler.
+    trackEvent({
+      eventName: "risk_memo_field_updated",
+      feature: "risk-memo",
+      projectId: project.id,
+      properties: { field: targetField },
+    });
   }
 
   return (
@@ -144,7 +153,15 @@ function RiskMemoField({
     const text = assistant.suggestionText;
     const rationale = assistant.rationale;
 
-    if (text) onSave(text);
+    if (text) {
+      onSave(text);
+      trackEvent({
+        eventName: "ai_suggestion_accepted",
+        feature: "risk-memo",
+        projectId: project.id,
+        properties: { capabilityId: "risk-memo-assistant" },
+      });
+    }
     assistant.reset();
 
     if (text) {

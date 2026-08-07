@@ -9,10 +9,9 @@
 // call and what the Feature does with a successful response, never in
 // Request/Response Contract shape.
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+import type { CanvasContextField } from "../../shared/types.js";
+
+export type { CanvasContextField };
 
 export type ProjectSummaryAssistantOperation = "initial_generation" | "sync";
 

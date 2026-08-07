@@ -25,6 +25,7 @@ import {
 } from "../../platform/storage";
 import { requestOnboardingPresetAssistant } from "../../ai/onboardingPresetAssistantClient";
 import { registerPendingOnboarding } from "./onboardingPresetsRegistry";
+import { trackEvent } from "../../platform/analytics/analyticsService";
 
 // Onboarding Preset Assistant's one-time, automatic call, per ADR-0019 —
 // triggered here (Project Management), never blocking navigation into
@@ -89,6 +90,7 @@ export function ProjectListPage() {
     // pending request has even resolved.
     project.onboardingPresets = { status: "generating" };
     saveProject(project);
+    trackEvent({ eventName: "project_created", feature: "project-management", projectId: id });
     navigate(`/app/projects/${id}/canvas`);
     // Fire-and-forget, per ADR-0019 Decision 7 — never awaited before
     // navigate() above. Registered so useProjectLoader (mounted by the
@@ -103,6 +105,7 @@ export function ProjectListPage() {
     saveProject({ ...project, stage: archiveProjectStage(project) });
     setProjects(listProjects());
     setPendingArchiveId(null);
+    trackEvent({ eventName: "project_archived", feature: "project-management", projectId: id });
   }
 
   if (projects === null) return <LoadingIndicator label={t.dashboard.loadingProjects} />;
@@ -165,7 +168,14 @@ export function ProjectListPage() {
                   <Badge tone="neutral">{t.lifecycleStage[p.stage]}</Badge>
                 </div>
                 <Stack direction="row" gap="var(--space-2)">
-                  <Button onClick={() => navigate(`/app/projects/${p.id}/canvas`)}>{t.dashboard.open}</Button>
+                  <Button
+                    onClick={() => {
+                      trackEvent({ eventName: "project_opened", feature: "project-management", projectId: p.id });
+                      navigate(`/app/projects/${p.id}/canvas`);
+                    }}
+                  >
+                    {t.dashboard.open}
+                  </Button>
                   {p.stage !== "archived" && (
                     <Button variant="secondary" onClick={() => setPendingArchiveId(p.id)}>
                       {t.common.archive}

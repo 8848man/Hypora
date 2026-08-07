@@ -5,8 +5,7 @@
 
 import type { OnboardingPresetAssistantRequest } from "../ai/capabilities/onboardingPresetAssistant/types.js";
 import { HttpValidationError } from "./HttpValidationError.js";
-
-const VALID_LANGUAGES = ["ko", "en"] as const;
+import { VALID_LANGUAGES } from "./validationHelpers.js";
 
 export function validateOnboardingPresetAssistantRequest(body: unknown): OnboardingPresetAssistantRequest {
   if (typeof body !== "object" || body === null) {

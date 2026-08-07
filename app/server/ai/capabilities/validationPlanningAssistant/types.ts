@@ -3,10 +3,9 @@
 // Contract Version 1.0. Deliberately a separate contract from every other
 // capability's.
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+import type { CanvasContextField } from "../../shared/types.js";
+
+export type { CanvasContextField };
 
 export type ValidationPlanningAssistantRequest = {
   operation: "suggestion";

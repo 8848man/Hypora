@@ -22,46 +22,15 @@
 // FakeProvider) to exercise Content Quality Validation directly, since
 // FakeProvider cannot produce valid-JSON-but-bad-content responses.
 
-import { Readable } from "node:stream";
-import type { IncomingMessage, ServerResponse } from "node:http";
 import handler from "../../api/onboarding-preset-assistant.js";
 import { AiApplicationService } from "../ai/AiApplicationService.js";
 import { createInMemoryProviderConfig } from "../ai/config/providerConfig.js";
 import { OnboardingPresetAssistantCapability, ONBOARDING_PRESET_ASSISTANT } from "../ai/capabilities/onboardingPresetAssistant/OnboardingPresetAssistantCapability.js";
 import { ONBOARDING_QUESTION_IDS } from "../ai/capabilities/onboardingPresetAssistant/types.js";
 import type { Provider, ProviderRequest, ProviderResponse } from "../ai/provider/ProviderInterface.js";
+import { createAssert, createMockRequest, createMockResponse } from "./verifyTestHelpers.js";
 
-function assert(condition: boolean, message: string): void {
-  if (!condition) {
-    console.error(`Stage 7 verification: FAIL - ${message}`);
-    process.exit(1);
-  }
-}
-
-function createMockRequest(method: string, body: unknown): IncomingMessage {
-  const bodyStr = body === undefined ? "" : typeof body === "string" ? body : JSON.stringify(body);
-  const readable = Readable.from([Buffer.from(bodyStr, "utf8")]) as unknown as IncomingMessage;
-  (readable as unknown as { method: string }).method = method;
-  return readable;
-}
-
-function createMockResponse(): { res: ServerResponse; status: () => number; body: () => string } {
-  let statusCode = 0;
-  let body = "";
-  const res = {
-    setHeader: () => {},
-    end: (chunk: string) => {
-      body = chunk;
-    },
-  } as unknown as ServerResponse;
-  Object.defineProperty(res, "statusCode", {
-    get: () => statusCode,
-    set: (v: number) => {
-      statusCode = v;
-    },
-  });
-  return { res, status: () => statusCode, body: () => body };
-}
+const assert = createAssert("Stage 7 verification");
 
 // A minimal fake Provider (not FakeProvider) that always returns a
 // structurally-valid five-question batch, but with content that must fail

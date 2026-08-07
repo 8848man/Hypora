@@ -4,12 +4,11 @@
 // Structuring is an implemented Consumer — see CANVAS_ASSISTANT in
 // CanvasAssistantCapability.ts). 1.1 adds `projectName` (Minor, additive, optional).
 
-export type CanvasAssistantOperation = "suggestion" | "missingInfo" | "followUp" | "refinement";
+import type { CanvasContextField } from "../../shared/types.js";
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+export type { CanvasContextField };
+
+export type CanvasAssistantOperation = "suggestion" | "missingInfo" | "followUp" | "refinement";
 
 export type CanvasAssistantRequest = {
   operation: CanvasAssistantOperation;

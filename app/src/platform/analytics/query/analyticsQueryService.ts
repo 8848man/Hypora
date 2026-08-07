@@ -52,6 +52,224 @@ export async function getTimeline(
   return getAnalyticsRepository().queryEvents({ eventNames, since: range.since, until: range.until, limit });
 }
 
+export type EventBreakdownRow = {
+  eventName: AnalyticsEventName;
+  eventCount: number;
+  distinctUserCount: number;
+};
+
+// Deliberately queries with no eventName filter — the Event Catalog has more
+// entries than Firestore's `in` operator supports (10), so this fetches every
+// event in range once and groups client-side, per sdd/analytics/06's "prefer
+// simple queries over expensive analytics pipelines." `catalog` controls
+// which rows are always returned (zero-count included), so a silently-broken
+// event is visible as a 0, not an absent row — this is what Operational
+// Health's "missing expected events" check reads.
+export async function getEventBreakdown(range: TimeRange, catalog: AnalyticsEventName[]): Promise<EventBreakdownRow[]> {
+  const events = await getAnalyticsRepository().queryEvents({ since: range.since, until: range.until });
+
+  const rows = new Map<AnalyticsEventName, { count: number; users: Set<string> }>();
+  for (const name of catalog) rows.set(name, { count: 0, users: new Set() });
+
+  for (const event of events) {
+    const row = rows.get(event.eventName);
+    if (!row) continue; // not one of the requested catalog rows
+    row.count += 1;
+    row.users.add(event.anonymousUserId);
+  }
+
+  return catalog.map((eventName) => {
+    const row = rows.get(eventName);
+    return { eventName, eventCount: row?.count ?? 0, distinctUserCount: row?.users.size ?? 0 };
+  });
+}
+
+export type AiCapabilityScorecardRow = {
+  capabilityId: string;
+  totalRequests: number;
+  // null when the denominator is 0 — "no data yet," never displayed as 0%.
+  acceptRate: number | null;
+  failureRate: number | null;
+};
+
+// Reads properties.capabilityId, per sdd/analytics/04_event_catalog.md#ai
+// ("one shared set of events for every AI Capability... properties.capabilityId
+// names which"). Grouping/rate math lives here (Query Service), never in the
+// Repository, per that layer's own "must never perform aggregation" rule.
+export async function getAiCapabilityScorecard(range: TimeRange): Promise<AiCapabilityScorecardRow[]> {
+  const events = await getAnalyticsRepository().queryEvents({
+    eventNames: ["ai_request_sent", "ai_suggestion_ready", "ai_request_failed", "ai_suggestion_accepted"],
+    since: range.since,
+    until: range.until,
+  });
+
+  const byCapability = new Map<string, { sent: number; ready: number; failed: number; accepted: number }>();
+  for (const event of events) {
+    const capabilityId = event.properties?.capabilityId;
+    if (typeof capabilityId !== "string") continue;
+    const row = byCapability.get(capabilityId) ?? { sent: 0, ready: 0, failed: 0, accepted: 0 };
+    if (event.eventName === "ai_request_sent") row.sent += 1;
+    else if (event.eventName === "ai_suggestion_ready") row.ready += 1;
+    else if (event.eventName === "ai_request_failed") row.failed += 1;
+    else if (event.eventName === "ai_suggestion_accepted") row.accepted += 1;
+    byCapability.set(capabilityId, row);
+  }
+
+  return Array.from(byCapability.entries())
+    .map(([capabilityId, counts]) => ({
+      capabilityId,
+      totalRequests: counts.sent,
+      acceptRate: counts.ready > 0 ? Math.round((counts.accepted / counts.ready) * 1000) / 10 : null,
+      failureRate: counts.sent > 0 ? Math.round((counts.failed / counts.sent) * 1000) / 10 : null,
+    }))
+    .sort((a, b) => b.totalRequests - a.totalRequests);
+}
+
+export type UsagePulseResult = {
+  activeDevices: number;
+  newDevices: number;
+  returningDevices: number;
+};
+
+// A device counts as "new" if its earliest event within the lookback window
+// falls inside the requested range, "returning" otherwise -- a bounded
+// approximation of true all-time new-vs-returning (which would require
+// scanning full event history to find each device's real first-ever event),
+// per "prefer simple queries over expensive analytics pipelines." 60 days is
+// a practical bound, not a spec requirement.
+const NEW_VS_RETURNING_LOOKBACK_DAYS = 60;
+
+export async function getUsagePulse(range: TimeRange): Promise<UsagePulseResult> {
+  const lookbackFloor = new Date(Date.now() - NEW_VS_RETURNING_LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+  const lookbackSince = range.since < lookbackFloor ? range.since : lookbackFloor;
+  const events = await getAnalyticsRepository().queryEvents({ since: lookbackSince, until: range.until });
+
+  const firstSeenByDevice = new Map<string, number>();
+  for (const event of events) {
+    const t = new Date(event.timestamp).getTime();
+    const existing = firstSeenByDevice.get(event.anonymousUserId);
+    if (existing === undefined || t < existing) firstSeenByDevice.set(event.anonymousUserId, t);
+  }
+
+  const sinceMs = range.since.getTime();
+  const activeInRange = new Set(
+    events.filter((e) => new Date(e.timestamp).getTime() >= sinceMs).map((e) => e.anonymousUserId),
+  );
+
+  let newDevices = 0;
+  for (const deviceId of activeInRange) {
+    const firstSeen = firstSeenByDevice.get(deviceId);
+    if (firstSeen !== undefined && firstSeen >= sinceMs) newDevices += 1;
+  }
+
+  return { activeDevices: activeInRange.size, newDevices, returningDevices: activeInRange.size - newDevices };
+}
+
+// Daily-bucketed distinct-device counts over the trailing `days` days — one
+// query, bucketed client-side, per "prefer simple queries" — the single
+// trend chart Usage Pulse needs (sdd/analytics/06's Dashboard Scope trend
+// indicator). Not a general time-series operation; a future need for one
+// against a different metric is a new function, not a parameter added here.
+export async function getDailyActiveDeviceTrend(days: number): Promise<number[]> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+  const events = await getAnalyticsRepository().queryEvents({ since });
+
+  const devicesByDay = new Map<string, Set<string>>();
+  for (const event of events) {
+    const dayKey = event.timestamp.slice(0, 10); // YYYY-MM-DD, ISO 8601 date prefix
+    const set = devicesByDay.get(dayKey) ?? new Set<string>();
+    set.add(event.anonymousUserId);
+    devicesByDay.set(dayKey, set);
+  }
+
+  const result: number[] = [];
+  for (let i = 0; i < days; i += 1) {
+    const day = new Date(since);
+    day.setDate(day.getDate() + i);
+    const dayKey = day.toISOString().slice(0, 10);
+    result.push(devicesByDay.get(dayKey)?.size ?? 0);
+  }
+  return result;
+}
+
+export type FeatureAdoptionRow = {
+  feature: string;
+  eventCount: number;
+  distinctUserCount: number;
+};
+
+// Groups by the `feature` envelope field (sdd/analytics/02_event_model.md),
+// not by eventName — this is what distinguishes Feature Adoption from Event
+// Breakdown above, per sdd/analytics/06_query_and_reporting.md's Dashboard
+// Scope. Same no-eventName-filter, group-client-side approach as
+// getEventBreakdown, for the same reason (catalog size vs. Firestore's `in`
+// limit), sorted most-used first.
+export async function getFeatureAdoption(range: TimeRange): Promise<FeatureAdoptionRow[]> {
+  const events = await getAnalyticsRepository().queryEvents({ since: range.since, until: range.until });
+
+  const rows = new Map<string, { count: number; users: Set<string> }>();
+  for (const event of events) {
+    if (!event.feature) continue; // Landing events carry pagePath, not feature — excluded here by design
+    const row = rows.get(event.feature) ?? { count: 0, users: new Set() };
+    row.count += 1;
+    row.users.add(event.anonymousUserId);
+    rows.set(event.feature, row);
+  }
+
+  return Array.from(rows.entries())
+    .map(([feature, row]) => ({ feature, eventCount: row.count, distinctUserCount: row.users.size }))
+    .sort((a, b) => b.eventCount - a.eventCount);
+}
+
+export type TimeToFirstValueResult = {
+  averageMs: number | null;
+  medianMs: number | null;
+  sampleSize: number;
+};
+
+// Per-session elapsed time between a start event and a milestone event, per
+// sdd/analytics/06_query_and_reporting.md's Time to First Value query shape.
+// A distribution/histogram is deliberately not computed here — that
+// document's own Query Model states one isn't required, and nothing consumes
+// it yet.
+export async function getTimeToFirstValue(
+  startEventName: AnalyticsEventName,
+  milestoneEventName: AnalyticsEventName,
+  range: TimeRange,
+): Promise<TimeToFirstValueResult> {
+  const events = await getAnalyticsRepository().queryEvents({
+    eventNames: [startEventName, milestoneEventName],
+    since: range.since,
+    until: range.until,
+  });
+
+  const startBySession = new Map<string, number>();
+  const milestoneBySession = new Map<string, number>();
+  for (const event of events) {
+    const t = new Date(event.timestamp).getTime();
+    const target = event.eventName === startEventName ? startBySession : milestoneBySession;
+    const existing = target.get(event.sessionId);
+    if (existing === undefined || t < existing) target.set(event.sessionId, t);
+  }
+
+  const deltas: number[] = [];
+  for (const [sessionId, startMs] of startBySession) {
+    const milestoneMs = milestoneBySession.get(sessionId);
+    if (milestoneMs !== undefined && milestoneMs >= startMs) deltas.push(milestoneMs - startMs);
+  }
+
+  if (deltas.length === 0) return { averageMs: null, medianMs: null, sampleSize: 0 };
+
+  deltas.sort((a, b) => a - b);
+  const averageMs = Math.round(deltas.reduce((sum, d) => sum + d, 0) / deltas.length);
+  const mid = Math.floor(deltas.length / 2);
+  const medianMs = deltas.length % 2 === 0 ? Math.round((deltas[mid - 1] + deltas[mid]) / 2) : deltas[mid];
+
+  return { averageMs, medianMs, sampleSize: deltas.length };
+}
+
 // Session-presence funnel, not a strict per-session sequential-order funnel:
 // a step's count is "how many distinct sessions have this event at all in
 // range," not "...and in this order relative to the previous step." A known,

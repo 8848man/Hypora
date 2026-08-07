@@ -51,7 +51,7 @@ export type UseProjectSummaryAssistantResult = Omit<
 };
 
 export function useProjectSummaryAssistant(): UseProjectSummaryAssistantResult {
-  const assistant = useAiAssistant(requestProjectSummaryAssistant, "generic" as const);
+  const assistant = useAiAssistant(requestProjectSummaryAssistant, "generic" as const, "project-summary-assistant");
 
   return {
     ...assistant,

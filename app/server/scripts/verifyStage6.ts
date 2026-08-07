@@ -5,12 +5,11 @@
 // HTTP handler POST /api/project-summary-assistant (mirroring Stage 3), for
 // both Operations (initial_generation, sync).
 
-import { Readable } from "node:stream";
-import type { IncomingMessage, ServerResponse } from "node:http";
 import { createContainer } from "../ai/container.js";
 import { FakeProvider } from "../ai/provider/FakeProvider.js";
 import handler from "../../api/project-summary-assistant.js";
 import type { ProjectSummaryAssistantOperation } from "../ai/capabilities/projectSummaryAssistant/types.js";
+import { createAssert, createMockRequest, createMockResponse } from "./verifyTestHelpers.js";
 
 // Domain Summary Lifecycle logic (src/domain/summaryLifecycle.ts) is
 // verified separately, via `npm run verify:domain-summary`
@@ -21,37 +20,7 @@ import type { ProjectSummaryAssistantOperation } from "../ai/capabilities/projec
 // (tsconfig.server.json's nodenext resolution vs. tsconfig.app.json's
 // bundler resolution disagree on extensionless imports).
 
-function assert(condition: boolean, message: string): void {
-  if (!condition) {
-    console.error(`Stage 6 verification: FAIL - ${message}`);
-    process.exit(1);
-  }
-}
-
-function createMockRequest(method: string, body: unknown): IncomingMessage {
-  const bodyStr = body === undefined ? "" : typeof body === "string" ? body : JSON.stringify(body);
-  const readable = Readable.from([Buffer.from(bodyStr, "utf8")]) as unknown as IncomingMessage;
-  (readable as unknown as { method: string }).method = method;
-  return readable;
-}
-
-function createMockResponse(): { res: ServerResponse; status: () => number; body: () => string } {
-  let statusCode = 0;
-  let body = "";
-  const res = {
-    setHeader: () => {},
-    end: (chunk: string) => {
-      body = chunk;
-    },
-  } as unknown as ServerResponse;
-  Object.defineProperty(res, "statusCode", {
-    get: () => statusCode,
-    set: (v: number) => {
-      statusCode = v;
-    },
-  });
-  return { res, status: () => statusCode, body: () => body };
-}
+const assert = createAssert("Stage 6 verification");
 
 async function main(): Promise<void> {
   // 1. Capability layer — one happy path per Operation.

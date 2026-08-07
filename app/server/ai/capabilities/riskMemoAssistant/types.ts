@@ -3,12 +3,11 @@
 // Deliberately a separate contract from Canvas Assistant's — see that
 // capability spec's Promotion Rules citation for why.
 
-export type RiskMemoTargetField = "technical_risks" | "business_risks" | "open_questions";
+import type { CanvasContextField } from "../../shared/types.js";
 
-export type CanvasContextField = {
-  field: string;
-  value: string;
-};
+export type { CanvasContextField };
+
+export type RiskMemoTargetField = "technical_risks" | "business_risks" | "open_questions";
 
 export type RiskMemoSiblingField = {
   field: RiskMemoTargetField;

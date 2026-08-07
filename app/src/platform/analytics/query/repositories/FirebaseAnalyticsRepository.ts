@@ -86,11 +86,12 @@ export class FirebaseAnalyticsRepository implements AnalyticsRepository {
         timestamp: data.timestamp,
         sessionId: data.sessionId,
         anonymousUserId: data.anonymousUserId,
-        pagePath: data.pagePath,
       };
-      if (data.properties) {
-        event.properties = data.properties;
-      }
+      if (data.pagePath !== undefined) event.pagePath = data.pagePath;
+      if (data.feature !== undefined) event.feature = data.feature;
+      if (data.screen !== undefined) event.screen = data.screen;
+      if (data.projectId !== undefined) event.projectId = data.projectId;
+      if (data.properties) event.properties = data.properties;
       return event;
     });
   }

@@ -17,6 +17,7 @@ import { useLocalization } from "../../localization";
 import { useValidationPlanningAssistant } from "../../ai/useValidationPlanningAssistant";
 import { useProjectContext } from "../useProject";
 import { buildMvpScopeContext, buildRiskMemoContext, buildWorkspaceSnapshot } from "../../workspace/contextBuilder";
+import { trackEvent } from "../../platform/analytics/analyticsService";
 
 export function ValidationPage() {
   const { project, update } = useProjectContext();
@@ -83,6 +84,7 @@ export function ValidationPage() {
       status: "open",
     };
     update({ ...project, validationItems: [...project.validationItems, item] });
+    trackEvent({ eventName: "validation_item_created", feature: "validation-planning", projectId: project.id });
   }
 
   // Accept: this capability's real commitment point, consistent with every
@@ -94,7 +96,15 @@ export function ValidationPage() {
     const text = assistant.suggestionText;
     const rationale = assistant.rationale;
 
-    if (text) createAssumption(text);
+    if (text) {
+      createAssumption(text);
+      trackEvent({
+        eventName: "ai_suggestion_accepted",
+        feature: "validation-planning",
+        projectId: project.id,
+        properties: { capabilityId: "validation-planning-assistant" },
+      });
+    }
     assistant.reset();
 
     if (text) {
@@ -142,6 +152,12 @@ export function ValidationPage() {
     const next = { ...project, validationItems: nextItems };
     next.stage = advanceToValidated(next);
     update(next);
+    trackEvent({
+      eventName: "validation_item_resolved",
+      feature: "validation-planning",
+      projectId: project.id,
+      properties: { status },
+    });
   }
 
   function handleReopenScope() {

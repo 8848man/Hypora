@@ -41,7 +41,11 @@ export type UseFeatureSuggestionAssistantResult = Omit<
 };
 
 export function useFeatureSuggestionAssistant(): UseFeatureSuggestionAssistantResult {
-  const assistant = useAiAssistant(requestFeatureSuggestionAssistantSuggestion, "generic" as const);
+  const assistant = useAiAssistant(
+    requestFeatureSuggestionAssistantSuggestion,
+    "generic" as const,
+    "feature-suggestion-assistant",
+  );
 
   return {
     ...assistant,

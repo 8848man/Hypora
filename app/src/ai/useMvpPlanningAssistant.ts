@@ -27,7 +27,7 @@ export type UseMvpPlanningAssistantResult = Omit<
 };
 
 export function useMvpPlanningAssistant(): UseMvpPlanningAssistantResult {
-  const assistant = useAiAssistant(requestMvpPlanningAssistantSuggestion, "generic" as const);
+  const assistant = useAiAssistant(requestMvpPlanningAssistantSuggestion, "generic" as const, "mvp-planning-assistant");
 
   return {
     ...assistant,
