@@ -4,35 +4,16 @@
 // module knows the Contract's shape; it knows nothing about providers or
 // which Invocation Mode (Automatic vs. Manual) produced the call.
 
-import type {
-  CanvasContextField,
-  ProjectSummaryAssistantOperation,
-  ProjectSummaryAssistantRequest,
-} from "../ai/capabilities/projectSummaryAssistant/types.js";
-import { HttpValidationError } from "./HttpValidationError.js";
-import { VALID_LANGUAGES, isContextFieldArray } from "./validationHelpers.js";
+import { z } from "zod";
+import type { ProjectSummaryAssistantRequest } from "../ai/capabilities/projectSummaryAssistant/types.js";
+import { contextFieldArraySchema, languageSchema, parseRequest } from "./validationHelpers.js";
 
-const VALID_OPERATIONS = ["initial_generation", "sync"] as const;
+const schema: z.ZodType<ProjectSummaryAssistantRequest> = z.object({
+  operation: z.enum(["initial_generation", "sync"]),
+  canvasContext: contextFieldArraySchema,
+  language: languageSchema,
+});
 
 export function validateProjectSummaryAssistantRequest(body: unknown): ProjectSummaryAssistantRequest {
-  if (typeof body !== "object" || body === null) {
-    throw new HttpValidationError("Request body must be a JSON object");
-  }
-  const candidate = body as Record<string, unknown>;
-
-  if (!VALID_OPERATIONS.includes(candidate.operation as ProjectSummaryAssistantOperation)) {
-    throw new HttpValidationError(`"operation" must be one of: ${VALID_OPERATIONS.join(", ")}`);
-  }
-  if (!isContextFieldArray(candidate.canvasContext)) {
-    throw new HttpValidationError('"canvasContext" must be an array of { field: string, value: string }');
-  }
-  if (typeof candidate.language !== "string" || !VALID_LANGUAGES.includes(candidate.language as "ko" | "en")) {
-    throw new HttpValidationError(`"language" must be one of: ${VALID_LANGUAGES.join(", ")}`);
-  }
-
-  return {
-    operation: candidate.operation as ProjectSummaryAssistantOperation,
-    canvasContext: candidate.canvasContext as CanvasContextField[],
-    language: candidate.language as "ko" | "en",
-  };
+  return parseRequest(schema, body);
 }

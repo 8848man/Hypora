@@ -16,6 +16,8 @@
     "verify:stage5": "node --env-file=.env ./node_modules/tsx/dist/cli.mjs server/scripts/verifyStage5.ts",
     "verify:stage6": "tsx server/scripts/verifyStage6.ts",
     "verify:stage7": "tsx server/scripts/verifyStage7.ts",
+    "verify:stage8": "tsx server/scripts/verifyStage8.ts",
+    "verify:stage9": "tsx server/scripts/verifyStage9.ts",
     "verify:domain-summary": "tsx src/domain/verifySummaryLifecycle.ts",
     "verify:domain-navigation": "tsx src/domain/verifyNavigationState.ts"
   },
@@ -24,7 +26,8 @@
     "firebase": "^12.16.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
