@@ -48,6 +48,16 @@ External LLM
 
 Per [ADR-0006](../architecture/decisions/ADR-0006-ai-as-platform-capability.md): a new roadmap stage (V3, V4, V5) adds one or more new named AI Capabilities under this same model — it does not require a new architecture. The AI Capability layer owns the contract and naming; the AI Application Service owns execution mechanics behind every capability equally (see [Ownership Model](./03_ownership_model.md) for exactly how responsibility is split within that Service, and [Provider Independence & Configuration](./02_provider_independence_and_configuration.md) for the Provider layer downward).
 
+## Request Defense
+
+Every AI Capability's HTTP boundary (the layer in front of the AI Application Service in the Capability Model above) enforces the same three defenses uniformly, regardless of which Capability is invoked — none of these are Capability-specific decisions, and no Capability spec may loosen or restate them:
+
+- **Body size cap.** A request body exceeding a fixed byte limit is rejected before it is parsed, never buffered without bound.
+- **Provider-call timeout.** Every call the AI Application Service makes into the LLM Provider Interface carries a bounded timeout; a Provider that exceeds it reports the existing `timeout` error kind (already mapped to `504` — see [Provider Independence & Configuration](./02_provider_independence_and_configuration.md)), rather than leaving the request to hang until an infrastructure-level cutoff.
+- **Bounded free-text fields.** Every free-text request field (a Capability's own context/answer/description-shaped strings) has a maximum length enforced at the same validation step that already checks its shape, per Capability Request Contract.
+
+This is request-level hardening against malformed or abusive input, not a new architectural layer — it does not change the Capability Model, the Provider Interface, or any existing error taxonomy mapping.
+
 ## Localization
 
 *(References [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md) and [ADR-0009](../architecture/decisions/ADR-0009-ai-platform-localization-integration.md) — this section does not redefine either.)* The AI Platform introduces no second localization mechanism. It consumes the same canonical `language` Application-level state already owned by [Workspace Data & State](../workspace/02_data_and_state.md#application-level-state-non-project), as an ordinary Context Creation input (see [Ownership Model](./03_ownership_model.md)). Any AI Capability whose output populates a content-identity-bearing concept (e.g., a Question Model field, per [ADR-0005](../architecture/decisions/ADR-0005-korean-first-localization-architecture.md)) returns already-localized presentation content for the requested language — the same role a human-curated preset already fills — and never returns a `localizationKey` itself. Per [ADR-0009](../architecture/decisions/ADR-0009-ai-platform-localization-integration.md), user-authored content that originated from an AI suggestion is, once accepted, ordinary user-authored content: never re-localized on a later language switch, identically to how a preset-derived Canvas answer is already treated ([Workspace Architecture](../workspace/01_architecture.md#localization)).

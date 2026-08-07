@@ -19,7 +19,15 @@ export type GeminiProviderConfig = {
   topP?: number;
   maxOutputTokens?: number;
   baseUrl?: string;
+  // Request Defense (sdd/ai/04_ai_interaction.md) — bounds how long a single
+  // Capability invocation can hang waiting on the vendor before this Provider
+  // gives up and reports `timeout` itself, rather than relying on the
+  // platform's own infrastructure timeout (which would surface as a generic
+  // 500, not the unified `timeout` -> 504 mapping).
+  timeoutMs?: number;
 };
+
+const DEFAULT_TIMEOUT_MS = 20_000;
 
 type ResponseSchemaHint = { requiredKeys: string[] };
 
@@ -87,8 +95,12 @@ export class GeminiProvider implements Provider {
         method: "POST",
         headers: { "content-type": "application/json", "x-goog-api-key": this.config.apiKey },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(this.config.timeoutMs ?? DEFAULT_TIMEOUT_MS),
       });
     } catch (cause) {
+      if (cause instanceof Error && (cause.name === "TimeoutError" || cause.name === "AbortError")) {
+        throw new ProviderError("timeout", "Gemini API request timed out", cause);
+      }
       throw new ProviderError("network_failure", "Failed to reach Gemini API", cause);
     }
 
