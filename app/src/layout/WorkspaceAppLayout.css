@@ -1,10 +1,21 @@
+/* Outer bar stays full-bleed (border spans the viewport); only
+   .workspace-app-shell__bar-inner is width-constrained, resolving to the
+   exact same horizontal edges as .workspace-shell's content below it --
+   mirrors Landing's own .landing__header/.landing__header-inner split
+   (sdd/landing/05_design_system.md#shared-layout-container), the same
+   "max-width without centering is a defect" bug that rule exists to close. */
 .workspace-app-shell__bar {
+  border-bottom: 1px solid var(--color-neutral-border);
+}
+
+.workspace-app-shell__bar-inner {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-neutral-border);
+  padding: var(--space-3) var(--space-5);
   flex-wrap: wrap;
 }
 
@@ -20,8 +31,31 @@
   flex-wrap: wrap;
 }
 
+/* .language-switcher's base rule (index.css) carries a bottom margin meant
+   for its old standalone, page-level placement -- wrong here, where it sits
+   inline beside AccountMenu and the margin pushes it out of vertical
+   center. Same fix Landing already applied for the identical reason
+   (.landing__header-actions .language-switcher). */
+.workspace-app-shell__actions .language-switcher {
+  margin-bottom: 0;
+}
+
+/* Same breakpoint/reduced-gutter pair index.css already applies to
+   .workspace-shell -- kept in sync so the app bar's edges never diverge
+   from the content beneath it at this breakpoint either. */
+@media (max-width: 640px) {
+  .workspace-app-shell__bar-inner {
+    padding: var(--space-3);
+  }
+}
+
+/* max-width narrower than its .workspace-shell parent must also be
+   centered within it -- an omitted margin here is the same "defect, not a
+   stylistic choice" the Shared Layout Container rule already names
+   (sdd/landing/05_design_system.md#shared-layout-container). */
 .account-page__form {
   max-width: 360px;
+  margin: 0 auto;
 }
 
 .account-menu__error {

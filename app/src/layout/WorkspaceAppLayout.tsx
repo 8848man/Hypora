@@ -16,10 +16,12 @@ export function WorkspaceAppLayout() {
   return (
     <div className="workspace-app-shell">
       <header className="workspace-app-shell__bar">
-        <span className="workspace-app-shell__brand">Hypora</span>
-        <div className="workspace-app-shell__actions">
-          <LanguageSwitcher />
-          <AccountMenu />
+        <div className="workspace-app-shell__bar-inner">
+          <span className="workspace-app-shell__brand">Hypora</span>
+          <div className="workspace-app-shell__actions">
+            <LanguageSwitcher />
+            <AccountMenu />
+          </div>
         </div>
       </header>
       <Outlet />
