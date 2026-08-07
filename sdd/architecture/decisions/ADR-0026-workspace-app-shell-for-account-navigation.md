@@ -1,9 +1,9 @@
 # ADR-0026: A Workspace App Shell, So Account/Login Has One Place to Live
 
-**Status:** Accepted
+**Status:** Partially Superseded by ADR-0027
 **Date:** 2026-08-08
 **Affects specs:** [Frontend Architecture](../../frontend/01_architecture.md), [Workspace Architecture](../../workspace/01_architecture.md)
-**Related ADRs:** [ADR-0025](./ADR-0025-account-authentication-and-one-directional-migration.md) (the authentication decision this ADR gives a UI home to; kept as a separate ADR since this one is a layout/navigation decision, not an auth or persistence one)
+**Related ADRs:** [ADR-0025](./ADR-0025-account-authentication-and-one-directional-migration.md) (the authentication decision this ADR gives a UI home to; kept as a separate ADR since this one is a layout/navigation decision, not an auth or persistence one), [ADR-0027](./ADR-0027-sign-up-sign-in-moves-to-a-dedicated-route.md) (supersedes Decision 2's "inline, no full-page navigation" choice specifically — Decision 1, the app shell itself, is still in force)
 
 ## Context
 
