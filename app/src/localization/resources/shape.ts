@@ -330,4 +330,14 @@ export interface Resources {
     projectNotFound: string;
     saveFailed: string;
   };
+  account: {
+    signInLabel: string;
+    signOutLabel: string;
+    emailLabel: string;
+    passwordLabel: string;
+    submitLabel: string;
+    cancelLabel: string;
+    errorGeneric: string;
+    signedInAs: (email: string) => string;
+  };
 }

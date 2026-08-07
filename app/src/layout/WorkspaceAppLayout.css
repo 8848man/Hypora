@@ -1,0 +1,35 @@
+.workspace-app-shell__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-neutral-border);
+  flex-wrap: wrap;
+}
+
+.workspace-app-shell__brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.workspace-app-shell__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.account-menu__form {
+  min-width: 260px;
+}
+
+.account-menu__error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+.account-menu__signed-in {
+  font-size: 0.875rem;
+  color: var(--color-neutral-text-muted);
+}

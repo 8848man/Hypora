@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { LandingLayout } from "./layout/LandingLayout";
+import { WorkspaceAppLayout } from "./layout/WorkspaceAppLayout";
 import { WorkspaceProjectLayout } from "./layout/WorkspaceProjectLayout";
 import { HomePage } from "./pages/landing/HomePage";
 import { FeaturesPage } from "./pages/landing/FeaturesPage";
@@ -21,15 +22,19 @@ function App() {
         <Route path="/features" element={<FeaturesPage />} />
       </Route>
 
-      {/* Workspace route group */}
-      <Route path="/app" element={<ProjectListPage />} />
-      <Route path="/app/projects/:projectId" element={<WorkspaceProjectLayout />}>
-        <Route index element={<Navigate to="canvas" replace />} />
-        <Route path="canvas" element={<BusinessStructuringPage />} />
-        <Route path="scope" element={<MvpPlanningPage />} />
-        <Route path="validation" element={<ValidationPage />} />
-        <Route path="risks" element={<RiskMemoPage />} />
-        <Route path="summary" element={<SummaryPage />} />
+      {/* Workspace route group — per ADR-0026, both subtrees below share
+          WorkspaceAppLayout as their common parent (account/login, language
+          switcher); neither route's own URL changes. */}
+      <Route element={<WorkspaceAppLayout />}>
+        <Route path="/app" element={<ProjectListPage />} />
+        <Route path="/app/projects/:projectId" element={<WorkspaceProjectLayout />}>
+          <Route index element={<Navigate to="canvas" replace />} />
+          <Route path="canvas" element={<BusinessStructuringPage />} />
+          <Route path="scope" element={<MvpPlanningPage />} />
+          <Route path="validation" element={<ValidationPage />} />
+          <Route path="risks" element={<RiskMemoPage />} />
+          <Route path="summary" element={<SummaryPage />} />
+        </Route>
       </Route>
 
       {/* Internal-only, not part of Landing/Workspace IA — see sdd/analytics/06_query_and_reporting.md */}

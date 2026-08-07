@@ -435,4 +435,14 @@ export const ko: Resources = {
     projectNotFound: "프로젝트를 찾을 수 없습니다.",
     saveFailed: "마지막 변경사항을 저장하지 못했습니다. 다시 시도해 주세요.",
   },
+  account: {
+    signInLabel: "로그인",
+    signOutLabel: "로그아웃",
+    emailLabel: "이메일",
+    passwordLabel: "비밀번호",
+    submitLabel: "계속",
+    cancelLabel: "취소",
+    errorGeneric: "로그인하지 못했습니다 — 이메일과 비밀번호를 확인한 뒤 다시 시도해 주세요.",
+    signedInAs: (email: string) => `${email}(으)로 로그인됨`,
+  },
 };

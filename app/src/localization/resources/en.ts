@@ -462,4 +462,14 @@ export const en: Resources = {
     projectNotFound: "Project not found.",
     saveFailed: "Your last change couldn't be saved. Please try again.",
   },
+  account: {
+    signInLabel: "Sign In",
+    signOutLabel: "Sign Out",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    submitLabel: "Continue",
+    cancelLabel: "Cancel",
+    errorGeneric: "Couldn't sign in — check your email and password and try again.",
+    signedInAs: (email: string) => `Signed in as ${email}`,
+  },
 };
