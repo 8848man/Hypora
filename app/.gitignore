@@ -28,3 +28,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Local-only dev API server (no linked `vercel dev` project in this environment)
+server/localDevApiServer.ts
+vite.dev.proxy.config.ts
