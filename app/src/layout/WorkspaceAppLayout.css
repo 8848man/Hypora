@@ -20,8 +20,8 @@
   flex-wrap: wrap;
 }
 
-.account-menu__form {
-  min-width: 260px;
+.account-page__form {
+  max-width: 360px;
 }
 
 .account-menu__error {

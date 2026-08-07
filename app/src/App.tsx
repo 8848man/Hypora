@@ -12,6 +12,7 @@ import { RiskMemoPage } from "./features/risk-memo/RiskMemoPage";
 import { SummaryPage } from "./features/project-summary/SummaryPage";
 import { AdminAnalyticsPage } from "./pages/admin/analytics/AdminAnalyticsPage";
 import { DesignSystemCatalogPage } from "./pages/design-system-catalog/DesignSystemCatalogPage";
+import { AccountPage } from "./pages/account/AccountPage";
 
 function App() {
   return (
@@ -27,6 +28,10 @@ function App() {
           switcher); neither route's own URL changes. */}
       <Route element={<WorkspaceAppLayout />}>
         <Route path="/app" element={<ProjectListPage />} />
+        {/* Dedicated route per ADR-0027 (partially supersedes ADR-0026's
+            inline-form choice) — the app bar's account area (AccountMenu)
+            just links here now. */}
+        <Route path="/app/account" element={<AccountPage />} />
         <Route path="/app/projects/:projectId" element={<WorkspaceProjectLayout />}>
           <Route index element={<Navigate to="canvas" replace />} />
           <Route path="canvas" element={<BusinessStructuringPage />} />
