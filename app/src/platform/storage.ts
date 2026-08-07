@@ -6,6 +6,7 @@
 import { emptyProjectSummary, emptyRiskMemo, type Project } from "../domain/types";
 import type { Language } from "../localization/types";
 import { SUPPORTED_LANGUAGES } from "../localization/types";
+import { syncProjectInBackground } from "./persistence/projectCloudSync";
 
 // Forward-compatibility (sdd/workspace/02_data_and_state.md's Local Persistence
 // rule): a field added after some Projects were already stored (riskMemo,
@@ -95,6 +96,10 @@ export function saveProject(project: Project): boolean {
     if (!ids.includes(project.id)) {
       writeIndex([...ids, project.id]);
     }
+    // Best-effort durable backup (ADR-0024) — fire-and-forget, never awaited,
+    // never able to affect this function's own success/failure or timing.
+    // LocalStorage above remains this function's actual source of truth.
+    syncProjectInBackground(project);
     return true;
   } catch {
     return false;

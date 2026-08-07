@@ -1,6 +1,6 @@
 # Hypora
 
-A web-based workspace that helps users transform business ideas into structured, validated MVP plans. The long-term vision is an AI Co-founder platform. Workspace's own project data (Canvas, MVP Scope, Feature Planning, Validation Checklist) remains manual, LocalStorage-only, per V1's original design; the AI Platform capability (5 Workspace-feature assistants, backed by real Vercel serverless functions) is now implemented — see [`sdd/ai/`](./sdd/ai/) and [`sdd/context/05_application_responsibilities.md`](./sdd/context/05_application_responsibilities.md#platform-api).
+A web-based workspace that helps users transform business ideas into structured, validated MVP plans. The long-term vision is an AI Co-founder platform. Workspace's own project data (Canvas, MVP Scope, Feature Planning, Validation Checklist) still reads and writes through LocalStorage synchronously, now additionally backed up to Firestore in the background per [`ADR-0024`](./sdd/architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md); the AI Platform capability (5 Workspace-feature assistants, backed by real Vercel serverless functions) is now implemented — see [`sdd/ai/`](./sdd/ai/) and [`sdd/context/05_application_responsibilities.md`](./sdd/context/05_application_responsibilities.md#platform-api).
 
 ## Documentation Map
 
@@ -12,7 +12,7 @@ A web-based workspace that helps users transform business ideas into structured,
 
 ## Current Stage
 
-Landing and Workspace both have real code and their own dedicated specification directories. Workspace's architecture, data specification, and five Feature Specifications (see [`sdd/workspace/`](./sdd/workspace/), [`sdd/workspace/features/`](./sdd/workspace/features/000_index.md)) were written ahead of code, under the framework's "spec leads implementation" allowance. Landing's architecture, information architecture, component model/contracts, Design System consumption, Motion System, and implementation plan (see [`sdd/landing/`](./sdd/landing/)) were promoted 2026-07-17 the other direction — spec catching up to already-existing code and a validated redesign direction, not leading it (see [`sdd/landing/00_index.md`](./sdd/landing/00_index.md)'s Provenance section). Both share [`sdd/frontend/01_architecture.md`](./sdd/frontend/01_architecture.md) and [`sdd/design-system/01_design_system.md`](./sdd/design-system/01_design_system.md). Platform API remains unpromoted — V1 still uses LocalStorage, not a real backend. See [`sdd/00_index.md`](./sdd/00_index.md) for what's defined so far and what's deliberately deferred until its trigger condition is real.
+Landing and Workspace both have real code and their own dedicated specification directories. Workspace's architecture, data specification, and five Feature Specifications (see [`sdd/workspace/`](./sdd/workspace/), [`sdd/workspace/features/`](./sdd/workspace/features/000_index.md)) were written ahead of code, under the framework's "spec leads implementation" allowance. Landing's architecture, information architecture, component model/contracts, Design System consumption, Motion System, and implementation plan (see [`sdd/landing/`](./sdd/landing/)) were promoted 2026-07-17 the other direction — spec catching up to already-existing code and a validated redesign direction, not leading it (see [`sdd/landing/00_index.md`](./sdd/landing/00_index.md)'s Provenance section). Both share [`sdd/frontend/01_architecture.md`](./sdd/frontend/01_architecture.md) and [`sdd/design-system/01_design_system.md`](./sdd/design-system/01_design_system.md). Platform API was promoted 2026-08-07 (see [`sdd/platform-api/`](./sdd/platform-api/00_index.md)) — Project data's read/write source of truth is still LocalStorage, now backed up (not yet restorable) to Firestore in the background, per [`ADR-0024`](./sdd/architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md). See [`sdd/00_index.md`](./sdd/00_index.md) for what's defined so far and what's deliberately deferred until its trigger condition is real.
 
 ## Product Architecture
 
@@ -20,7 +20,7 @@ One Product, multiple Applications — see [`sdd/context/05_application_responsi
 
 - **Landing** — marketing website.
 - **Workspace** — the primary MVP; the actual web application.
-- **Platform API** — backend platform (V1: LocalStorage; future: real backend).
+- **Platform API** — backend platform (AI capability: real backend; Projects: LocalStorage source of truth with a Firestore backup, per [`ADR-0024`](./sdd/architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md); Authentication/Search/Integrations: mostly still future).
 
 Every project's structuring/validation progress follows one canonical lifecycle — see [`sdd/domain/01_business_idea_lifecycle.md`](./sdd/domain/01_business_idea_lifecycle.md) and [`ADR-0002`](./sdd/architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md).
 
