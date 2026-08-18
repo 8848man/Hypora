@@ -61,3 +61,21 @@ export function resolveFirebaseAnalyticsReportingConfig(): FirebaseAnalyticsRepo
 
   return { ...core, measurementId };
 }
+
+// Amplitude is a second non-portable reporting sink, generalizing the GA4
+// carve-out above — see ADR-0028 and 03_provider_independence.md's
+// "Non-Portable Reporting Sinks" section. Unset means the sink stays inactive,
+// mirroring VITE_FIREBASE_MEASUREMENT_ID's own unset-skips-forwarding behavior.
+export type AmplitudeReportingConfig = {
+  apiKey: string;
+};
+
+export function resolveAmplitudeReportingConfig(): AmplitudeReportingConfig | undefined {
+  const apiKey = import.meta.env.VITE_AMPLITUDE_API_KEY as string | undefined;
+
+  if (!apiKey) {
+    return undefined;
+  }
+
+  return { apiKey };
+}

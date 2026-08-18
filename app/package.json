@@ -22,6 +22,7 @@
     "verify:domain-navigation": "tsx src/domain/verifyNavigationState.ts"
   },
   "dependencies": {
+    "@amplitude/unified": "^1.1.29",
     "@types/node": "^24.13.2",
     "firebase": "^12.16.0",
     "react": "^19.2.7",

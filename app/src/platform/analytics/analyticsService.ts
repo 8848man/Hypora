@@ -6,8 +6,9 @@
 
 import { getEventTracker } from "./container";
 import { generateId, getAnonymousUserId, getSessionId } from "./session";
-import { resolveFirebaseAnalyticsReportingConfig } from "./config";
+import { resolveFirebaseAnalyticsReportingConfig, resolveAmplitudeReportingConfig } from "./config";
 import { reportToFirebaseAnalytics } from "./reporting/firebaseAnalyticsReporter";
+import { reportToAmplitude } from "./reporting/amplitudeReporter";
 import type { AnalyticsEvent, TrackEventInput } from "./eventTracker";
 
 export function trackEvent(input: TrackEventInput): void {
@@ -33,5 +34,13 @@ export function trackEvent(input: TrackEventInput): void {
   const reportingConfig = resolveFirebaseAnalyticsReportingConfig();
   if (reportingConfig) {
     reportToFirebaseAnalytics(event, reportingConfig);
+  }
+
+  // Amplitude is a second, independent non-portable reporting sink — same
+  // carve-out as GA4 above, generalized by ADR-0028. See
+  // sdd/analytics/03_provider_independence.md's "Non-Portable Reporting Sinks".
+  const amplitudeConfig = resolveAmplitudeReportingConfig();
+  if (amplitudeConfig) {
+    reportToAmplitude(event, amplitudeConfig);
   }
 }
