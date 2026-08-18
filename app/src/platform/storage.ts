@@ -2,10 +2,24 @@
 // Ownership rule, this is the ONLY file permitted to call localStorage directly. Conceptually,
 // this is where Platform API's V1 implementation lives inside the shared codebase (see
 // sdd/context/05_application_responsibilities.md and sdd/workspace/02_data_and_state.md).
+//
+// Dual-mode since ADR-0025: an anonymous (or signed-out) caller reads/writes
+// LocalStorage synchronously-in-effect (wrapped in a resolved Promise, per
+// that ADR's Decision 4); a linked/real-account caller reads/writes Firestore
+// instead, via projectCloudSync.ts. Every exported Project function is
+// therefore Promise-returning — see ADR-0025 for why this is a bounded,
+// deliberate contract change rather than an accidental one.
 
 import { emptyProjectSummary, emptyRiskMemo, type Project } from "../domain/types";
 import type { Language } from "../localization/types";
 import { SUPPORTED_LANGUAGES } from "../localization/types";
+import { getCurrentAccountState } from "./auth/authService";
+import {
+  listProjectsFromCloud,
+  readProjectFromCloud,
+  syncProjectInBackground,
+  writeProjectToCloud,
+} from "./persistence/projectCloudSync";
 
 // Forward-compatibility (sdd/workspace/02_data_and_state.md's Local Persistence
 // rule): a field added after some Projects were already stored (riskMemo,
@@ -38,7 +52,11 @@ export interface ProjectListEntry {
   createdAt: string;
 }
 
-function readIndex(): string[] {
+function toListEntry(project: Project): ProjectListEntry {
+  return { id: project.id, name: project.name, stage: project.stage, createdAt: project.createdAt };
+}
+
+function readIndexLocal(): string[] {
   try {
     const raw = window.localStorage.getItem(INDEX_KEY);
     if (!raw) return [];
@@ -50,7 +68,7 @@ function readIndex(): string[] {
   }
 }
 
-function writeIndex(ids: string[]): boolean {
+function writeIndexLocal(ids: string[]): boolean {
   try {
     window.localStorage.setItem(INDEX_KEY, JSON.stringify(ids));
     return true;
@@ -59,24 +77,7 @@ function writeIndex(ids: string[]): boolean {
   }
 }
 
-export function listProjects(): ProjectListEntry[] {
-  const ids = readIndex();
-  const entries: ProjectListEntry[] = [];
-  for (const id of ids) {
-    const project = readProject(id);
-    if (project) {
-      entries.push({
-        id: project.id,
-        name: project.name,
-        stage: project.stage,
-        createdAt: project.createdAt,
-      });
-    }
-  }
-  return entries;
-}
-
-export function readProject(id: string): Project | null {
+function readProjectLocal(id: string): Project | null {
   try {
     const raw = window.localStorage.getItem(projectKey(id));
     if (!raw) return null;
@@ -88,17 +89,106 @@ export function readProject(id: string): Project | null {
   }
 }
 
-export function saveProject(project: Project): boolean {
+function saveProjectLocal(project: Project): boolean {
   try {
     window.localStorage.setItem(projectKey(project.id), JSON.stringify(project));
-    const ids = readIndex();
+    const ids = readIndexLocal();
     if (!ids.includes(project.id)) {
-      writeIndex([...ids, project.id]);
+      writeIndexLocal([...ids, project.id]);
     }
     return true;
   } catch {
     return false;
   }
+}
+
+/** Removes one Project from LocalStorage — migration's own cleanup step (ADR-0025), never called otherwise. */
+function deleteProjectLocal(id: string): void {
+  try {
+    window.localStorage.removeItem(projectKey(id));
+    writeIndexLocal(readIndexLocal().filter((existing) => existing !== id));
+  } catch {
+    // Best-effort cleanup only — if this fails, the next migration attempt
+    // simply re-uploads (harmless, per ADR-0025's overwrite policy) and
+    // retries the removal.
+  }
+}
+
+function listProjectsLocal(): ProjectListEntry[] {
+  return readIndexLocal()
+    .map((id) => readProjectLocal(id))
+    .filter((project): project is Project => project !== null)
+    .map(toListEntry);
+}
+
+async function isLinkedAccount(): Promise<string | null> {
+  const account = await getCurrentAccountState();
+  return account && !account.isAnonymous ? account.uid : null;
+}
+
+export async function listProjects(): Promise<ProjectListEntry[]> {
+  const uid = await isLinkedAccount();
+  if (uid) {
+    const projects = await listProjectsFromCloud(uid);
+    return projects.map(toListEntry);
+  }
+  return listProjectsLocal();
+}
+
+export async function readProject(id: string): Promise<Project | null> {
+  const uid = await isLinkedAccount();
+  if (uid) {
+    return readProjectFromCloud(uid, id);
+  }
+  return readProjectLocal(id);
+}
+
+export async function saveProject(project: Project): Promise<boolean> {
+  const uid = await isLinkedAccount();
+  if (uid) {
+    try {
+      await writeProjectToCloud(uid, project);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  const ok = saveProjectLocal(project);
+  if (ok) {
+    // Best-effort durable backup (ADR-0024) — fire-and-forget, never awaited,
+    // never able to affect this function's own success/failure or timing.
+    // LocalStorage above remains this branch's actual source of truth.
+    syncProjectInBackground(project);
+  }
+  return ok;
+}
+
+/**
+ * Per-ADR-0025: on every successful sign-up/sign-in/account-link, every
+ * LocalStorage Project is written to `uid`'s Firestore store — one-directional,
+ * unconditionally overwriting whatever (if anything) already exists there at
+ * the same id — and only removed from LocalStorage once *that specific
+ * Project's* write is confirmed. A failure partway through leaves the
+ * remainder safely in LocalStorage, retried on the next migration call
+ * (idempotent, since a re-write is just another overwrite). Never called
+ * automatically by this module — the caller (authService's sign-in flow)
+ * decides when a migration should run.
+ */
+export async function migrateLocalStorageToAccount(uid: string): Promise<{ migratedCount: number; failedCount: number }> {
+  let migratedCount = 0;
+  let failedCount = 0;
+  for (const id of readIndexLocal()) {
+    const project = readProjectLocal(id);
+    if (!project) continue;
+    try {
+      await writeProjectToCloud(uid, project);
+      deleteProjectLocal(id);
+      migratedCount++;
+    } catch {
+      failedCount++;
+    }
+  }
+  return { migratedCount, failedCount };
 }
 
 export function createProjectId(): string {
@@ -109,7 +199,8 @@ export function createProjectId(): string {
  * The persisted `language` concept — per sdd/workspace/02_data_and_state.md's
  * Application-Level State (Non-Project) section: a third, independent persisted concept,
  * separate from both the Project-list index and any individual Project's data. Reading or
- * writing it never touches Project storage.
+ * writing it never touches Project storage. Unaffected by ADR-0025 — language preference
+ * stays LocalStorage-only regardless of account state, out of that ADR's scope.
  */
 export function readStoredLanguage(): Language | null {
   try {

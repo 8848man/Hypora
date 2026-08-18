@@ -2,7 +2,6 @@ import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
 import { Badge, LoadingIndicator, Alert } from "../design-system";
 import { useProjectLoader, type ProjectContextValue } from "../features/useProject";
 import { useLocalization } from "../localization";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { resolveNavigationState, type RequiredStageId } from "../domain/navigationState";
 import "./WorkspaceProjectLayout.css";
 
@@ -80,8 +79,6 @@ export function WorkspaceProjectLayout() {
 
   return (
     <div className="workspace-shell workspace-project">
-      <LanguageSwitcher />
-
       <header className="workspace-project__header">
         <div>
           <p className="workspace-project__eyebrow">{t.common.projectLabel}</p>

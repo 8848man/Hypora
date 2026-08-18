@@ -14,7 +14,6 @@ import {
 } from "../../design-system";
 import { archiveProject as archiveProjectStage } from "../../domain/lifecycle";
 import { createEmptyProject } from "../../domain/types";
-import { LanguageSwitcher } from "../../layout/LanguageSwitcher";
 import { useLocalization, type Language } from "../../localization";
 import {
   createProjectId,
@@ -47,17 +46,17 @@ async function triggerOnboardingPresets(
     language,
   });
 
-  const current = readProject(projectId);
+  const current = await readProject(projectId);
   if (!current) return; // Project no longer exists (e.g. already archived/removed) — nothing to update.
 
   if (!result.ok) {
-    saveProject({ ...current, onboardingPresets: { status: "fallback" } });
+    await saveProject({ ...current, onboardingPresets: { status: "fallback" } });
     return;
   }
 
   const presets: Partial<Record<string, string[]>> = {};
   for (const set of result.data.presets) presets[set.questionId] = set.options;
-  saveProject({ ...current, onboardingPresets: { status: "ready", presets } });
+  await saveProject({ ...current, onboardingPresets: { status: "ready", presets } });
 }
 
 export function ProjectListPage() {
@@ -71,10 +70,16 @@ export function ProjectListPage() {
   const [pendingArchiveId, setPendingArchiveId] = useState<string | null>(null);
 
   useEffect(() => {
-    setProjects(listProjects());
+    let cancelled = false;
+    void listProjects().then((loaded) => {
+      if (!cancelled) setProjects(loaded);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  function handleCreate() {
+  async function handleCreate() {
     const name = newName.trim();
     if (!name) return;
     const id = createProjectId();
@@ -89,7 +94,12 @@ export function ProjectListPage() {
     // identically and falling through to static presets before the
     // pending request has even resolved.
     project.onboardingPresets = { status: "generating" };
-    saveProject(project);
+    // Awaited before navigating (unlike triggerOnboardingPresets below) —
+    // for a linked account the write is a real network call, and the page
+    // this navigation lands on immediately reads this same Project back;
+    // navigating before the write is confirmed would show a false
+    // "not found" error there for that account state.
+    await saveProject(project);
     trackEvent({ eventName: "project_created", feature: "project-management", projectId: id });
     navigate(`/app/projects/${id}/canvas`);
     // Fire-and-forget, per ADR-0019 Decision 7 — never awaited before
@@ -99,11 +109,11 @@ export function ProjectListPage() {
     registerPendingOnboarding(id, triggerOnboardingPresets(id, name, description, language));
   }
 
-  function handleArchive(id: string) {
-    const project = readProject(id);
+  async function handleArchive(id: string) {
+    const project = await readProject(id);
     if (!project) return;
-    saveProject({ ...project, stage: archiveProjectStage(project) });
-    setProjects(listProjects());
+    await saveProject({ ...project, stage: archiveProjectStage(project) });
+    setProjects(await listProjects());
     setPendingArchiveId(null);
     trackEvent({ eventName: "project_archived", feature: "project-management", projectId: id });
   }
@@ -115,7 +125,6 @@ export function ProjectListPage() {
 
   return (
     <div className="workspace-shell">
-      <LanguageSwitcher />
       <PageHeader
         title={t.dashboard.title}
         subtitle={t.dashboard.subtitle}

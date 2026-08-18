@@ -21,6 +21,12 @@ export interface ProjectContextValue {
  * loaded Project via useProjectContext() below, so the persistent nav shell
  * (lifecycle badge) and the active screen never fall out of sync with each
  * other, both reflecting the one shared state.
+ *
+ * storage.ts's Project functions are Promise-returning since ADR-0025 (dual
+ * LocalStorage/Firestore mode by auth state) — this hook awaits them but
+ * keeps its own `update` signature synchronous-looking for callers (an
+ * optimistic local state update, same as before that ADR, with the save's
+ * own success/failure surfacing into `saveError` once it resolves).
  */
 export function useProjectLoader(projectId: string | undefined) {
   const [project, setProject] = useState<Project | null>(null);
@@ -42,50 +48,57 @@ export function useProjectLoader(projectId: string | undefined) {
       setLoading(false);
       return;
     }
-    const found = readProject(projectId);
-    if (!found) {
-      setError("This project's data couldn't be loaded.");
-    } else {
-      setProject(found);
-    }
-    setLoading(false);
 
-    // If Project Management registered an in-flight Onboarding Preset
-    // Assistant call for this Project (per ADR-0019 — see
-    // onboardingPresetsRegistry.ts), re-read storage once it resolves so
-    // this already-mounted state picks up the result. A plain re-read, not
-    // update() -- this is a background refresh of AI-sourced onboarding
-    // content, never a user edit, so it must not re-trigger Summary's
-    // OutOfSync comparison or write anything back to storage that isn't
-    // already there.
-    const pendingOnboarding = takePendingOnboarding(projectId);
-    if (pendingOnboarding) {
-      let cancelled = false;
-      void pendingOnboarding.then(() => {
-        if (cancelled) return;
-        const refreshed = readProject(projectId);
-        if (refreshed) setProject(refreshed);
-      });
-      return () => {
-        cancelled = true;
-      };
-    }
+    let cancelled = false;
 
-    // Orphaned Generating state: the Project was persisted mid-generation
-    // (per ProjectListPage.tsx) but no in-flight promise is registered for
-    // it here — this in-memory registry never survives a browser refresh
-    // (see onboardingPresetsRegistry.ts), so the original request is
-    // unobservable now. Without this, the Project would stay in
-    // `generating` forever and Business Structuring would show its loading
-    // state with nothing left to end it. Resolves deterministically to
-    // Fallback (never a retry — this capability's own Failure Scenario
-    // Matrix already treats "lost request" the same as any other failure
-    // mode: silent, one-shot, no retry, per ADR-0019 Decision 5).
-    if (found?.onboardingPresets?.status === "generating") {
-      const resolved: Project = { ...found, onboardingPresets: { status: "fallback" } };
-      setProject(resolved);
-      saveProject(resolved);
-    }
+    void (async () => {
+      const found = await readProject(projectId);
+      if (cancelled) return;
+      if (!found) {
+        setError("This project's data couldn't be loaded.");
+      } else {
+        setProject(found);
+      }
+      setLoading(false);
+
+      // If Project Management registered an in-flight Onboarding Preset
+      // Assistant call for this Project (per ADR-0019 — see
+      // onboardingPresetsRegistry.ts), re-read storage once it resolves so
+      // this already-mounted state picks up the result. A plain re-read, not
+      // update() -- this is a background refresh of AI-sourced onboarding
+      // content, never a user edit, so it must not re-trigger Summary's
+      // OutOfSync comparison or write anything back to storage that isn't
+      // already there.
+      const pendingOnboarding = takePendingOnboarding(projectId);
+      if (pendingOnboarding) {
+        void pendingOnboarding.then(async () => {
+          if (cancelled) return;
+          const refreshed = await readProject(projectId);
+          if (!cancelled && refreshed) setProject(refreshed);
+        });
+        return;
+      }
+
+      // Orphaned Generating state: the Project was persisted mid-generation
+      // (per ProjectListPage.tsx) but no in-flight promise is registered for
+      // it here — this in-memory registry never survives a browser refresh
+      // (see onboardingPresetsRegistry.ts), so the original request is
+      // unobservable now. Without this, the Project would stay in
+      // `generating` forever and Business Structuring would show its loading
+      // state with nothing left to end it. Resolves deterministically to
+      // Fallback (never a retry — this capability's own Failure Scenario
+      // Matrix already treats "lost request" the same as any other failure
+      // mode: silent, one-shot, no retry, per ADR-0019 Decision 5).
+      if (found?.onboardingPresets?.status === "generating") {
+        const resolved: Project = { ...found, onboardingPresets: { status: "fallback" } };
+        setProject(resolved);
+        void saveProject(resolved);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [projectId]);
 
   const update = useCallback((next: Project) => {
@@ -97,8 +110,9 @@ export function useProjectLoader(projectId: string | undefined) {
     const prev = projectRef.current;
     const withSummarySync = prev ? withSummaryOutOfSyncIfChanged(prev, next) : next;
     setProject(withSummarySync);
-    const ok = saveProject(withSummarySync);
-    setError(ok ? null : "Your last change couldn't be saved. Please try again.");
+    void saveProject(withSummarySync).then((ok) => {
+      setError(ok ? null : "Your last change couldn't be saved. Please try again.");
+    });
   }, []);
 
   return { project, loading, error, update };

@@ -330,4 +330,22 @@ export interface Resources {
     projectNotFound: string;
     saveFailed: string;
   };
+  account: {
+    signInLabel: string;
+    signOutLabel: string;
+    emailLabel: string;
+    passwordLabel: string;
+    confirmPasswordLabel: string;
+    cancelLabel: string;
+    signUpTabLabel: string;
+    signInTabLabel: string;
+    signUpSubmitLabel: string;
+    signInSubmitLabel: string;
+    errorGeneric: string;
+    errorWeakPassword: string;
+    errorInvalidEmail: string;
+    errorWrongCredentials: string;
+    errorPasswordMismatch: string;
+    signedInAs: (email: string) => string;
+  };
 }

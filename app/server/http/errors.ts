@@ -5,7 +5,7 @@
 // or message ever escapes past this point unclassified.
 
 import { HttpValidationError } from "./HttpValidationError.js";
-import { HttpBodyError } from "./readJsonBody.js";
+import { HttpBodyError, HttpBodyTooLargeError } from "./readJsonBody.js";
 import { ResponseParseError } from "../ai/response/ResponseParser.js";
 import { ResponseValidationError } from "../ai/response/ResponseValidator.js";
 import { ProviderError } from "../ai/provider/ProviderInterface.js";
@@ -28,6 +28,9 @@ const PROVIDER_ERROR_STATUS: Record<string, number> = {
 export function translateErrorToHttpResponse(err: unknown): HttpErrorResponse {
   if (err instanceof HttpValidationError || err instanceof HttpBodyError) {
     return { status: 400, body: { error: err.message, kind: "validation" } };
+  }
+  if (err instanceof HttpBodyTooLargeError) {
+    return { status: 413, body: { error: err.message, kind: "payload_too_large" } };
   }
   if (err instanceof ProviderError) {
     return {

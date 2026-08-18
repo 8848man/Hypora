@@ -12,6 +12,24 @@ rules_version = '2';
 // never `allow read: if true`, and never conditioned on anything other than
 // the authenticated identity. Not the general, still-deferred, multi-user
 // Authentication Platform API capability.
+// Platform API — Project backup (ADR-0024, sdd/platform-api/01_architecture.md#projects).
+//
+// LocalStorage remains the source of truth (src/platform/storage.ts); this is
+// a best-effort backup only. Scoped to the authenticated Anonymous Auth uid
+// that owns it — never readable/writable by any other identity, and never
+// `if true`, per the same identity-conditioned pattern ADR-0015 established.
+//
+// Public AI Endpoint Abuse Defense — rate limiter (ADR-0023,
+// sdd/architecture/decisions/ADR-0023-public-endpoint-abuse-defense-origin-check-and-rate-limit.md).
+//
+// Written by an unauthenticated server Function (no Firebase Auth token to
+// condition on), so this collection cannot be identity-gated the way the
+// two above are — its own defense value comes from the server always
+// incrementing using the caller IP it actually observed, not from the
+// collection being unreadable. `delete` stays disallowed so a caller cannot
+// trivially reset its own counter by deleting its document; `list` stays
+// disallowed so the collection cannot be enumerated to see every rate-limited
+// caller.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /events/{eventId} {
@@ -19,6 +37,15 @@ service cloud.firestore {
       allow read: if request.auth != null
                    && request.auth.token.email in ["klof8848@gmail.com"];
       allow update, delete: if false;
+    }
+
+    match /users/{uid}/projects/{projectId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /rateLimits/{key} {
+      allow get, create, update: if true;
+      allow list, delete: if false;
     }
   }
 }

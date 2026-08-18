@@ -10,23 +10,50 @@ export class HttpBodyError extends Error {
   }
 }
 
+export class HttpBodyTooLargeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "HttpBodyTooLargeError";
+  }
+}
+
+// Every AI Capability request is a small JSON object (canvasContext arrays,
+// a handful of strings) — 256KB is generous headroom over any legitimate
+// request while still bounding a single connection's memory/CPU cost, per
+// the Request Defense rule in sdd/ai/04_ai_interaction.md.
+const MAX_BODY_BYTES = 256 * 1024;
+
 export function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    let data = "";
+    const chunks: Buffer[] = [];
+    let totalBytes = 0;
+    let rejected = false;
+
     req.on("data", (chunk: Buffer) => {
-      data += chunk.toString("utf8");
+      if (rejected) return;
+      totalBytes += chunk.byteLength;
+      if (totalBytes > MAX_BODY_BYTES) {
+        rejected = true;
+        req.destroy();
+        reject(new HttpBodyTooLargeError(`Request body exceeds the ${MAX_BODY_BYTES}-byte limit`));
+        return;
+      }
+      chunks.push(chunk);
     });
     req.on("end", () => {
-      if (!data) {
+      if (rejected) return;
+      if (totalBytes === 0) {
         resolve({});
         return;
       }
       try {
-        resolve(JSON.parse(data));
+        resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
       } catch {
         reject(new HttpBodyError("Request body was not valid JSON"));
       }
     });
-    req.on("error", (err: unknown) => reject(err));
+    req.on("error", (err: unknown) => {
+      if (!rejected) reject(err);
+    });
   });
 }

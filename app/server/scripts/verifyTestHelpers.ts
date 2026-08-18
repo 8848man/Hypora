@@ -18,7 +18,18 @@ export function createAssert(scriptLabel: string): (condition: boolean, message:
 export function createMockRequest(method: string, body: unknown): IncomingMessage {
   const bodyStr = body === undefined ? "" : typeof body === "string" ? body : JSON.stringify(body);
   const readable = Readable.from([Buffer.from(bodyStr, "utf8")]) as unknown as IncomingMessage;
-  (readable as unknown as { method: string }).method = method;
+  const mutable = readable as unknown as {
+    method: string;
+    headers: Record<string, string>;
+    socket: { remoteAddress: string };
+  };
+  mutable.method = method;
+  // A real IncomingMessage always has .headers (possibly empty) and .socket
+  // — origin checking and IP-based rate limiting (ADR-0023) read both, so a
+  // mock lacking either would throw before ever reaching the behavior under
+  // test, for every script that exercises a real handler.
+  mutable.headers = {};
+  mutable.socket = { remoteAddress: "127.0.0.1" };
   return readable;
 }
 

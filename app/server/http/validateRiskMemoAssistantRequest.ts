@@ -2,66 +2,31 @@
 // Capability's own typed Request Contract (sdd/ai/capabilities/02_risk_memo_assistant.md).
 // This module knows the Contract's shape; it knows nothing about providers.
 
-import type {
-  CanvasContextField,
-  RiskMemoAssistantRequest,
-  RiskMemoSiblingField,
-  RiskMemoTargetField,
-} from "../ai/capabilities/riskMemoAssistant/types.js";
-import { HttpValidationError } from "./HttpValidationError.js";
-import { VALID_LANGUAGES, isContextFieldArray } from "./validationHelpers.js";
+import { z } from "zod";
+import type { RiskMemoAssistantRequest } from "../ai/capabilities/riskMemoAssistant/types.js";
+import {
+  MAX_CONTEXT_ARRAY_LENGTH,
+  MAX_FIELD_VALUE_LENGTH,
+  contextFieldArraySchema,
+  languageSchema,
+  parseRequest,
+} from "./validationHelpers.js";
 
-const VALID_TARGET_FIELDS: readonly RiskMemoTargetField[] = [
-  "technical_risks",
-  "business_risks",
-  "open_questions",
-];
+const VALID_TARGET_FIELDS = ["technical_risks", "business_risks", "open_questions"] as const;
 
-function isSiblingFieldArray(value: unknown): value is RiskMemoSiblingField[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === "object" &&
-        item !== null &&
-        VALID_TARGET_FIELDS.includes((item as Record<string, unknown>).field as RiskMemoTargetField) &&
-        typeof (item as Record<string, unknown>).value === "string",
-    )
-  );
-}
+const siblingFieldSchema = z.object({
+  field: z.enum(VALID_TARGET_FIELDS),
+  value: z.string().max(MAX_FIELD_VALUE_LENGTH),
+});
+
+const schema: z.ZodType<RiskMemoAssistantRequest> = z.object({
+  operation: z.literal("suggestion"),
+  canvasContext: contextFieldArraySchema,
+  targetField: z.enum(VALID_TARGET_FIELDS),
+  siblingFields: z.array(siblingFieldSchema).max(MAX_CONTEXT_ARRAY_LENGTH).optional(),
+  language: languageSchema,
+});
 
 export function validateRiskMemoAssistantRequest(body: unknown): RiskMemoAssistantRequest {
-  if (typeof body !== "object" || body === null) {
-    throw new HttpValidationError("Request body must be a JSON object");
-  }
-  const candidate = body as Record<string, unknown>;
-
-  if (candidate.operation !== "suggestion") {
-    throw new HttpValidationError('"operation" must be "suggestion"');
-  }
-  if (!isContextFieldArray(candidate.canvasContext)) {
-    throw new HttpValidationError('"canvasContext" must be an array of { field: string, value: string }');
-  }
-  if (
-    typeof candidate.targetField !== "string" ||
-    !VALID_TARGET_FIELDS.includes(candidate.targetField as RiskMemoTargetField)
-  ) {
-    throw new HttpValidationError(`"targetField" must be one of: ${VALID_TARGET_FIELDS.join(", ")}`);
-  }
-  if (candidate.siblingFields !== undefined && !isSiblingFieldArray(candidate.siblingFields)) {
-    throw new HttpValidationError(
-      `"siblingFields" must be an array of { field: one of ${VALID_TARGET_FIELDS.join(", ")}, value: string } if provided`,
-    );
-  }
-  if (typeof candidate.language !== "string" || !VALID_LANGUAGES.includes(candidate.language as "ko" | "en")) {
-    throw new HttpValidationError(`"language" must be one of: ${VALID_LANGUAGES.join(", ")}`);
-  }
-
-  return {
-    operation: "suggestion",
-    canvasContext: candidate.canvasContext as CanvasContextField[],
-    targetField: candidate.targetField as RiskMemoTargetField,
-    siblingFields: candidate.siblingFields as RiskMemoSiblingField[] | undefined,
-    language: candidate.language as "ko" | "en",
-  };
+  return parseRequest(schema, body);
 }

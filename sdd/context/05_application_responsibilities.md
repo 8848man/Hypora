@@ -10,10 +10,10 @@ Hypora is **one Product** composed of **multiple Applications**. *(Explicit.)* L
 Product: Hypora
 ├── Landing        — marketing website
 ├── Workspace       — the MVP: the actual web application
-└── Platform API    — backend platform (V1: LocalStorage; future: real backend)
+└── Platform API    — backend platform (AI: real backend; Projects: dual-mode; Auth: partial)
 ```
 
-Per `10_bootstrap_guide.md` Step 3, a dedicated `sdd/<application>/` implementation-layer directory is created once that Application has real code. Landing and Workspace each have their own directory as of 2026-07-17; Platform API does not yet (no real backend exists — V1 uses LocalStorage). Each Application's responsibilities and V1 functional scope are recorded here, once, owned by the Product/Context area, until a dedicated directory becomes warranted — see [Landing Architecture](../landing/01_architecture.md) and [Workspace Architecture](../workspace/01_architecture.md) for the two that have been.
+Per `10_bootstrap_guide.md` Step 3, a dedicated `sdd/<application>/` implementation-layer directory is created once that Application has real code. Landing and Workspace each have their own directory as of 2026-07-17; Platform API has had one since 2026-08-07 (see [Platform API Architecture](../platform-api/01_architecture.md)). Each Application's responsibilities and V1 functional scope are recorded here, once, owned by the Product/Context area, until a dedicated directory becomes warranted — see [Landing Architecture](../landing/01_architecture.md), [Workspace Architecture](../workspace/01_architecture.md), and [Platform API Architecture](../platform-api/01_architecture.md) for the three that have been.
 
 ## Landing
 
@@ -51,14 +51,14 @@ Per `10_bootstrap_guide.md` Step 3, a dedicated `sdd/<application>/` implementat
 
 **Purpose:** Backend platform. *(Explicit.)*
 
-**Current MVP implementation (V1):** Workspace's own project data (Canvas/MVP Scope/Feature Planning/Validation Checklist) still persists entirely via LocalStorage. *(Explicit.)* The AI Platform capability (row below) is the one exception — it is backed by a real deployed service (Vercel serverless functions, bundled into the same single Vercel project per [Deployment Strategy](../infra/01_deployment.md), not a separate Platform API deployment), not LocalStorage. Platform API otherwise remains scoped to persisting and retrieving project data structured per the shape Workspace defines.
+**Current MVP implementation (V1):** Workspace's own project data (Canvas/MVP Scope/Feature Planning/Validation Checklist) reads and writes through LocalStorage for an anonymous/signed-out caller, and through Firestore directly for a caller who has signed in/linked an account. *(Explicit, as amended by [ADR-0024](../architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md) and [ADR-0025](../architecture/decisions/ADR-0025-account-authentication-and-one-directional-migration.md).)* See [Platform API — Projects](../platform-api/02_projects.md) for the full shape. The AI Platform capability (row below) remains the one capability backed by a real deployed service end-to-end (Vercel serverless functions, bundled into the same single Vercel project per [Deployment Strategy](../infra/01_deployment.md), not a separate Platform API deployment).
 
 **Platform capabilities** *(Explicit — named as examples in the brief; detail on how each becomes real is in [Future Expansion Strategy](./06_future_expansion_strategy.md)):*
 
 | Capability | V1 status | Future role |
 |---|---|---|
-| Authentication | Not implemented (general, multi-user) | Required once Workspace moves beyond single-browser, single-user persistence — a narrow, admin-only Firebase Authentication gate exists for the internal Analytics Dashboard only ([ADR-0015](../architecture/decisions/ADR-0015-analytics-dashboard-access-boundary.md)), explicitly not a substitute for or acceleration of this general capability |
-| Projects | Implemented via LocalStorage | Same conceptual API surface, backed by a real service instead of the browser |
+| Authentication | Not fully implemented (no password reset, no additional providers, no admin-side user management) | Three narrow uses exist today, per [Platform API — Authentication](../platform-api/03_authentication.md): an admin-only gate for the internal Analytics Dashboard ([ADR-0015](../architecture/decisions/ADR-0015-analytics-dashboard-access-boundary.md)), a per-device Anonymous identity for the Projects backup below ([ADR-0024](../architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md)), and email/password account sign-up/sign-in upgrading that Anonymous identity in place ([ADR-0025](../architecture/decisions/ADR-0025-account-authentication-and-one-directional-migration.md)) |
+| Projects | Dual-mode: LocalStorage (anonymous/signed-out) or Firestore directly (linked account), with a one-directional, confirm-then-delete migration at sign-in/link time — [Platform API — Projects](../platform-api/02_projects.md), per [ADR-0025](../architecture/decisions/ADR-0025-account-authentication-and-one-directional-migration.md) | Multi-device concurrent-edit merge, if real usage ever shows a need beyond the currently-accepted one-directional migration policy |
 | AI | **Implemented** — 5 capabilities live (Canvas Assistant, Risk Memo Assistant, MVP Planning Assistant, Validation Planning Assistant, Feature Suggestion Assistant), per [AI Platform Architecture](../ai/01_architecture.md) and [Capability Index](../ai/capabilities/000_index.md) | V2 (AI Canvas Assistant) through V5 (AI Product Builder); the roadmap-stage framing continues to apply to which *Workspace Feature* consumes AI, not whether the AI Platform itself exists |
 | Search | Not implemented | Backs V3 (Market Intelligence) discovery features |
 | Integrations | Not implemented | Backs future external data sources (market data, competitor data) |

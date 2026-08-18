@@ -117,6 +117,16 @@ Landing's own dedicated specification directory, promoted 2026-07-17 — real La
 | [landing/07_implementation_plan.md](./landing/07_implementation_plan.md) | Production gap analysis (prototype → production) and a 7-phase implementation roadmap with dependencies and completion criteria per phase |
 | [landing/improvement/](./landing/improvement/), [landing/planning/](./landing/planning/) | **Historical evidence, frozen — not specification.** The reference-analysis, improvement-planning, target-IA, concept-prototype, and motion-refactor work that produced the documents above. See `landing/00_index.md` for the permanent rule governing them. |
 
+## Platform API
+
+Promoted 2026-08-07 by [ADR-0024](./architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md) — see [platform-api/00_index.md](./platform-api/00_index.md)'s Provenance section.
+
+| Doc | Purpose |
+|---|---|
+| [platform-api/01_architecture.md](./platform-api/01_architecture.md) | Cross-capability status summary only — see 02/03 below for Projects/Authentication detail |
+| [platform-api/02_projects.md](./platform-api/02_projects.md) | Dual-mode LocalStorage/Firestore access; one-directional, confirm-then-delete migration policy; Firestore document shape |
+| [platform-api/03_authentication.md](./platform-api/03_authentication.md) | Three narrow, non-general Authentication uses; account sign-up/sign-in validation policy; anti-enumeration error classification |
+
 ## Architecture
 
 | Doc | Purpose |
@@ -130,10 +140,9 @@ Per `10_bootstrap_guide.md`, these are deliberately deferred until their trigger
 
 | Would-be area | Trigger to create it |
 |---|---|
-| `sdd/platform-api/` | Once Platform API has real code (a real backend — V1 still uses LocalStorage) |
 | `sdd/archive/` | Once a document is first superseded or relocated |
 
-**Triggers already fired:** `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract); `sdd/ai/` (2026-07-08, AI capability decisions ADR-0006 through ADR-0011 gave it enough shape to warrant its own domain); `sdd/analytics/` (2026-07-13, [ADR-0013](./architecture/decisions/ADR-0013-analytics-provider-independence.md) — created ahead of code, mirroring `sdd/ai/`'s own precedent); `sdd/landing/` (2026-07-17, real Landing code already existed and a validated redesign direction was reached — see `landing/00_index.md`'s Provenance section; unlike Workspace, this was spec catching up to code, not leading it); `release/` (outside `sdd/`, 2026-07-17, first actual production deployment — bookkeeping only, per the framework's own rule that specifications otherwise stay unaware of release status; see `release/000_index.md`, never this document, for what's actually released). None of these are listed above as pending anymore.
+**Triggers already fired:** `sdd/platform-api/` (2026-08-07, [ADR-0024](./architecture/decisions/ADR-0024-project-data-durable-server-side-backup.md) — Project data gained a real Firestore backup and Firebase Anonymous Authentication became real); `sdd/domain/` (2026-07-07, [ADR-0002](./architecture/decisions/ADR-0002-business-idea-lifecycle-domain-model.md)); `sdd/infra/` (2026-07-07, a real deployment target was decided — [ADR-0003](./architecture/decisions/ADR-0003-single-v1-deployment-target.md)); `sdd/workspace/` (2026-07-07, created ahead of code under the framework's "spec leads implementation" allowance); `sdd/frontend/` (2026-07-07, real frontend code is about to be written); `sdd/design-system/` (2026-07-07, a second consumer — Landing and Workspace both — needs the shared contract); `sdd/ai/` (2026-07-08, AI capability decisions ADR-0006 through ADR-0011 gave it enough shape to warrant its own domain); `sdd/analytics/` (2026-07-13, [ADR-0013](./architecture/decisions/ADR-0013-analytics-provider-independence.md) — created ahead of code, mirroring `sdd/ai/`'s own precedent); `sdd/landing/` (2026-07-17, real Landing code already existed and a validated redesign direction was reached — see `landing/00_index.md`'s Provenance section; unlike Workspace, this was spec catching up to code, not leading it); `release/` (outside `sdd/`, 2026-07-17, first actual production deployment — bookkeeping only, per the framework's own rule that specifications otherwise stay unaware of release status; see `release/000_index.md`, never this document, for what's actually released). None of these are listed above as pending anymore.
 
 ## Key Conventions
 
