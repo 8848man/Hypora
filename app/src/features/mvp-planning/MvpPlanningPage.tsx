@@ -34,6 +34,10 @@ export function MvpPlanningPage() {
   const assistant = useMvpPlanningAssistant();
   const featureSuggestion = useFeatureSuggestionAssistant();
 
+  useEffect(() => {
+    trackEvent({ eventName: "screen_view", feature: "mvp-planning", screen: "mvp-planning", projectId: project.id });
+  }, [project.id]);
+
   // Fresh-on-every-render snapshot, read by buildInput at call time (not
   // capture time) — same reasoning as RiskMemoPage's projectRef: Regenerate/
   // Retry reuse the same buildInput reference later, so it must dereference a

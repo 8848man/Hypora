@@ -27,6 +27,10 @@ export function RiskMemoPage() {
   const { project, update, saveError } = useProjectContext();
   const { t } = useLocalization();
 
+  useEffect(() => {
+    trackEvent({ eventName: "screen_view", feature: "risk-memo", screen: "risk-memo", projectId: project.id });
+  }, [project.id]);
+
   function saveField(targetField: RiskMemoTargetField, value: string) {
     update({ ...project, riskMemo: { ...project.riskMemo, [FIELD_KEY[targetField]]: value } });
     // Fired here, not per-keystroke — onSave is only ever called on blur or

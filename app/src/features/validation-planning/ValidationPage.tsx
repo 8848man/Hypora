@@ -26,6 +26,15 @@ export function ValidationPage() {
 
   const assistant = useValidationPlanningAssistant();
 
+  useEffect(() => {
+    trackEvent({
+      eventName: "screen_view",
+      feature: "validation-planning",
+      screen: "validation-planning",
+      projectId: project.id,
+    });
+  }, [project.id]);
+
   const projectRef = useRef(project);
   projectRef.current = project;
   // The draft field's own live value, read the same way projectRef exposes

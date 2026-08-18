@@ -82,6 +82,21 @@ export function BusinessStructuringPage() {
   const total = QUESTIONS.length;
   const onReview = currentIndex >= total;
 
+  // screen_view: fires whenever this Feature's two screens (the guided
+  // question flow and Review) are opened — including switching between them,
+  // per sdd/analytics/04_event_catalog.md's Navigation section. Unlike
+  // business_structuring_started above, this re-fires on every entry, not
+  // just the first.
+  useEffect(() => {
+    trackEvent({
+      eventName: "screen_view",
+      feature: "business-structuring",
+      screen: onReview ? "review" : "question-flow",
+      projectId: project.id,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project.id, onReview]);
+
   // Switching questions targets a different field — the previous field's AI state
   // (per sdd/ai/04_ai_interaction.md, this lifecycle governs one invocation for one
   // target) does not carry over; any in-flight request for the old field is aborted.
@@ -418,6 +433,18 @@ function ReviewStep({
             hint={t.businessStructuring.riskNotesHint}
             value={project.riskNotes}
             onChange={(e) => update({ ...project, riskNotes: e.target.value })}
+            // Fired on blur, not per keystroke — same rationale as
+            // canvas_field_updated above: onChange already autosaves every
+            // keystroke, so tracking there would flood the event stream.
+            onBlur={(e) => {
+              if (e.target.value.trim()) {
+                trackEvent({
+                  eventName: "risk_notes_updated",
+                  feature: "business-structuring",
+                  projectId: project.id,
+                });
+              }
+            }}
           />
         </Card>
       </Stack>

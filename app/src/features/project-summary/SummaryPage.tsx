@@ -9,6 +9,7 @@ import { useProjectContext } from "../useProject";
 import { buildProjectSummaryRequest } from "./buildSummaryRequest";
 import { SummaryCard } from "./SummaryCard";
 import { SyncSummaryDialog } from "./SyncSummaryDialog";
+import { trackEvent } from "../../platform/analytics/analyticsService";
 
 export function SummaryPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -16,6 +17,15 @@ export function SummaryPage() {
   const { t, language } = useLocalization();
   const navigate = useNavigate();
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+
+  useEffect(() => {
+    trackEvent({
+      eventName: "screen_view",
+      feature: "project-summary",
+      screen: "project-summary",
+      projectId: project.id,
+    });
+  }, [project.id]);
 
   // ADR-0017's sole Automatic Invocation: fires at most once per Project, the
   // moment it's first found reaching Validated with Summary still

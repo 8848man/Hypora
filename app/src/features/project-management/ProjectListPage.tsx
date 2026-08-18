@@ -70,6 +70,10 @@ export function ProjectListPage() {
   const [pendingArchiveId, setPendingArchiveId] = useState<string | null>(null);
 
   useEffect(() => {
+    trackEvent({ eventName: "screen_view", feature: "project-management", screen: "project-list" });
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     void listProjects().then((loaded) => {
       if (!cancelled) setProjects(loaded);
